@@ -935,10 +935,10 @@
   border-radius: 50%;
 }
 .sdm-cursor-row.warm .sdm-cursor-dot {
-  background: #f97316;
+  background: #e68c00;
 }
 .sdm-cursor-row.cool .sdm-cursor-dot {
-  background: #a855f7;
+  background: #0072b2;
 }
 .sdm-cursor-species {
   max-width: 150px;
@@ -952,10 +952,10 @@
   font-variant-numeric: tabular-nums;
 }
 .sdm-cursor-row.warm .sdm-cursor-value {
-  color: #fb923c;
+  color: #f0a23a;
 }
 .sdm-cursor-row.cool .sdm-cursor-value {
-  color: #c084fc;
+  color: #4a9fd4;
 }
 .panel-docked :deep(.maplibregl-ctrl-top-right) {
   right: 350px;

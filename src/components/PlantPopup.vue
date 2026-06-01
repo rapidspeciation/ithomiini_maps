@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useDataStore } from '../stores/data'
 import { useHostPlantStore } from '../stores/hostPlants'
 import FallbackImage from './FallbackImage.vue'
@@ -16,6 +16,12 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  // All occurrences of this host taxon at the same site (defaults to the
+  // single clicked occurrence). Drives the "occurrences per site" count.
+  occurrences: {
+    type: Array,
+    default: null,
+  },
   taxon: {
     type: Object,
     required: true,
@@ -24,18 +30,34 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'toggle-dock', 'open-gallery'])
 
+// Occurrences at this site (always at least the clicked one).
+const siteOccurrences = computed(() =>
+  props.occurrences?.length ? props.occurrences : [props.occurrence]
+)
+const occurrenceCount = computed(() => siteOccurrences.value.length)
+
+// Which occurrence's details are currently shown.
+const selectedIndex = ref(0)
+watch(siteOccurrences, () => { selectedIndex.value = 0 })
+const activeOccurrence = computed(() =>
+  siteOccurrences.value[selectedIndex.value] || props.occurrence
+)
+
+const occurrenceLabel = (occ, idx) =>
+  occ?.gbifID || occ?.catalogNumber || occ?.recordedBy || `Occurrence ${idx + 1}`
+
 const gbifUrl = computed(() => {
-  if (!props.occurrence?.gbifID) return null
-  return `https://www.gbif.org/occurrence/${props.occurrence.gbifID}`
+  if (!activeOccurrence.value?.gbifID) return null
+  return `https://www.gbif.org/occurrence/${activeOccurrence.value.gbifID}`
 })
 
 const displayName = computed(() =>
-  props.occurrence.scientificName
-  || props.occurrence.species
+  activeOccurrence.value.scientificName
+  || activeOccurrence.value.species
   || props.taxon.canonical_name
 )
 
-const plantPhoto = computed(() => hostPlantStore.getPhotoForOccurrence(props.occurrence))
+const plantPhoto = computed(() => hostPlantStore.getPhotoForOccurrence(activeOccurrence.value))
 
 const plantImageCandidates = computed(() =>
   plantPhoto.value?.url ? getImageUrlCandidates(plantPhoto.value.url, { width: 400 }) : []
@@ -44,10 +66,11 @@ const plantImageCandidates = computed(() =>
 const rankLabel = computed(() => props.taxon.rank || 'host taxon')
 
 const openGallery = () => {
+  const occ = activeOccurrence.value
   store.gallerySelection = {
     mode: 'host-plants',
-    hostTaxon: props.taxon.canonical_name || props.occurrence.host_taxon_name || props.occurrence.species,
-    occurrenceId: props.occurrence.gbifID,
+    hostTaxon: props.taxon.canonical_name || occ.host_taxon_name || occ.species,
+    occurrenceId: occ.gbifID,
   }
   emit('open-gallery', 'host-plants')
 }
@@ -104,22 +127,31 @@ const openGallery = () => {
 
         <div class="individuals-section">
           <div class="section-header">
-            <span class="count-badge">1</span>
-            <span class="section-label">Occurrence</span>
+            <span class="count-badge">{{ occurrenceCount }}</span>
+            <span class="section-label">{{ occurrenceCount === 1 ? 'Occurrence' : 'Occurrences at site' }}</span>
           </div>
-          <div class="single-individual-id">
-            {{ occurrence.gbifID || 'GBIF record' }}
+          <select
+            v-if="occurrenceCount > 1"
+            class="occurrence-select"
+            v-model.number="selectedIndex"
+          >
+            <option v-for="(occ, idx) in siteOccurrences" :key="idx" :value="idx">
+              {{ occurrenceLabel(occ, idx) }}
+            </option>
+          </select>
+          <div v-else class="single-individual-id">
+            {{ activeOccurrence.gbifID || 'GBIF record' }}
           </div>
         </div>
 
         <div class="details-section">
-          <div v-if="occurrence.eventDate" class="detail-row">
+          <div v-if="activeOccurrence.eventDate" class="detail-row">
             <span class="detail-label">Date:</span>
-            <span class="detail-value">{{ occurrence.eventDate }}</span>
+            <span class="detail-value">{{ activeOccurrence.eventDate }}</span>
           </div>
           <div class="detail-row">
             <span class="detail-label">Source:</span>
-            <span class="detail-value">{{ occurrence.datasetName || occurrence.publisher || 'GBIF' }}</span>
+            <span class="detail-value">{{ activeOccurrence.datasetName || activeOccurrence.publisher || 'GBIF' }}</span>
           </div>
           <a
             v-if="gbifUrl"
@@ -153,9 +185,9 @@ const openGallery = () => {
 
         <div class="location-summary">
           <div class="summary-title">Location Summary</div>
-          <div v-if="occurrence.country" class="detail-row">
+          <div v-if="activeOccurrence.country" class="detail-row">
             <span class="detail-label">Country:</span>
-            <span class="detail-value">{{ occurrence.country }}</span>
+            <span class="detail-value">{{ activeOccurrence.country }}</span>
           </div>
           <div class="detail-row">
             <span class="detail-label">Coordinates:</span>
@@ -163,9 +195,9 @@ const openGallery = () => {
               {{ coordinates.lat.toFixed(4) }}, {{ coordinates.lng.toFixed(4) }}
             </span>
           </div>
-          <div v-if="occurrence.publisher" class="detail-row">
+          <div v-if="activeOccurrence.publisher" class="detail-row">
             <span class="detail-label">Publisher:</span>
-            <span class="detail-value">{{ occurrence.publisher }}</span>
+            <span class="detail-value">{{ activeOccurrence.publisher }}</span>
           </div>
 
           <div class="location-stats">
@@ -174,8 +206,8 @@ const openGallery = () => {
               <span class="stat-label">plant taxon</span>
             </div>
             <div class="stat">
-              <span class="stat-value">1</span>
-              <span class="stat-label">record</span>
+              <span class="stat-value">{{ occurrenceCount }}</span>
+              <span class="stat-label">{{ occurrenceCount === 1 ? 'record' : 'records' }}</span>
             </div>
           </div>
         </div>
@@ -364,6 +396,18 @@ const openGallery = () => {
 .single-individual-id {
   color: var(--color-info, #14b8a6);
   font-family: monospace;
+}
+
+.occurrence-select {
+  width: 100%;
+  padding: 6px 8px;
+  background: var(--color-bg-secondary, #252540);
+  border: 1px solid var(--color-border, #3d3d5c);
+  border-radius: 6px;
+  color: var(--color-info, #14b8a6);
+  font-family: monospace;
+  font-size: 0.78rem;
+  cursor: pointer;
 }
 
 .taxonomy-display {

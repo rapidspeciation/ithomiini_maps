@@ -222,7 +222,10 @@ export const computeClusterStats = (points, centerLat, centerLng) => {
     recordCount: points.length,
     speciesCount: speciesMap.size,
     specimenCount: specimenSet.size,
-    individualCount: points.length,
+    // Distinct individuals at the site: unique specimen IDs where available,
+    // otherwise the record count. Previously this was always points.length,
+    // which double-counted specimens that appear as several records.
+    individualCount: specimenSet.size || points.length,
     maleCount,
     femaleCount,
     unknownSexCount,

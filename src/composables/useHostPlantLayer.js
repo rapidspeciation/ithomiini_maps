@@ -61,6 +61,32 @@ export function useHostPlantLayer(map, options = {}) {
     }
   }
 
+  // Gather all occurrences of the same host taxon rendered at (or stacked
+  // under) the clicked point, deduped by GBIF id / coordinate. Returns at least
+  // the clicked occurrence.
+  function collectSiteOccurrences(point, clickedProps, clickedCoords) {
+    const slug = clickedProps.host_taxon_slug
+    const result = []
+    const seen = new Set()
+    const add = (p, coords) => {
+      if (!p || p.host_taxon_slug !== slug) return
+      const key = p.gbifID || `${coords?.[0]},${coords?.[1]}`
+      if (seen.has(key)) return
+      seen.add(key)
+      result.push(p)
+    }
+    try {
+      const pad = 8
+      const stacked = map.value.queryRenderedFeatures(
+        [[point.x - pad, point.y - pad], [point.x + pad, point.y + pad]],
+        { layers: [LAYER_ID] },
+      )
+      for (const f of stacked) add(f.properties || {}, f.geometry?.coordinates)
+    } catch { /* queryRenderedFeatures can throw if the layer is gone */ }
+    add(clickedProps, clickedCoords)
+    return result
+  }
+
   function removeLayerHandlers(lid) {
     const handlers = layerHandlers.get(lid)
     if (!handlers || !map.value) return
@@ -79,6 +105,9 @@ export function useHostPlantLayer(map, options = {}) {
         const feature = event.features[0]
         const props = feature.properties || {}
         const coords = feature.geometry.coordinates.slice()
+        // Collect every occurrence of the same host taxon stacked at this site
+        // so the popup can report the real count instead of always "1".
+        const occurrences = collectSiteOccurrences(event.point, props, coords)
         const taxon = hostPlantStore.taxaBySlug.get(props.host_taxon_slug)
         onShowPopup({
           type: 'plant',
@@ -88,6 +117,7 @@ export function useHostPlantLayer(map, options = {}) {
           },
           lngLat: coords,
           occurrence: props,
+          occurrences,
           taxon,
         })
       },

@@ -1097,13 +1097,17 @@ const updateExportHeight = (value) => {
 
             <div v-if="sdmStore.selectedSpecies.length > 0" class="sdm-legend">
               <div class="sdm-legend-item" v-for="(sp, idx) in sdmStore.selectedSpecies.slice(0, 2)" :key="sp">
-                <span class="sdm-legend-species">{{ sp }}</span>
-                <span v-if="sdmStore.getSDMInfo(sp)" class="sdm-confidence-badge" :class="sdmStore.getSDMInfo(sp).confidence">
-                  {{ sdmStore.getSDMInfo(sp).confidence }}
-                </span>
-                <div class="sdm-gradient-bar" :class="idx === 0 ? 'warm' : 'cool'">
-                  <span class="sdm-gradient-label-low">Low</span>
-                  <span class="sdm-gradient-label-high">High</span>
+                <div class="sdm-legend-header">
+                  <span class="sdm-legend-species">{{ sp }}</span>
+                  <span v-if="sdmStore.getSDMInfo(sp)" class="sdm-confidence-badge" :class="sdmStore.getSDMInfo(sp).confidence">
+                    {{ sdmStore.getSDMInfo(sp).confidence }}
+                  </span>
+                </div>
+                <div class="sdm-gradient-bar" :class="idx === 0 ? 'warm' : 'cool'"></div>
+                <div class="sdm-gradient-scale">
+                  <span>Low</span>
+                  <span>Habitat suitability</span>
+                  <span>High</span>
                 </div>
                 <div v-if="sdmStore.getSDMInfo(sp)" class="sdm-model-info">
                   <div class="sdm-info-grid">
@@ -1174,7 +1178,6 @@ const updateExportHeight = (value) => {
                   </div>
                 </div>
               </div>
-              <span class="sdm-legend-caption">Habitat suitability</span>
             </div>
 
             <div v-if="sdmStore.selectedSpecies.length > 0" class="sdm-opacity-row">

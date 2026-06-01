@@ -81,6 +81,7 @@ const handleShowPopup = (data) => {
     coordinates: data.coordinates,
     points: data.points || [],
     occurrence: data.occurrence || null,
+    occurrences: data.occurrences || null,
     taxon: data.taxon || null,
     initialSpecies: data.initialSpecies || null,
     initialSubspecies: data.initialSubspecies || null,
@@ -692,6 +693,7 @@ watch(
           v-else-if="showEnhancedPopup && !popupDocked"
           :coordinates="enhancedPopupData.coordinates"
           :occurrence="enhancedPopupData.occurrence"
+          :occurrences="enhancedPopupData.occurrences"
           :taxon="enhancedPopupData.taxon"
           @close="closeEnhancedPopup"
           @open-gallery="handleOpenGallery"
@@ -736,6 +738,7 @@ watch(
             v-else
             :coordinates="enhancedPopupData.coordinates"
             :occurrence="enhancedPopupData.occurrence"
+            :occurrences="enhancedPopupData.occurrences"
             :taxon="enhancedPopupData.taxon"
             @close="closeEnhancedPopup"
             @open-gallery="handleOpenGallery"

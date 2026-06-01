@@ -7,6 +7,8 @@ import { getStatusColor } from '../utils/constants'
 import { getTableThumbnailUrl } from '../utils/imageProxy'
 import { getCorrectionInfo, getGoatUrl } from '../utils/goatHelpers'
 import { useTableSort } from '../composables/useTableSort'
+import { useColumnResize } from '../composables/useColumnResize'
+import { rowsToCsv, downloadCsv } from '../utils/tableExport'
 import { useThemeStore } from '../stores/theme'
 import { getThemeOptions } from '../themes/presets'
 import { Sun, Moon, Palette } from 'lucide-vue-next'
@@ -33,6 +35,14 @@ const selectTheme = (themeKey) => {
 const currentThemeName = computed(() => {
   return themeStore.availableThemes[themeStore.currentTheme]?.name || 'Emerald'
 })
+
+// Drag-to-resize column widths (shared across all table views, namespaced).
+const { getWidth: getColWidth, startResize: startColResize } = useColumnResize()
+const colStyle = (ns, col) => {
+  const resized = getColWidth(ns, col.key, null)
+  if (resized) return { width: resized, minWidth: resized, maxWidth: resized }
+  return { width: col.width }
+}
 
 const toggleThemeMode = () => {
   themeStore.toggleMode()
@@ -606,6 +616,9 @@ const hostPlantButterflyRows = computed(() => {
       searchText: [
         entry.butterfly,
         ...hosts.map(host => host.name),
+        // Include corrected/accepted names so the filter matches either the
+        // originally reported name or the GBIF-resolved one.
+        ...hosts.map(host => host.accepted_name).filter(Boolean),
         ...entry.families,
         ...entry.sources.keys(),
       ].join(' ').toLowerCase(),
@@ -630,7 +643,8 @@ const filteredHostPlantEvidenceRows = computed(() => {
     const source = String(filters.source || '').trim().toLowerCase()
     const mapped = String(filters.mapped || '').trim().toLowerCase()
     if (butterfly && !row.butterfly.toLowerCase().includes(butterfly)) return false
-    if (host && !row.host.toLowerCase().includes(host)) return false
+    // Match either the originally reported host name or the corrected/accepted one.
+    if (host && !`${row.host} ${row.accepted_host || ''}`.toLowerCase().includes(host)) return false
     if (confidence && row.evidence_level.toLowerCase() !== confidence) return false
     if (family && row.family.toLowerCase() !== family) return false
     if (source && !row.source.toLowerCase().includes(source)) return false
@@ -729,6 +743,22 @@ const hostPlantEvidenceColumns = [
   { key: 'mapped', label: 'Mapped', width: '80px' },
   { key: 'notes', label: 'Notes', width: '320px' },
 ]
+
+// Column visibility for the host-plant tables (the records table has its own
+// visibleColumns above; the species table shows all columns).
+const HOST_BUTTERFLY_ANCHOR = 'butterfly'
+const visibleHostButterflyColumns = ref(Object.fromEntries(hostPlantButterflyColumns.map(c => [c.key, true])))
+const visibleHostEvidenceColumns = ref(Object.fromEntries(hostPlantEvidenceColumns.map(c => [c.key, true])))
+const activeHostButterflyColumns = computed(() => hostPlantButterflyColumns.filter(c => visibleHostButterflyColumns.value[c.key]))
+const activeHostEvidenceColumns = computed(() => hostPlantEvidenceColumns.filter(c => visibleHostEvidenceColumns.value[c.key]))
+
+// Descriptor consumed by the column-settings dropdown for the host-plant views.
+const hostColumnToggle = computed(() => {
+  if (tableView.value !== 'hostplants') return null
+  return hostPlantTableMode.value === 'butterflies'
+    ? { columns: hostPlantButterflyColumns, visible: visibleHostButterflyColumns.value, lockedKey: HOST_BUTTERFLY_ANCHOR }
+    : { columns: hostPlantEvidenceColumns, visible: visibleHostEvidenceColumns.value, lockedKey: null }
+})
 
 const activeTableCount = computed(() => {
   if (tableView.value === 'species') return filteredSpeciesData.value.length
@@ -883,6 +913,79 @@ const conciseList = (items, limit = 3) => {
   const extra = items.length > limit ? ` +${items.length - limit} more` : ''
   return `${visible}${extra}`
 }
+
+// ---- CSV export (respects active filters, sort, and visible columns) ----
+const recordCsvValue = (row, key) => {
+  switch (key) {
+    case 'goat_chromosome': return store.getChromosomeNumber(row.scientific_name)?.value ?? ''
+    case 'goat_genome': return getGenomeSummary(row.scientific_name)?.label ?? ''
+    case 'spatial_check': return getSpatialCheck(row)
+    case 'curated': return getCorrectionInfo(row)?.type ?? ''
+    case 'lat': return row.lat ?? ''
+    case 'lng': return row.lng ?? ''
+    default: return row[key] ?? ''
+  }
+}
+
+const speciesCsvValue = (sp, key) => {
+  if (key === 'genome_size') return sp.genome_size != null ? store.formatGenomeSize(sp.genome_size) : ''
+  return sp[key] ?? ''
+}
+
+const hostButterflyCsvValue = (row, key) => {
+  switch (key) {
+    case 'butterfly': return row.butterfly
+    case 'host_count': return row.hostPlants
+      .map(p => (p.accepted_name ? `${p.name} -> ${p.accepted_name}` : p.name))
+      .join('; ')
+    case 'species': return row.counts.species
+    case 'genus': return row.counts.genus
+    case 'family': return row.counts.family
+    case 'families': return row.families.join('; ')
+    case 'occurrence_backed_count': return row.occurrence_backed_count
+    case 'sources': return row.sources.join('; ')
+    default: return row[key] ?? ''
+  }
+}
+
+const hostEvidenceCsvValue = (row, key) => {
+  switch (key) {
+    case 'host': return row.accepted_host ? `${row.host} -> ${row.accepted_host}` : row.host
+    case 'host_rank': return `${row.host_rank} / ${row.host_id_level}`
+    case 'evidence_level': return row.evidence_display
+    case 'mapped': return row.mapped ? 'Yes' : 'No'
+    default: return row[key] ?? ''
+  }
+}
+
+const exportTableCsv = () => {
+  let cols, rows, valueFn, name
+  if (tableView.value === 'species') {
+    cols = speciesColumns
+    rows = sortedSpeciesData.value
+    valueFn = speciesCsvValue
+    name = 'species_goat'
+  } else if (tableView.value === 'hostplants' && hostPlantTableMode.value === 'butterflies') {
+    cols = activeHostButterflyColumns.value
+    rows = sortedHostPlantButterflyRows.value
+    valueFn = hostButterflyCsvValue
+    name = 'host_plants_by_butterfly'
+  } else if (tableView.value === 'hostplants') {
+    cols = activeHostEvidenceColumns.value
+    rows = sortedHostPlantEvidenceRows.value
+    valueFn = hostEvidenceCsvValue
+    name = 'host_plants_evidence'
+  } else {
+    cols = activeColumns.value.filter(c => c.key !== 'photo')
+    rows = sortedData.value
+    valueFn = recordCsvValue
+    name = 'records'
+  }
+  const headers = cols.map(c => ({ label: c.label, value: r => valueFn(r, c.key) }))
+  const csv = rowsToCsv(headers, rows)
+  const stamp = new Date().toISOString().slice(0, 10)
+  downloadCsv(`ithomiini_${name}_${stamp}.csv`, csv)
+}
 </script>
 
 <template>
@@ -1004,9 +1107,23 @@ const conciseList = (items, limit = 3) => {
           <span v-if="activeFilterCount > 0" class="filter-count">{{ activeFilterCount }}</span>
         </button>
 
+        <!-- Export current table (filters + sort + visible columns applied) -->
+        <button
+          class="column-filter-toggle"
+          @click="exportTableCsv"
+          title="Download the current table as CSV (filters applied)"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Export CSV
+        </button>
+
         <!-- Column Settings -->
-        <button 
-          v-if="tableView === 'records'"
+        <button
+          v-if="tableView === 'records' || tableView === 'hostplants'"
           class="btn-columns"
           @click="showColumnSettings = !showColumnSettings"
           :class="{ active: showColumnSettings }"
@@ -1019,18 +1136,38 @@ const conciseList = (items, limit = 3) => {
           </svg>
           Columns
         </button>
-        
-        <!-- Column Settings Dropdown -->
+
+        <!-- Column Settings Dropdown (records) -->
         <Transition name="fade">
           <div v-if="tableView === 'records' && showColumnSettings" class="column-dropdown">
-            <label 
-              v-for="col in columns" 
+            <label
+              v-for="col in columns"
               :key="col.key"
               class="column-toggle"
             >
-              <input 
-                type="checkbox" 
+              <input
+                type="checkbox"
                 v-model="visibleColumns[col.key]"
+              />
+              <span>{{ col.label }}</span>
+            </label>
+          </div>
+        </Transition>
+
+        <!-- Column Settings Dropdown (host plants) -->
+        <Transition name="fade">
+          <div v-if="tableView === 'hostplants' && showColumnSettings && hostColumnToggle" class="column-dropdown">
+            <label
+              v-for="col in hostColumnToggle.columns"
+              :key="col.key"
+              class="column-toggle"
+              :class="{ locked: col.key === hostColumnToggle.lockedKey }"
+            >
+              <input
+                type="checkbox"
+                :checked="hostColumnToggle.visible[col.key]"
+                :disabled="col.key === hostColumnToggle.lockedKey"
+                @change="hostColumnToggle.visible[col.key] = $event.target.checked"
               />
               <span>{{ col.label }}</span>
             </label>
@@ -1044,21 +1181,21 @@ const conciseList = (items, limit = 3) => {
       <table v-if="tableView === 'records'" class="data-table">
         <thead>
           <tr>
-            <th 
+            <th
               v-for="col in activeColumns"
               :key="col.key"
-              :style="{ width: col.width }"
+              :style="colStyle('records', col)"
               @click="toggleSort(col.key)"
               class="sortable"
               :class="{ sorted: sortColumn === col.key, 'no-sort': col.key === 'photo' }"
             >
               <div class="th-content">
                 <span>{{ col.label }}</span>
-                <svg 
+                <svg
                   v-if="sortColumn === col.key && col.key !== 'photo'"
-                  viewBox="0 0 24 24" 
-                  fill="none" 
-                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
                   stroke-width="2"
                   class="sort-icon"
                   :class="{ desc: sortDirection === 'desc' }"
@@ -1066,6 +1203,7 @@ const conciseList = (items, limit = 3) => {
                   <path d="m18 15-6-6-6 6"/>
                 </svg>
               </div>
+              <span class="col-resize-handle" @mousedown.stop.prevent="startColResize($event, 'records', col.key)" @click.stop></span>
             </th>
           </tr>
           <tr v-if="showColumnFilters" class="filter-row">
@@ -1328,7 +1466,7 @@ const conciseList = (items, limit = 3) => {
             <th
               v-for="col in speciesColumns"
               :key="col.key"
-              :style="{ width: col.width, minWidth: col.width }"
+              :style="colStyle('species', col)"
               class="sortable"
               :class="{ sorted: sortColumn === col.key }"
               @click="toggleSort(col.key)"
@@ -1343,6 +1481,7 @@ const conciseList = (items, limit = 3) => {
                   <path d="m18 15-6-6-6 6"/>
                 </svg>
               </div>
+              <span class="col-resize-handle" @mousedown.stop.prevent="startColResize($event, 'species', col.key)" @click.stop></span>
             </th>
           </tr>
           <tr v-if="showColumnFilters" class="filter-row">
@@ -1447,9 +1586,9 @@ const conciseList = (items, limit = 3) => {
         <thead>
           <tr>
             <th
-              v-for="col in hostPlantButterflyColumns"
+              v-for="col in activeHostButterflyColumns"
               :key="col.key"
-              :style="{ width: col.width, minWidth: col.width }"
+              :style="colStyle('hostButterfly', col)"
               class="sortable"
               :class="{ sorted: sortColumn === col.key }"
               @click="toggleSort(col.key)"
@@ -1464,18 +1603,19 @@ const conciseList = (items, limit = 3) => {
                   <path d="m18 15-6-6-6 6"/>
                 </svg>
               </div>
+              <span class="col-resize-handle" @mousedown.stop.prevent="startColResize($event, 'hostButterfly', col.key)" @click.stop></span>
             </th>
           </tr>
           <tr v-if="showColumnFilters" class="filter-row">
-            <th class="filter-cell" colspan="2">
-              <input type="text" class="column-filter-input" placeholder="Filter butterfly, host, family, source..." v-model="columnFilters.hostplants" />
+            <th v-for="col in activeHostButterflyColumns" :key="'f-' + col.key" class="filter-cell">
+              <input
+                v-if="col.key === 'butterfly'"
+                type="text"
+                class="column-filter-input"
+                placeholder="Filter butterfly, host, family, source..."
+                v-model="columnFilters.hostplants"
+              />
             </th>
-            <th class="filter-cell"></th>
-            <th class="filter-cell"></th>
-            <th class="filter-cell"></th>
-            <th class="filter-cell"></th>
-            <th class="filter-cell"></th>
-            <th class="filter-cell"></th>
           </tr>
         </thead>
         <tbody>
@@ -1495,7 +1635,7 @@ const conciseList = (items, limit = 3) => {
                 </button>
                 <em>{{ row.butterfly }}</em>
               </td>
-              <td class="cell-host-plants">
+              <td v-if="visibleHostButterflyColumns.host_count" class="cell-host-plants">
                 <div class="host-chip-list compact">
                   <span
                     v-for="plant in row.hostPlants.slice(0, 8)"
@@ -1520,12 +1660,12 @@ const conciseList = (items, limit = 3) => {
                   </button>
                 </div>
               </td>
-              <td class="cell-records"><span class="confidence-pill species">{{ row.counts.species }}</span></td>
-              <td class="cell-records"><span class="confidence-pill genus">{{ row.counts.genus }}</span></td>
-              <td class="cell-records"><span class="confidence-pill family">{{ row.counts.family }}</span></td>
-              <td>{{ conciseList(row.families, 3) }}</td>
-              <td class="cell-records">{{ row.occurrence_backed_count }}</td>
-              <td>
+              <td v-if="visibleHostButterflyColumns.species" class="cell-records"><span class="confidence-pill species">{{ row.counts.species }}</span></td>
+              <td v-if="visibleHostButterflyColumns.genus" class="cell-records"><span class="confidence-pill genus">{{ row.counts.genus }}</span></td>
+              <td v-if="visibleHostButterflyColumns.family" class="cell-records"><span class="confidence-pill family">{{ row.counts.family }}</span></td>
+              <td v-if="visibleHostButterflyColumns.families">{{ conciseList(row.families, 3) }}</td>
+              <td v-if="visibleHostButterflyColumns.occurrence_backed_count" class="cell-records">{{ row.occurrence_backed_count }}</td>
+              <td v-if="visibleHostButterflyColumns.sources">
                 <span class="source-list compact-source-list">
                   <template v-for="source in row.sourceLinks.slice(0, 2)" :key="source.label">
                     <a
@@ -1543,7 +1683,7 @@ const conciseList = (items, limit = 3) => {
             </tr>
             <tr v-if="expandedHostButterflies.has(row.butterfly)" class="host-expanded-row">
               <td class="host-expanded-spacer" aria-hidden="true"></td>
-              <td :colspan="hostPlantButterflyColumns.length - 1">
+              <td :colspan="Math.max(1, activeHostButterflyColumns.length - 1)">
                 <div class="host-expanded-panel">
                   <div
                     v-for="level in hostPlantStore.hostIdLevels"
@@ -1578,7 +1718,7 @@ const conciseList = (items, limit = 3) => {
             </tr>
           </template>
           <tr v-if="paginatedHostPlantButterflyRows.length === 0">
-            <td :colspan="hostPlantButterflyColumns.length" class="empty-state">
+            <td :colspan="activeHostButterflyColumns.length" class="empty-state">
               <div class="empty-content">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                   <circle cx="11" cy="11" r="8"/>
@@ -1595,9 +1735,9 @@ const conciseList = (items, limit = 3) => {
         <thead>
           <tr>
             <th
-              v-for="col in hostPlantEvidenceColumns"
+              v-for="col in activeHostEvidenceColumns"
               :key="col.key"
-              :style="{ width: col.width, minWidth: col.width }"
+              :style="colStyle('hostEvidence', col)"
               class="sortable"
               :class="{ sorted: sortColumn === col.key }"
               @click="toggleSort(col.key)"
@@ -1612,63 +1752,49 @@ const conciseList = (items, limit = 3) => {
                   <path d="m18 15-6-6-6 6"/>
                 </svg>
               </div>
+              <span class="col-resize-handle" @mousedown.stop.prevent="startColResize($event, 'hostEvidence', col.key)" @click.stop></span>
             </th>
           </tr>
           <tr v-if="showColumnFilters" class="filter-row">
-            <th class="filter-cell">
-              <input type="text" class="column-filter-input" placeholder="Butterfly..." v-model="columnFilters.butterfly" />
-            </th>
-            <th class="filter-cell">
-              <input type="text" class="column-filter-input" placeholder="Host..." v-model="columnFilters.host" />
-            </th>
-            <th class="filter-cell"></th>
-            <th class="filter-cell"></th>
-            <th class="filter-cell">
-              <input type="text" class="column-filter-input" placeholder="Family..." v-model="columnFilters.family" />
-            </th>
-            <th class="filter-cell">
-              <select class="column-filter-select" v-model="columnFilters.confidence">
+            <th v-for="col in activeHostEvidenceColumns" :key="'f-' + col.key" class="filter-cell">
+              <input v-if="col.key === 'butterfly'" type="text" class="column-filter-input" placeholder="Butterfly..." v-model="columnFilters.butterfly" />
+              <input v-else-if="col.key === 'host'" type="text" class="column-filter-input" placeholder="Host (reported or accepted)..." v-model="columnFilters.host" />
+              <input v-else-if="col.key === 'family'" type="text" class="column-filter-input" placeholder="Family..." v-model="columnFilters.family" />
+              <select v-else-if="col.key === 'evidence_level'" class="column-filter-select" v-model="columnFilters.confidence">
                 <option value="">All</option>
                 <option value="direct">Observed</option>
                 <option value="literature">Reported</option>
                 <option value="needs_check">Needs check</option>
               </select>
-            </th>
-            <th class="filter-cell"></th>
-            <th class="filter-cell">
-              <input type="text" class="column-filter-input" placeholder="Source..." v-model="columnFilters.source" />
-            </th>
-            <th class="filter-cell"></th>
-            <th class="filter-cell">
-              <select class="column-filter-select" v-model="columnFilters.mapped">
+              <input v-else-if="col.key === 'source'" type="text" class="column-filter-input" placeholder="Source..." v-model="columnFilters.source" />
+              <select v-else-if="col.key === 'mapped'" class="column-filter-select" v-model="columnFilters.mapped">
                 <option value="">All</option>
                 <option value="yes">Yes</option>
                 <option value="no">No</option>
               </select>
             </th>
-            <th class="filter-cell"></th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="row in paginatedHostPlantEvidenceRows" :key="row.id">
-            <td class="cell-species"><em>{{ row.butterfly }}</em></td>
-            <td class="cell-host" :class="{ 'has-accepted-host': row.accepted_host }">
+            <td v-if="visibleHostEvidenceColumns.butterfly" class="cell-species"><em>{{ row.butterfly }}</em></td>
+            <td v-if="visibleHostEvidenceColumns.host" class="cell-host" :class="{ 'has-accepted-host': row.accepted_host }">
               <em class="reported-host-name">{{ row.host }}</em>
               <span v-if="row.accepted_host" class="accepted-host-name">→ <em>{{ row.accepted_host }}</em></span>
             </td>
-            <td class="cell-long-text">
+            <td v-if="visibleHostEvidenceColumns.reported_as" class="cell-long-text">
               <em v-if="row.reported_as">{{ row.reported_as }}</em>
               <span v-else class="text-muted">—</span>
             </td>
-            <td>{{ row.host_rank }} / {{ row.host_id_level }}</td>
-            <td>{{ row.family }}</td>
-            <td>
+            <td v-if="visibleHostEvidenceColumns.host_rank">{{ row.host_rank }} / {{ row.host_id_level }}</td>
+            <td v-if="visibleHostEvidenceColumns.family">{{ row.family }}</td>
+            <td v-if="visibleHostEvidenceColumns.evidence_level">
               <span class="confidence-pill" :class="confidenceClass(row.evidence_level)">
                 {{ row.evidence_display }}
               </span>
             </td>
-            <td class="cell-long-text">{{ row.evidence }}</td>
-            <td class="cell-long-text">
+            <td v-if="visibleHostEvidenceColumns.evidence" class="cell-long-text">{{ row.evidence }}</td>
+            <td v-if="visibleHostEvidenceColumns.source" class="cell-long-text">
               <a
                 v-if="row.source_url"
                 :href="row.source_url"
@@ -1680,16 +1806,16 @@ const conciseList = (items, limit = 3) => {
               </a>
               <span v-else>{{ row.source }}</span>
             </td>
-            <td class="cell-records">{{ row.gbif_records.toLocaleString() }}</td>
-            <td>
+            <td v-if="visibleHostEvidenceColumns.gbif_records" class="cell-records">{{ row.gbif_records.toLocaleString() }}</td>
+            <td v-if="visibleHostEvidenceColumns.mapped">
               <span class="mapped-badge" :class="{ mapped: row.mapped }">
                 {{ row.mapped ? 'Yes' : 'No' }}
               </span>
             </td>
-            <td class="cell-long-text">{{ row.notes || '—' }}</td>
+            <td v-if="visibleHostEvidenceColumns.notes" class="cell-long-text">{{ row.notes || '—' }}</td>
           </tr>
           <tr v-if="paginatedHostPlantEvidenceRows.length === 0">
-            <td :colspan="hostPlantEvidenceColumns.length" class="empty-state">
+            <td :colspan="activeHostEvidenceColumns.length" class="empty-state">
               <div class="empty-content">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                   <circle cx="11" cy="11" r="8"/>
@@ -2071,6 +2197,11 @@ const conciseList = (items, limit = 3) => {
   accent-color: var(--color-accent, #4ade80);
 }
 
+.column-toggle.locked {
+  cursor: default;
+  opacity: 0.55;
+}
+
 /* Table */
 .table-wrapper {
   flex: 1;
@@ -2085,9 +2216,16 @@ const conciseList = (items, limit = 3) => {
   font-size: 0.85rem;
 }
 
+/* Fit the host-plant tables to the available width (like the other tables) so
+   they don't force a horizontal scrollbar. Fixed layout distributes the column
+   widths proportionally; drag-to-resize then redistributes within the table. */
 .host-plant-table {
-  width: max-content;
-  min-width: 100%;
+  width: 100%;
+  table-layout: fixed;
+}
+.host-plant-table th,
+.host-plant-table td {
+  overflow-wrap: anywhere;
 }
 
 .data-table th {
@@ -2118,6 +2256,23 @@ const conciseList = (items, limit = 3) => {
 
 .data-table th.sorted {
   color: var(--color-accent, #4ade80);
+}
+
+/* Drag-to-resize handle on the trailing edge of each header cell. */
+.col-resize-handle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 6px;
+  height: 100%;
+  cursor: col-resize;
+  user-select: none;
+  touch-action: none;
+  z-index: 11;
+}
+.col-resize-handle:hover {
+  background: var(--color-accent, #4ade80);
+  opacity: 0.5;
 }
 
 .th-content {
