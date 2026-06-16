@@ -684,6 +684,30 @@
   .dropdown-trigger {
     padding: 6px 10px;
     font-size: 0.75rem;
+    min-height: 40px;
+  }
+
+  /* Match the comfortable touch-target height across the top controls. */
+  .mode-toggle-btn {
+    width: 40px;
+    height: 40px;
+  }
+
+  /* Collapse the basemap/theme selectors to icon-only buttons on mobile so the
+     top bar stays uncluttered. The selected name still shows inside the
+     dropdown when it is opened. */
+  .dropdown-trigger {
+    padding: 0;
+    width: 40px;
+    justify-content: center;
+  }
+
+  .dropdown-trigger > span {
+    display: none;
+  }
+
+  .dropdown-trigger .chevron {
+    display: none;
   }
 
   .dropdown-trigger .layer-icon {
@@ -693,6 +717,18 @@
 
   .dropdown-menu {
     min-width: 160px;
+  }
+
+  /* The custom theme/basemap row (with the light-dark toggle at its right end)
+     shares the top band with the map's own top-right controls. Drop the native
+     zoom/fullscreen controls and the bbox button below the top row and the
+     full-width search bar so nothing overlaps. */
+  :deep(.maplibregl-ctrl-top-right) {
+    top: 104px;
+  }
+
+  .bbox-controls {
+    top: 104px;
   }
 }
 

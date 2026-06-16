@@ -7,18 +7,41 @@
       "McClure, M. & Elias, M. 2016. Unravelling the role of host plant expansion in the diversification of a Neotropical butterfly genus. BMC Evolutionary Biology 16:128. DOI: 10.1186/s12862-016-0701-5.",
       "Hill, R. I., Elias, M., Dasmahapatra, K. K., Jiggins, C. D. et al. 2012. Host plant use and ecological differentiation in Mechanitis butterflies, with Table 3 host records for Mechanitis messenoides and M. mazaeus in eastern Ecuador.",
       "Melo, D. H. A. & Freitas, A. V. L. 2023. Immature stages of Mechanitis lysimnia nesaea (Nymphalidae: Danainae: Ithomiini). Tropical Lepidoptera Research 33(2): 79-85.",
-      "PLOS Biology 2026 Mechanitis mimicry study; outdoor insectary stocks used Solanum quitoense for oviposition and larval rearing."
+      "PLOS Biology 2026 Mechanitis mimicry study; outdoor insectary stocks used Solanum quitoense for oviposition and larval rearing.",
+      "Anteparra, M. E., Ayvar, J. C. & Granados, L. B. 2011. Algunos aspectos sobre la biologia de Mechanitis polymnia proceriformis Bryk, 1953 asociado con la Cocona (Solanum sessiliflorum Dunal) en Tingo Maria. Aporte Santiaguino 4(1): 64-74. DOI: 10.32911/as.2011.v4.n1.530."
     ],
     "notes": [
       "Muriel et al. Table 3 records are field-collected eggs/larvae/pupae reared in the laboratory from coffee agroecosystems in Fredonia, Antioquia, Colombia.",
       "McClure & Elias records summarize field host-use context reported for the four Melinaea species studied; experimental host-acceptance-only results are not added as default host associations here.",
       "Mechanitis messenoides records added from Hill et al. 2012 are treated as species-level direct field records where plant identity was exact, and as needs-check records where Hill et al. used cf. or naranjilla-like unresolved plant categories.",
       "Older catalogue rows under Mechanitis mazaeus that explicitly refer to ssp. messenoides or ssp. deceptus are duplicated as modern-taxonomy remap candidates for M. messenoides rather than used to copy all M. mazaeus or M. polymnia hosts.",
-      "Solanum quitoense is retained for M. messenoides with a husbandry caveat and needs-check/default-hidden support category because the strongest exact-species evidence is oviposition/rearing in outdoor insectary stocks, not a clean wild field-host record."
+      "Solanum quitoense is retained for M. messenoides with a husbandry caveat and needs-check/default-hidden support category because the strongest exact-species evidence is oviposition/rearing in outdoor insectary stocks, not a clean wild field-host record.",
+      "Anteparra et al. 2011 was retrieved by DOI and saved outside the repo at /home/franz/Documents/CodeProjs/hostplant source PDFs/unpaywall_10.32911_as.2011.v4.n1.530.pdf."
     ],
     "gpt_pro_missing_records_audit_20260526": "Applied targeted additions from hostplant_missing_and_updated_records_patch_20260526.csv."
   },
   "records": [
+    {
+      "butterfly_taxon": "Mechanitis polymnia",
+      "butterfly_rank_used": "species",
+      "host_plant_name_verbatim": "Solanum sessiliflorum",
+      "host_plant_species": "Solanum sessiliflorum",
+      "host_plant_genus": "Solanum",
+      "host_plant_family": "Solanaceae",
+      "host_taxon_rank": "species",
+      "evidence_type": "field-collected eggs and larvae reared in laboratory on cocona leaves; immature stages described",
+      "evidence_level": "direct",
+      "evidence_context": "field_collected_and_laboratory_reared",
+      "beccaloni_marker": null,
+      "source_citation": "Anteparra, Ayvar & Granados 2011, Aporte Santiaguino 4(1): 64-74",
+      "source_refs": "Tingo Maria, Huanuco, Peru: eggs and larvae of Mechanitis polymnia proceriformis observed on cultivated cocona (Solanum sessiliflorum) at Universidad Nacional Agraria de la Selva; laboratory rearing used cocona leaves.",
+      "doi_or_url": "https://doi.org/10.32911/as.2011.v4.n1.530",
+      "confidence": "high",
+      "caveats": "Subspecies retained in source_refs; app association is stored at species level. GBIF plant occurrence overlay is context only.",
+      "evidence_detail": "Direct immature-stage host-use evidence from field-observed eggs/larvae and laboratory rearing on Solanum sessiliflorum.",
+      "use_for_default_download": true,
+      "source_checked": "Anteparra, Ayvar & Granados 2011 PDF, retrieved 2026-06-12"
+    },
     {
       "butterfly_taxon": "Mechanitis menapis",
       "butterfly_rank_used": "species",

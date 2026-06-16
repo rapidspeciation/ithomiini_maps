@@ -139,8 +139,19 @@ const {
   legendStore, dataStore
 })
 
-const display = useLegendDisplayData(base, dataStore, legendStore, () => effectiveMaxItems.value, isExportMode)
+// When expanded, render every item and let .legend-content scroll instead of
+// truncating to the measured fit count. Tapping "+ N more" toggles this.
+const legendExpanded = ref(false)
+const display = useLegendDisplayData(
+  base, dataStore, legendStore,
+  () => (legendExpanded.value ? sortedAllItems.value.length : effectiveMaxItems.value),
+  isExportMode
+)
 const { legendItems, groupedLegendData, moreCount, morePointCount } = display
+
+// True when the legend is truncating items (so a "show less" affordance makes
+// sense once expanded).
+const hasOverflowItems = computed(() => sortedAllItems.value.length > effectiveMaxItems.value)
 
 const groupList = computed(() => Object.keys(itemGroupMap.value).sort())
 
@@ -279,7 +290,11 @@ const positionStyle = computed(() => {
   if (posY.value !== null) {
     style.top = posY.value + 'px'
   } else {
-    style.bottom = '30px'
+    // On mobile the bottom quick-action bar sits at the bottom of the screen;
+    // lift the default legend position above it so it is not hidden behind the
+    // Search/Gallery/Export buttons. (768px matches MOBILE_CONTAINER_WIDTH.)
+    const isMobile = containerBounds.value.width > 0 && containerBounds.value.width <= 768
+    style.bottom = isMobile ? 'calc(84px + env(safe-area-inset-bottom))' : '30px'
   }
 
   style.left = posX.value + 'px'
@@ -681,16 +696,31 @@ onUnmounted(() => {
         </div>
       </div>
 
-      <!-- More indicator (overflow items appear grey on the map) -->
-      <div
-        v-if="moreCount > 0"
-        class="legend-more"
+      <!-- More indicator: tap to expand the full list (it scrolls). Overflow
+           items appear grey on the map until expanded. -->
+      <button
+        v-if="moreCount > 0 && !legendExpanded"
+        type="button"
+        class="legend-more legend-more--button"
         :style="{ fontSize: fontSize + 'px' }"
+        title="Show all items"
+        @click.stop="legendExpanded = true"
       >
         <span class="more-dot" />
         + {{ moreCount }} more
         <span v-if="morePointCount !== null" class="more-count">{{ morePointCount.toLocaleString() }}</span>
-      </div>
+      </button>
+
+      <!-- Collapse back to the fitted list once expanded. -->
+      <button
+        v-else-if="legendExpanded && hasOverflowItems"
+        type="button"
+        class="legend-more legend-more--button"
+        :style="{ fontSize: fontSize + 'px' }"
+        @click.stop="legendExpanded = false"
+      >
+        Show less
+      </button>
     </div>
 
     <!-- Multi-directional resize zones (shown on hover) -->

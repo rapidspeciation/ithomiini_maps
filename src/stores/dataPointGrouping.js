@@ -3,6 +3,7 @@
 
 import { computed } from 'vue'
 import { log } from '../utils/logger'
+import { dedupePointsByIndividual } from '../utils/clusterStats'
 
 /**
  * Composable for scatter/overlap visualization logic
@@ -51,6 +52,18 @@ export function useScatterVisualization(filteredGeoJSON, scatterOverlappingPoint
       groups[species].subspecies[subspecies].individuals.push(point)
     }
 
+    for (const speciesGroup of Object.values(groups)) {
+      let speciesIndividualCount = 0
+      for (const subspGroup of Object.values(speciesGroup.subspecies)) {
+        subspGroup.recordCount = subspGroup.count
+        subspGroup.individuals = dedupePointsByIndividual(subspGroup.individuals)
+        subspGroup.count = subspGroup.individuals.length
+        speciesIndividualCount += subspGroup.count
+      }
+      speciesGroup.recordCount = speciesGroup.count
+      speciesGroup.count = speciesIndividualCount
+    }
+
     return groups
   }
 
@@ -63,16 +76,22 @@ export function useScatterVisualization(filteredGeoJSON, scatterOverlappingPoint
     for (const point of points) {
       const species = point.scientific_name || 'Unknown'
       if (!speciesMap[species]) {
-        speciesMap[species] = { species, hasPhoto: false, photoUrl: null, count: 0 }
+        speciesMap[species] = { species, hasPhoto: false, photoUrl: null, records: [] }
       }
-      speciesMap[species].count++
+      speciesMap[species].records.push(point)
       if (point.image_url && !speciesMap[species].hasPhoto) {
         speciesMap[species].hasPhoto = true
         speciesMap[species].photoUrl = point.image_url
       }
     }
 
-    return Object.values(speciesMap).sort((a, b) => {
+    return Object.values(speciesMap).map(item => ({
+      species: item.species,
+      hasPhoto: item.hasPhoto,
+      photoUrl: item.photoUrl,
+      count: dedupePointsByIndividual(item.records).length,
+      recordCount: item.records.length
+    })).sort((a, b) => {
       if (a.hasPhoto && !b.hasPhoto) return -1
       if (!a.hasPhoto && b.hasPhoto) return 1
       return b.count - a.count

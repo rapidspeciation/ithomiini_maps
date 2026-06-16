@@ -110,7 +110,7 @@ const generateMapHTML = (geoJSON, viewConfig, legendConfig, colorBy) => {
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Ithomiini Distribution Map</title>
+  <title>Wings Atlas</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"><\/script>
   <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet">

@@ -20,7 +20,7 @@ const getCitationText = (recordCount) => {
   })
   const url = window.location.href
 
-  return `Ithomiini Distribution Maps. Data accessed on ${date}. ` +
+  return `Wings Atlas. Data accessed on ${date}. ` +
     `${recordCount.toLocaleString()} records retrieved. ` +
     `Version: ${shortHash}. ` +
     `Available at: ${url}`
@@ -67,7 +67,7 @@ export async function exportForR(map) {
   const exportGeoJSON = {
     type: 'FeatureCollection',
     metadata: {
-      title: 'Ithomiini Distribution Data',
+      title: 'Wings Atlas distribution data',
       version: shortHash,
       exportDate: new Date().toISOString(),
       recordCount: geo.features.length,

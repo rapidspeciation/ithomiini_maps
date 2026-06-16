@@ -4,8 +4,8 @@
  */
 export default {
   // App identity
-  title: 'Ithomiini',
-  subtitle: 'Distribution Maps',
+  title: 'Wings Atlas',
+  subtitle: 'Neotropical Butterfly Distributions',
   logoPath: new URL('./assets/Map_icon.svg', import.meta.url).href,
   repoUrl: 'https://github.com/rapidspeciation/ithomiini_maps/',
 

@@ -36,7 +36,7 @@ DEFAULT_CONFIDENCE_AUDIT_PATH = (
     / "host_plant_confidence_reaudit_codex_20260521_taxon_level.csv"
 )
 DEFAULT_SOURCE_LEVEL_AUDIT_PATH = (
-    PROJECT_ROOT / "scripts" / "host_plants" / "hostplant_source_level_audit_20260523.csv"
+    PROJECT_ROOT / "scripts" / "host_plants" / "hostplant_source_level_audit_20260615.csv"
 )
 DEFAULT_RECORDS_TO_CHANGE_PATH = (
     PROJECT_ROOT / "scripts" / "host_plants" / "hostplant_records_to_change_20260523.csv"
@@ -179,6 +179,9 @@ def evidence_detail_for_record(record: dict[str, Any]) -> str | None:
 
 def source_url_for_record(record: dict[str, Any]) -> str | None:
     """Prefer a URL that matches the source label shown in the app."""
+    override = clean_text(record.get("source_url_override"))
+    if override:
+        return override
     display_source = (
         clean_text(record.get("citation_for_ui"))
         or clean_text(record.get("source_checked"))
@@ -300,6 +303,8 @@ def apply_source_level_audit(
             record["host_id_level"] = normalize_host_id_level(row.get("host_id_level"))
         if clean_text(row.get("evidence_level")):
             record["evidence_level"] = normalize_evidence_level(row.get("evidence_level"))
+        if clean_text(row.get("source_url_override")):
+            record["source_url_override"] = clean_text(row.get("source_url_override"))
         detail = (
             clean_text(row.get("evidence_detail"))
             or clean_text(row.get("source_level_detail"))

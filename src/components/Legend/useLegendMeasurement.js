@@ -99,12 +99,29 @@ export function useLegendMeasurement({
 
   // ── Height computations ───────────────────────────────────────────────
 
+  // On a narrow (mobile) map container, cap the legend to an absolute pixel
+  // height so it does not cover most of the viewport.
+  const isMobileContainer = computed(() => {
+    const w = containerBounds.value.width
+    return w > 0 && w <= LEGEND_LAYOUT.MOBILE_CONTAINER_WIDTH
+  })
+
+  const isExportMode = computed(() => dataStore.exportSettings.enabled)
+
   const maxLegendHeight = computed(() => {
-    return Math.floor(containerBounds.value.height * LEGEND_LAYOUT.MAX_HEIGHT_RATIO)
+    if (isExportMode.value) {
+      return Math.floor(containerBounds.value.height * LEGEND_LAYOUT.EXPORT_MAX_HEIGHT_RATIO)
+    }
+    const h = Math.floor(containerBounds.value.height * LEGEND_LAYOUT.MAX_HEIGHT_RATIO)
+    return isMobileContainer.value ? Math.min(h, LEGEND_LAYOUT.MOBILE_MAX_HEIGHT_PX) : h
   })
 
   const targetLegendHeight = computed(() => {
-    return Math.floor(containerBounds.value.height * LEGEND_LAYOUT.TARGET_HEIGHT_RATIO)
+    if (isExportMode.value) {
+      return Math.floor(containerBounds.value.height * LEGEND_LAYOUT.EXPORT_TARGET_HEIGHT_RATIO)
+    }
+    const h = Math.floor(containerBounds.value.height * LEGEND_LAYOUT.TARGET_HEIGHT_RATIO)
+    return isMobileContainer.value ? Math.min(h, LEGEND_LAYOUT.MOBILE_TARGET_HEIGHT_PX) : h
   })
 
   // Generous over-estimate of how many items COULD fit. Actual count is

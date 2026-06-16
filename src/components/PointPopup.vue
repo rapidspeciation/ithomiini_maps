@@ -5,6 +5,7 @@ import { getThumbnailUrl } from '../utils/imageProxy'
 import { STATUS_COLORS } from '../utils/constants'
 import { getGoatUrl } from '../utils/goatHelpers'
 import { usePopupSelection } from '../composables/usePopupSelection'
+import { countUniqueIndividuals } from '../utils/clusterStats'
 
 const props = defineProps({
   coordinates: {
@@ -86,6 +87,8 @@ const selectIndividual = (index) => {
 // Total counts
 const totalSpecies = computed(() => Object.keys(groupedBySpecies.value).length)
 const totalRecords = computed(() => props.clusterStats?.recordCount ?? props.points.length)
+const totalIndividuals = computed(() => props.clusterStats?.individualCount ?? countUniqueIndividuals(props.points))
+const hasDuplicateRecords = computed(() => totalRecords.value !== totalIndividuals.value)
 
 // Format radius similar to scale bar (round to nice numbers)
 const formattedRadius = computed(() => {
@@ -365,12 +368,12 @@ const bioprojectUrl = computed(() => {
             <span class="detail-value">{{ clusterStats.locationCount }}</span>
           </div>
 
-          <div v-if="isCluster && clusterStats?.specimenCount" class="detail-row">
+          <div v-if="isCluster && clusterStats?.individualCount" class="detail-row">
             <span
               class="detail-label"
               title="Unique specimen identifiers where record IDs are available"
-            >Specimens:</span>
-            <span class="detail-value">{{ clusterStats.specimenCount }}</span>
+            >Individuals:</span>
+            <span class="detail-value">{{ clusterStats.individualCount }}</span>
           </div>
 
           <!-- Regular location: Location name -->
@@ -410,6 +413,10 @@ const bioprojectUrl = computed(() => {
               <span class="stat-label">species</span>
             </div>
             <div class="stat">
+              <span class="stat-value">{{ totalIndividuals }}</span>
+              <span class="stat-label">individuals</span>
+            </div>
+            <div v-if="hasDuplicateRecords" class="stat">
               <span class="stat-value">{{ totalRecords }}</span>
               <span class="stat-label">{{ isCluster ? 'cluster records' : 'records' }}</span>
             </div>

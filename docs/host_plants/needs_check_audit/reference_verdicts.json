@@ -1,0 +1,298 @@
+[
+ {
+  "publication": "Beccaloni et al. 2008, Catalogue of the Hostplants of the Neotropical Butterflies / Catálogo de las Plantas Huésped de las Mariposas Neotropicales (Monografías Tercer Milenio, SEA/RIBES-CYTED/NHM)",
+  "exists": "confirmed",
+  "source_type": "compilation",
+  "is_neotropical_hostplant_source": true,
+  "verification_level": "domain_knowledge_only",
+  "notes": "Beccaloni, Viloria, Hall & Robinson (2008) is a real, peer-reviewed, authoritative compendium of Neotropical butterfly hostplant records published by SEA (Monografias Tercer Milenio vol. 8), produced at the Natural History Museum London. It is a CATALOGUE/compilation, not a primary rearing source. Records sourced only to it are at most catalogue-level (literature). The catalogue embeds primary citations and marks dubious records; many entries here carry embedded primaries (Biezanko, Silva et al. 1968, Benson et al. 1976, Haber p.c., Muyshondt p.c., Freitas p.c.) which the catalogue flags variously as plausible or dubious. The provided ResearchGate URL matches the genuine document. Verified from domain knowledge; full text not re-fetched here."
+ },
+ {
+  "publication": "Beccaloni et al. 2008, Catalogue of the Hostplants of the Neotropical Butterflies / Catalogo de las Plantas Huesped de las Mariposas Neotropicales (no embedded primary)",
+  "exists": "confirmed",
+  "source_type": "catalogue",
+  "is_neotropical_hostplant_source": true,
+  "verification_level": "domain_knowledge_only",
+  "notes": "Beccaloni, Viloria, Hall & Robinson 2008 is a real, peer-reviewed Neotropical butterfly hostplant catalogue (a compilation), published in the Monografias Tercer Milenio / m3m-SEA series. It aggregates records from primary literature and personal communications, each tagged with embedded source refs. As a compilation it can support 'literature'-level evidence at most, never 'direct'. The embedded primaries here are themselves real and authoritative: Benson, Brown & Gilbert 1975/76 'Coevolution of plants and herbivores: passion flower butterflies' (Evolution 29:659-680) is the foundational Heliconius-Passiflora primary source; Mallet pers. comm. and Beccaloni 1995 are credible Ithomiini/Heliconius natural-history sources. NOTE: the Heliconius numata and Heliconius sara rows are HELICONIINAE, not Ithomiini -- they appear to be non-Ithomiini taxa within this audit chunk; for them Passiflora/Passifloraceae is the correct, expected host, so the standard 'passifloraceae-atypical-for-ithomiini' flag does not apply to the plant choice but the taxon does not belong to Ithomiini."
+ },
+ {
+  "publication": "Beccaloni et al. 2008, Catalogue of the Hostplants of the Neotropical Butterflies / Catalogo de las Plantas Huesped de las Mariposas Neotropicales",
+  "exists": "confirmed",
+  "source_type": "compilation",
+  "is_neotropical_hostplant_source": true,
+  "verification_level": "domain_knowledge_only",
+  "notes": "Beccaloni et al. 2008 is a real, legitimate, peer-reviewed Neotropical butterfly hostplant catalogue (Monografias 3ercer Milenio, SEA/RIBES-CYTED). It is a COMPILATION that aggregates primary sources and personal communications; records traceable only to it are catalogue-level (literature), never direct. IMPORTANT: the task framing said all 16 records cite 'Beccaloni 2008 (no embedded primary)', but the data does not match. (1) Several records embed primary citations within Beccaloni: Drummond&Brown-style p.c. trails (Freitas, Bizarro, Mallet, Haber, Hall), Silva et al. 1968, and Beccaloni 1995 (a real authoritative Ithomiine source). (2) Four records (assoc_0850, 0856, 0865, 0866, 0867, 0868) do NOT cite Beccaloni at all: assoc_0850/0856 cite Muriel et al. 2011 (Actualidades Biologicas 33(95), reared immatures in Antioquia, Colombia) and assoc_0865/0866/0867/0868 cite Hill et al. 2012 (eastern Ecuador Mechanitis host-use field study). These two are real primary/direct-rearing sources. Verification is domain-knowledge-based; the Beccaloni PDF and the Muriel/Hill papers were not full-text retrieved in this audit."
+ },
+ {
+  "publication": "Beccaloni et al. 2008, Catalogue of the Hostplants of the Neotropical Butterflies / Catálogo de las Plantas Huésped de las Mariposas Neotropicales (Monografías Tercer Milenio vol. 8, SEA/RIBES-CYTED/NHM)",
+  "exists": "confirmed",
+  "source_type": "catalogue",
+  "is_neotropical_hostplant_source": true,
+  "verification_level": "domain_knowledge_only",
+  "notes": "Beccaloni, Viloria, Hall & Robinson 2008 is a real, peer-reviewed Neotropical butterfly hostplant catalogue (Monografias Tercer Milenio vol. 8, SEA/RIBES). It compiles records with embedded primary citations (personal communications, Drummond & Brown 1987, Muyshondt et al. 1976, Biezanko et al. 1974, etc.). As a compilation it is at most 'literature'-level (catalogue), never 'direct', for records sourced only to it. Several flagged rows here in fact carry embedded primary citations in source_refs. Verified by domain knowledge; the ResearchGate PDF link is plausible but full text not re-checked here."
+ },
+ {
+  "publication": "Drummond & Brown 1987",
+  "exists": "confirmed",
+  "source_type": "compilation",
+  "is_neotropical_hostplant_source": true,
+  "verification_level": "domain_knowledge_only",
+  "notes": "Drummond, B.A. III & Brown, K.S. Jr. 1987, 'Ithomiinae (Lepidoptera: Nymphalidae): summary of known larval food plants', Annals of the Missouri Botanical Garden 74(2): 341-358. A real, foundational, peer-reviewed compilation of Ithomiine larval foodplants based on extensive rearing/field records. Canonical authoritative Neotropical Ithomiini hostplant source. The table explicitly excluded older doubtful records and marked tentative plant IDs. Verified from domain knowledge (offline/old source, full text not retrieved here). All records in this chunk reach it via the Beccaloni et al. 2008 catalogue, so evidence is catalogue-mediated literature unless an embedded oviposition/rearing note is present."
+ },
+ {
+  "publication": "Lamas 1985",
+  "exists": "likely_real",
+  "source_type": "taxonomic_list",
+  "is_neotropical_hostplant_source": true,
+  "verification_level": "domain_knowledge_only",
+  "notes": "Gerardo Lamas is a leading Neotropical lepidopterist; his mid-1980s Peruvian/Tambopata (Madre de Dios) faunistic works carry Ithomiine host-plant and life-history notes and are routinely cited as primary sources in Beccaloni et al. 2008. Treated as real, authoritative natural-history literature per domain rules. Full text not retrieved here; verification rests on domain knowledge. All records in this chunk reach the database only via the Beccaloni 2008 catalogue (a compilation) citing 'Lamas 1985', so catalogue-level 'literature' is the ceiling unless the primary source explicitly reared/observed feeding."
+ },
+ {
+  "publication": "Costa 1999 — Costa, F.A.P.L. (1999) New records of larval host plants for Ithomiinae butterflies (Nymphalidae). Revista Brasileira de Biologia 59(3): 455-459. Documents 17+ new larval hostplant records (predominantly Solanum) for Ithomiinae in Minas Gerais and Brasília, Brazil.",
+  "exists": "confirmed",
+  "source_type": "reared",
+  "is_neotropical_hostplant_source": true,
+  "verification_level": "metadata_located",
+  "notes": "Confirmed via web search: Costa, F.A.P.L. 1999, 'New records of larval host plants for Ithomiinae butterflies (Nymphalidae)', Revista Brasileira de Biologia 59(3):455-459 (distributed Sept 1999). Author at Univ. de Brasília. A legitimate primary natural-history source reporting reared and field-observed Ithomiine larval hostplant records (mostly Solanum) from SE Minas Gerais plus one Brasília DF record; Table 1 uses flags f=first record, r=reared, p=presumed feeding marks. Located via ResearchGate/Semantic Scholar metadata; full text not retrieved here. NOTE: the worklist records' evidence_detail/notes fields erroneously reference 'Drummond & Brown 1987' while source_citation and primary_publications correctly cite Costa 1999 — a metadata inconsistency, not a problem with the underlying source."
+ },
+ {
+  "publication": "Brown 1992a",
+  "exists": "confirmed",
+  "source_type": "field_observation",
+  "is_neotropical_hostplant_source": true,
+  "verification_level": "domain_knowledge_only",
+  "notes": "Brown 1992a is a real, authoritative work by Keith S. Brown Jr., the leading authority on Brazilian Ithomiini natural history and larval foodplants. His 1980s-1990s publications (incl. the 1992 work cited here, on Atlantic Forest / SE Brazil butterfly ecology and host plants) are repeatedly cited as primary sources within Beccaloni et al. 2008. Treated as legitimate primary natural-history literature per the audit's classic-source rule even though full text was not retrieved offline. All five records cite Brown 1992a, mostly with subspecies-level annotations consistent with Brown's detailed Brazilian fieldwork."
+ },
+ {
+  "publication": "Hayward 1969",
+  "exists": "likely_real",
+  "source_type": "field_observation",
+  "is_neotropical_hostplant_source": true,
+  "verification_level": "domain_knowledge_only",
+  "notes": "'Hayward 1969' refers to Kenneth J. Hayward, an Argentine entomologist (Instituto Miguel Lillo, Tucuman) who published extensively on Argentine/Neotropical Lepidoptera biology and their larval foodplants (e.g. Acta Zoologica Lilloana and related series). His foodplant records are legitimate, authoritative natural-history literature and are explicitly listed among classic Ithomiini foodplant primary sources. The source is old/offline and not retrievable in full text here, so verification rests on domain knowledge. In all four records here, Hayward 1969 is cited second-hand THROUGH the Beccaloni et al. 2008 catalogue (a compilation), so primary-source rearing detail is not independently confirmed; catalogue-level evidence at most."
+ },
+ {
+  "publication": "Brown & Freitas 1994",
+  "exists": "likely_real",
+  "source_type": "reared",
+  "is_neotropical_hostplant_source": true,
+  "verification_level": "domain_knowledge_only",
+  "notes": "Brown, K.S. & Freitas, A.V.L. (1994) is a legitimate, authoritative primary natural-history source on Neotropical Ithomiini biology and larval foodplants by two recognized authorities (Keith S. Brown Jr.; Andre V.L. Freitas, UNICAMP/Campinas). It is explicitly listed among the classic Ithomiini foodplant primary sources in the domain rules and is treated as real per instructions even though full text was not retrieved here. In this chunk it appears as an embedded primary citation inside the Beccaloni et al. 2008 catalogue (a peer-reviewed compilation), so records reach us at catalogue level. Verification is by domain knowledge only; no full-text or metadata lookup performed."
+ },
+ {
+  "publication": "Arruda & Arruda 1971",
+  "exists": "likely_real",
+  "source_type": "field_observation",
+  "is_neotropical_hostplant_source": true,
+  "verification_level": "domain_knowledge_only",
+  "notes": "Cited within Beccaloni et al. 2008 catalogue as a Brazil/Pernambuco (Pe) primary source for several butterfly host-plant rows (Heliconius sara apseudes, Mechanitis lysimnia, Methona themisto). Beccaloni's catalogue only compiles traceable published records, lending credibility. Full bibliographic details and text could not be retrieved via web search (older regional Brazilian Lepidoptera/agricultural-entomology literature, effectively offline). Treated as a real but unretrievable regional Neotropical host-plant source. Verification rests on domain knowledge and the catalogue's editorial provenance, not on inspecting the original."
+ },
+ {
+  "publication": "DeVries 1986",
+  "exists": "likely_real",
+  "source_type": "field_observation",
+  "is_neotropical_hostplant_source": true,
+  "verification_level": "domain_knowledge_only",
+  "notes": "Philip J. DeVries published extensively on Costa Rican butterfly natural history in the 1980s (culminating in 'The Butterflies of Costa Rica and Their Natural History', 1987). A 'DeVries 1986' Costa Rican butterfly / Ithomiinae natural-history or host-plant paper is a legitimate, authoritative Neotropical source and is the primary citation embedded by Beccaloni et al. 2008 for these Costa Rican Ithomiine records. Treated as real per domain rules even though full text was not retrieved here. Could not confirm from full text whether DeVries 1986 reports actual rearing/oviposition for each specific pairing, so records are scored at catalogue/literature level rather than direct."
+ },
+ {
+  "publication": "DeVries 1987",
+  "exists": "confirmed",
+  "source_type": "field_observation",
+  "is_neotropical_hostplant_source": true,
+  "verification_level": "domain_knowledge_only",
+  "notes": "DeVries 1987 = 'The Butterflies of Costa Rica and Their Natural History, Vol. I' (Princeton Univ. Press). A real, authoritative Neotropical butterfly natural-history reference that records larval hostplants, including Ithomiini. Treated as real per domain rules; full text not retrieved here (book is offline), so verification is domain-knowledge-only. Records reach the worklist via the Beccaloni et al. 2008 catalogue with DeVries 1987 embedded as a primary citation."
+ },
+ {
+  "publication": "Varga 1997",
+  "exists": "unverifiable",
+  "source_type": "unknown",
+  "is_neotropical_hostplant_source": false,
+  "verification_level": "domain_knowledge_only",
+  "notes": "\"Varga 1997\" appears only as an embedded primary citation inside the Beccaloni et al. 2008 catalogue, attached to two Argentina Brunfelsia rows that Beccaloni himself flagged as DUBIOUS. It is not a recognized title in the canonical Ithomiini/Neotropical larval-foodplant literature (Drummond & Brown, Brown, Brown & Freitas, Lamas, DeVries, Beccaloni 1995, Hayward, Young). The name most plausibly refers to Zsolt Varga, a lepidopterist whose published work is overwhelmingly Palearctic, making an original Argentine Ithomiini rearing/hostplant record questionable. Web/literature search (June 2026) returned no matching Varga 1997 Neotropical hostplant source. Cannot confirm it exists as a genuine primary host-plant source; treat as untraceable/dubious. The two records are catalogue-level (compilation) attributions, never direct rearing evidence as cited."
+ },
+ {
+  "publication": "Hill 2006",
+  "exists": "confirmed",
+  "source_type": "reared",
+  "is_neotropical_hostplant_source": true,
+  "verification_level": "full_text_checked",
+  "notes": "Hill, R. I. 2006. Life history and biology of Forbestra olivencia (Bates, 1862) (Nymphalidae, Ithomiinae). Journal of the Lepidopterists' Society 60(4):203-210. Full PDF retrieved from the Yale Peabody LepSoc archive and text-extracted. Legitimate primary life-history paper describing immature stages of Forbestra olivencia at Garza Cocha, eastern Ecuador. Host plant specimens were vouchered and determined by Ecuador's Herbario Nacional / M. Nee / S. Knapp. Confirms S. monarchostemon as the reared host and an Elias & Willmott pers. comm. observation on S. thelopodium. The catalogue/ResearchGate URL in assoc_0845's doi_or_url points to Beccaloni et al. compilation, not the primary paper, but the source_citation correctly names Hill 2006."
+ },
+ {
+  "publication": "Hall 1996",
+  "exists": "confirmed",
+  "source_type": "reared",
+  "is_neotropical_hostplant_source": true,
+  "verification_level": "metadata_located",
+  "notes": "Hall, S. (1996) on behavior and natural history of Greta oto in captivity, Tropical Lepidoptera 7(2):161-165. Real, legitimate captive-rearing source. Located via web metadata (journal Tropical Lepidoptera, FLVC). The '(Captive)' tag and 'ssp. oto' attribution in source_refs are consistent with this paper documenting captive rearing/oviposition of Greta oto on Cestrum. Records here reach the worklist via Beccaloni et al. 2008 catalogue, which embeds Hall 1996 as the primary citation. Cestrum (Solanaceae) is the canonical, well-documented larval host of Greta oto and the wider Godyridina; ornamental Cestrum spp. (C. elegans, C. nocturnum) are standard rearing hosts in butterfly houses."
+ },
+ {
+  "publication": "Fassl 1912",
+  "exists": "likely_real",
+  "source_type": "field_observation",
+  "is_neotropical_hostplant_source": true,
+  "verification_level": "domain_knowledge_only",
+  "notes": "Fassl 1912 = A.H. Fassl, German naturalist/collector who published life-history and biological notes on Colombian Lepidoptera in early-1900s German entomological journals (e.g. Entomologische Rundschau / Int. Ent. Zeitschrift). A real, legitimate historical Neotropical source. Not directly retrievable online (pre-1923 offline literature); here it is mediated through Beccaloni et al. 2008, which embeds 'Fassl, 1912 (Ovip.)' as the primary citation. The '(Ovip.)' annotation denotes an observed oviposition record. Modern literature corroborates the well-documented Mechanitis-on-Solanum association in Colombia."
+ },
+ {
+  "publication": "Isabel 1830",
+  "exists": "not_found",
+  "source_type": "unknown",
+  "is_neotropical_hostplant_source": false,
+  "verification_level": "domain_knowledge_only",
+  "notes": "\"Isabel 1830\" is NOT a real publication. It is a parsing artifact from the locality string in both records: \"Fredonia, Antioquia, Colombia: Finca Santa Isabel, 1830 m\" -- i.e. the farm name (Finca Santa Isabel) plus the elevation (1830 m a.s.l.) were mis-extracted as an author+year citation. No Neotropical butterfly host-plant work from 1830 is involved. The genuine source for BOTH records is Muriel et al. 2011, Actualidades Biologicas 33(95): 275-285, Table 3 -- a legitimate Colombian study reporting field-collected immatures reared in the lab (a real reared/field host-plant source, surfaced via the Beccaloni et al. 2008 catalogue PDF). The cited DOI/URL points to the Beccaloni catalogue, a peer-reviewed compilation. Verification is domain-knowledge based: the 1830 string is self-evidently a locality, and Muriel et al. 2011 in Actualidades Biologicas is a known real journal/paper; full text not re-retrieved here."
+ },
+ {
+  "publication": "Young 1978a",
+  "exists": "likely_real",
+  "source_type": "field_observation",
+  "is_neotropical_hostplant_source": true,
+  "verification_level": "domain_knowledge_only",
+  "notes": "Young 1978a refers to a natural-history paper by Allen M. Young, a prolific author on Costa Rican Lepidoptera biology (including ithomiines) in the 1970s. Treated as a real, authoritative Neotropical host-plant/natural-history source per domain rules. Exact 1978a full text not retrieved here; cited here as an embedded primary citation within the Beccaloni et al. 2008 catalogue (a peer-reviewed compilation) for Aeria eurimedia agna on Prestonia in Costa Rica. The association is independently corroborated: Aeria (tribe Tithoreina) is one of the Ithomiini clades that feeds on Apocynaceae, and Prestonia (incl. P. portabellensis) is the canonical larval host of A. eurimedia agna."
+ },
+ {
+  "publication": "Müller 1886",
+  "exists": "likely_real",
+  "source_type": "field_observation",
+  "is_neotropical_hostplant_source": true,
+  "verification_level": "domain_knowledge_only",
+  "notes": "'Müller 1886' refers to Fritz Müller (1821-1897), German-Brazilian naturalist based in Santa Catarina (SC), Brazil - consistent with the record's 'SC' locality and 'ssp. xantho'. Müller published legitimate primary natural-history observations on Brazilian Lepidoptera incl. Ithomiini larval biology and foodplants in the 1870s-1880s (Kosmos, Zoologischer Anzeiger, Stettiner ent. Zeitung). Treated as a real, authoritative classic source though 19th-century full text not retrieved here. Cited here via the Beccaloni et al. 2008 catalogue compilation."
+ },
+ {
+  "publication": "Fonseca & Amante 1973",
+  "exists": "likely_real",
+  "source_type": "compilation",
+  "is_neotropical_hostplant_source": true,
+  "verification_level": "domain_knowledge_only",
+  "notes": "Fonseca (J.P. da Fonseca) & Amante (E. Amante) were Brazilian economic/agricultural entomologists who published insect-host/pest lists; a 1973 work is consistent with a Brazilian Solanaceae host record. Exact 1973 citation not retrieved via web search (offline regional agricultural literature); treated as real per domain knowledge. Here it functions as an embedded primary citation inside the Beccaloni et al. 2008 catalogue, so this record is effectively catalogue-mediated literature, not independently re-verified."
+ },
+ {
+  "publication": "Hayward 1931c",
+  "exists": "likely_real",
+  "source_type": "field_observation",
+  "is_neotropical_hostplant_source": true,
+  "verification_level": "domain_knowledge_only",
+  "notes": "Kenneth J. Hayward was a real, prolific Argentine lepidopterist who published numerous works on Argentine butterflies and their natural history/foodplants in the 1930s-1940s. 'Hayward 1931c' is a legitimate citation of this era and is cited as a real primary source in the Beccaloni et al. 2008 Neotropical hostplant catalogue. Treated as real authoritative natural-history literature per domain rules; full text not retrieved here (old/offline Argentine publication). It is one of many primary references underlying this catalogue row for Dryas iulia on Passiflora in Argentina."
+ },
+ {
+  "publication": "Ac, Drummond & Brown 1987",
+  "exists": "likely_real",
+  "source_type": "compilation",
+  "is_neotropical_hostplant_source": true,
+  "verification_level": "domain_knowledge_only",
+  "notes": "The cited reference is Drummond & Brown 1987 (B.A. Drummond III & K.S. Brown Jr.), a classic authoritative Ithomiine/Neotropical larval foodplant compilation. The 'Ac' prefix is a citation/parsing artifact from the Beccaloni 2008 source_refs string (likely a locality/co-listing label), not a separate author. Treated as real per domain rules; not retrieved full-text here. The record reaches the audit via Beccaloni et al. 2008 catalogue (a compilation) with this embedded primary citation."
+ },
+ {
+  "publication": "Hayward 1943",
+  "exists": "likely_real",
+  "source_type": "field_observation",
+  "is_neotropical_hostplant_source": true,
+  "verification_level": "domain_knowledge_only",
+  "notes": "Kenneth J. Hayward was a prolific Argentine (Tucuman) lepidopterist who published extensively in the 1930s-40s on Argentine butterflies and their foodplants; 'Hayward 1943' is a legitimate Neotropical host-plant/natural-history source per the domain allowlist. The actual association here is sourced via Beccaloni et al. 2008 (a peer-reviewed compilation catalogue) with Hayward/Biezanko/Peters as embedded primary citations. Not independently retrieved; assessed from domain knowledge as the source is old/offline."
+ },
+ {
+  "publication": "Hayward 1960",
+  "exists": "likely_real",
+  "source_type": "compilation",
+  "is_neotropical_hostplant_source": true,
+  "verification_level": "domain_knowledge_only",
+  "notes": "Hayward (Guillermo/William Hayward) published authoritative work on Argentine Lepidoptera and their larval foodplants; Hayward 1960 is a real, legitimate Neotropical butterfly host-plant/natural-history source. Here it appears as an embedded primary citation within the Beccaloni et al. 2008 catalogue (the actual source_citation), documenting Heliconius erato ssp. phyllis on Passiflora in Argentina. Lima 1928 (Brazil) and Lamas 1985 are likewise real sources. Full text not retrieved; relying on domain knowledge of these classic foodplant references."
+ },
+ {
+  "publication": "Almeida 1922",
+  "exists": "likely_real",
+  "source_type": "field_observation",
+  "is_neotropical_hostplant_source": true,
+  "verification_level": "domain_knowledge_only",
+  "notes": "d'Almeida, 1922 = Romualdo Ferreira d'Almeida, a well-documented early-20th-century Brazilian lepidopterist who published extensively on Brazilian butterflies including Heliconiini/Nymphalidae. A 1922 Brazilian-butterfly work is fully consistent with his record and is routinely cited in the Beccaloni et al. 2008 catalogue. Web search surfaced his related 1935 list but not the exact 1922 item; treating as real per domain knowledge (old/offline source). Here it appears as ONE of several embedded primary citations (d'Almeida 1922, Muller 1886 [Ovip.], Freitas p.c. 1994, Silva et al. 1968) under a Beccaloni catalogue row. NOTE: this record is a HELICONIINE (Heliconius sara) on Passiflora, the canonical heliconiine host, not an Ithomiini record."
+ },
+ {
+  "publication": "Brown & Benson 1975a",
+  "exists": "confirmed",
+  "source_type": "field_observation",
+  "is_neotropical_hostplant_source": true,
+  "verification_level": "domain_knowledge_only",
+  "notes": "Brown, K.S. & Benson, W.W. published a series of seminal 1975 papers on Neotropical Heliconius mimicry, biology, and Passiflora host use (e.g. the closely associated Benson, Brown & Gilbert 1975 'Coevolution of plants and herbivores: passion flower butterflies', Evolution 29:659-680). These are legitimate, authoritative primary natural-history sources documenting Heliconius-Passiflora associations. Verified by domain knowledge plus web confirmation of the Heliconius-Passiflora coevolution literature; exact 1975a item not retrieved in full text. As a Heliconius source it is a valid host-plant source but is a HELICONIINAE reference, not an Ithomiini one."
+ },
+ {
+  "publication": "Young 1978e",
+  "exists": "likely_real",
+  "source_type": "field_observation",
+  "is_neotropical_hostplant_source": true,
+  "verification_level": "domain_knowledge_only",
+  "notes": "Allen M. Young published an extensive series of Costa Rican Lepidoptera natural-history papers in the 1970s; 'Young 1978e' fits this corpus and is a legitimate primary Neotropical host-plant/rearing source format. The specific 1978 lettered item could not be retrieved offline, so verification rests on domain knowledge. The association is reached here via the Beccaloni et al. 2008 catalogue (a peer-reviewed compilation), where the row carries a 'dubious hostplant record' marker, so catalogue-level sourcing applies."
+ },
+ {
+  "publication": "Young 1979, \"Behavioral regulatory mechanisms in populations of Mechanitis isthmia in Costa Rica: adaptations to host plants\" (Mitteilungen aus dem Museum fur Naturkunde / Deutsche Entomologische Zeitschrift, Wiley)",
+  "exists": "likely_real",
+  "source_type": "field_observation",
+  "is_neotropical_hostplant_source": true,
+  "verification_level": "metadata_located",
+  "notes": "Allen M. Young published extensively on Costa Rican Lepidoptera life history and behavior. The supplied DOI 10.1002/mmnd.19790260104 resolves to a Wiley entomological journal (Mitt. Mus. Naturkunde / Deutsche Entomologische Zeitschrift), consistent with the cited title. This is a real primary behavioral/life-history study reporting Mechanitis isthmia host use in Costa Rica. Full text not independently retrieved here; assessment based on traceable DOI metadata plus domain knowledge."
+ },
+ {
+  "publication": "Lima 1928",
+  "exists": "likely_real",
+  "source_type": "compilation",
+  "is_neotropical_hostplant_source": true,
+  "verification_level": "domain_knowledge_only",
+  "notes": "Lima 1928 = Angelo Moreira da Costa Lima, foundational Brazilian economic entomologist; his works documenting insects and their food plants are legitimate, widely-cited early Neotropical sources. Old/offline, not re-retrieved here, hence domain_knowledge_only. In this record Lima 1928 is one of many corroborating primary citations, not the sole basis: the association is independently confirmed by Drummond & Brown 1987 (authoritative checked Ithomiini larval foodplant compilation) and Brown & Freitas 1994."
+ },
+ {
+  "publication": "Vasconcellos-Neto 1991",
+  "exists": "likely_real",
+  "source_type": "reared",
+  "is_neotropical_hostplant_source": true,
+  "verification_level": "domain_knowledge_only",
+  "notes": "Vasconcellos-Neto, J. 1991, 'Interactions between Ithomiine butterflies and Solanaceae: feeding and reproductive strategies' in Price et al. (eds), Plant-Animal Interactions (Wiley). Real primary Neotropical Ithomiinae host-plant source from Sao Paulo, Brazil, focused on Solanaceae feeding/oviposition. Author (UNICAMP) is an established Ithomiinae-Solanaceae ecologist. Not retrieved/full-text-checked here; assessed from domain knowledge. Cited in this record only via the Beccaloni et al. 2008 catalogue compilation."
+ },
+ {
+  "publication": "Guagliumi 1967",
+  "exists": "likely_real",
+  "source_type": "compilation",
+  "is_neotropical_hostplant_source": true,
+  "verification_level": "domain_knowledge_only",
+  "notes": "Paolo Guagliumi was an Italian agricultural entomologist working in Venezuela; his 1967 work on insects of cultivated plants of Venezuela is a real, citable source used by Beccaloni for Venezuelan records. It is an agricultural/entomological fauna source rather than a dedicated butterfly-rearing study, which is consistent with Beccaloni flagging some of its Lepidoptera host records as dubious. Not retrieved in full text here; assessment based on domain knowledge of the literature and the Beccaloni catalogue's citation of it."
+ },
+ {
+  "publication": "Andrews 1983",
+  "exists": "unverifiable",
+  "source_type": "field_observation",
+  "is_neotropical_hostplant_source": true,
+  "verification_level": "domain_knowledge_only",
+  "notes": "\"Andrews 1983\" is cited within Beccaloni et al. 2008 as a Costa Rica source for Melinaea lilis ssp. imitata. It is not one of the canonical Ithomiini foodplant primary works (Drummond & Brown, Brown, Lamas, DeVries, Beccaloni) and I could not locate it via web/literature search. It is plausibly a regional Costa Rican natural-history/rearing reference embedded in the catalogue, but the citation is untraceable here. Treated as a legitimate-but-unverifiable embedded primary citation; the actual evidence reaches us only at catalogue (compilation) level via Beccaloni 2008."
+ },
+ {
+  "publication": "Am, Drummond & Brown 1987",
+  "exists": "likely_real",
+  "source_type": "reared",
+  "is_neotropical_hostplant_source": true,
+  "verification_level": "domain_knowledge_only",
+  "notes": "The citation string 'Am, Drummond & Brown 1987' is a garbled rendering of the classic Drummond & Brown 1987 Ithomiini foodplant work; the 'Am,' prefix is a parsing artifact from the Beccaloni source_refs field (cf. 'Brazil:' / 'Amazonas' locality and '(ssp. mneme)' fragment). Drummond, B.A. III & Brown, K.S. Jr. 1987 is a real, authoritative Neotropical Ithomiini larval-foodplant primary source. Accessed here only via the Beccaloni et al. 2008 catalogue (a compilation); full primary text not retrieved. Beccaloni flags this particular row as a dubious hostplant record."
+ },
+ {
+  "publication": "Otero & Marigo 1990",
+  "exists": "likely_real",
+  "source_type": "field_observation",
+  "is_neotropical_hostplant_source": true,
+  "verification_level": "domain_knowledge_only",
+  "notes": "Otero & Marigo 1990 refers to a Brazilian butterfly natural-history work by L.S. Otero (lepidopterist, Inst. Oswaldo Cruz) and L.C. Marigo (nature photographer), documenting biology, behaviour and some larval host records of Brazilian butterflies. Legitimate but semi-popular natural-history source rather than a rigorous rearing monograph. Cited here as an embedded primary reference inside the Beccaloni et al. 2008 catalogue. Full text not retrieved; assessment is domain-knowledge based."
+ },
+ {
+  "publication": "Freitas 1993",
+  "exists": "confirmed",
+  "source_type": "reared",
+  "is_neotropical_hostplant_source": true,
+  "verification_level": "metadata_located",
+  "notes": "Freitas 1993 is a real primary study by Andre V.L. Freitas on the biology/population dynamics of Placidula (=Placidina) euryanassa, a relict Atlantic-forest ithomiine, reared on Brugmansia suaveolens (Solanaceae). Confirmed via literature search (multiple papers, incl. tropane-alkaloid sequestration studies by Brown/Freitas, cite Freitas 1993 as the primary biological source for this species on this host). Full text not retrieved here, but existence and content corroborated by concordant secondary citations and the Beccaloni catalogue."
+ },
+ {
+  "publication": "Young 1974c",
+  "exists": "confirmed",
+  "source_type": "reared",
+  "is_neotropical_hostplant_source": true,
+  "verification_level": "metadata_located",
+  "notes": "Young 1974c = Allen M. Young, 'Notes on the biology of Pteronymia notilla (Ithomiidae) in a Costa Rican mountain forest,' Journal of the Lepidopterists' Society (1974). A real, legitimate primary natural-history/biology paper on this exact species in Costa Rica, located via search metadata (AGRIS/FAO record). Full text not retrieved here, but it is a focused species biology paper that plausibly reports larval foodplant observations. Young's Costa Rican ithomiine work is authoritative natural-history literature."
+ }
+]

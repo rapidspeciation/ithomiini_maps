@@ -45,7 +45,7 @@ const citationText = computed(() => {
   const recordCount = filteredData.value.length
   const url = window.location.href
 
-  return `Ithomiini Distribution Maps. Data accessed on ${date}. ` +
+  return `Wings Atlas. Data accessed on ${date}. ` +
     `${recordCount.toLocaleString()} records retrieved. ` +
     `Version: ${shortHash}. ` +
     `URL: ${url}`
@@ -57,8 +57,8 @@ const bibtexCitation = computed(() => {
   const month = new Date().toLocaleString('en-US', { month: 'short' }).toLowerCase()
   const url = window.location.href.split('?')[0]
 
-  return `@misc{ithomiini_maps_${year},
-  title = {Ithomiini Distribution Maps},
+  return `@misc{wings_atlas_${year},
+  title = {Wings Atlas},
   author = {Meier, Joana and Dore, M. and {Sanger Institute}},
   year = {${year}},
   month = {${month}},
@@ -131,7 +131,7 @@ const exportGeoJSON = () => {
     const exportData = {
       type: 'FeatureCollection',
       metadata: {
-        title: 'Ithomiini Distribution Data',
+        title: 'Wings Atlas distribution data',
         version: shortHash,
         exportDate: new Date().toISOString(),
         recordCount: geo.features.length,

@@ -1,4 +1,4 @@
-// Theme presets for Ithomiini Maps
+// Theme presets for Wings Atlas
 // Each theme has both light and dark variants defined in index.css
 
 export const themes = {

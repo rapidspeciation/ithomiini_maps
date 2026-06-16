@@ -211,6 +211,24 @@
   border-top: 1px solid var(--color-border, #3d3d5c);
 }
 
+/* Clickable variant: reset native button chrome and add a hover affordance. */
+.legend-more--button {
+  width: 100%;
+  background: none;
+  border-left: none;
+  border-right: none;
+  border-bottom: none;
+  font: inherit;
+  font-style: italic;
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.legend-more--button:hover {
+  color: var(--color-accent, #4ade80);
+}
+
 .more-dot {
   display: inline-block;
   width: 8px;

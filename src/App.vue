@@ -377,19 +377,23 @@ onMounted(async () => {
     <!-- Mobile: floating menu button + quick action pills -->
     <template v-if="isMobile">
       <button
+        v-show="!showMobileSidebar"
         class="mobile-menu-btn"
-        :class="{ 'mobile-menu-btn--open': showMobileSidebar }"
-        @click="showMobileSidebar = !showMobileSidebar"
+        @click="showMobileSidebar = true"
       >
-        <svg v-if="!showMobileSidebar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-        <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        <span>{{ showMobileSidebar ? 'Close' : 'Menu' }}</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        <span>Menu</span>
       </button>
 
       <!-- Mobile sidebar overlay (reuses desktop Sidebar) -->
       <Transition name="mobile-sidebar">
         <div v-if="showMobileSidebar" class="mobile-sidebar-overlay" @click.self="showMobileSidebar = false">
           <aside class="mobile-sidebar-panel">
+            <!-- Close sits in the top-right corner, above the Smart Search
+                 tile; the header is padded so nothing is covered. -->
+            <button class="mobile-sidebar-close" @click="showMobileSidebar = false" aria-label="Close menu">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
             <Sidebar
               :current-view="currentView"
               @set-view="(v) => { setView(v); showMobileSidebar = false }"
@@ -404,24 +408,32 @@ onMounted(async () => {
         </div>
       </Transition>
 
-      <!-- Mobile bottom quick actions -->
-      <div class="mobile-quick-bar" :class="{ 'mobile-quick-bar--hidden': showMobileSidebar }">
+      <!-- Mobile quick actions (top bar; replaces the location search row) -->
+      <div class="mobile-quick-bar" :class="{ 'mobile-quick-bar--hidden': showMobileSidebar || showImageGallery }">
         <template v-if="!store.exportSettings.enabled">
-          <button class="mobile-pill" @click="commandPaletteRef?.open()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-            <span>Search</span>
+          <button class="mobile-pill" :class="{ 'mobile-pill--active': currentView === 'map' }" @click="setView('map')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+            <span>Map</span>
+          </button>
+          <button class="mobile-pill" :class="{ 'mobile-pill--active': currentView === 'table' }" @click="setView('table')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+            <span>Table</span>
           </button>
           <button class="mobile-pill" @click="openImageGallery">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
             <span>Gallery</span>
+          </button>
+          <button class="mobile-pill" @click="commandPaletteRef?.open()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <span>Search</span>
           </button>
           <button class="mobile-pill" @click="openMimicrySelector">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2"/><path d="M12 8v8m-4-4h8"/></svg>
             <span>Mimicry</span>
           </button>
           <button class="mobile-pill" @click="store.exportSettings.enabled = true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-            <span>Export Map</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span>Export</span>
           </button>
         </template>
         <template v-else>
@@ -637,19 +649,23 @@ html, body, #app {
     margin-top: 0 !important;
   }
 
-  /* Search location bar below menu row, constrained width */
+  /* The location geocoder is replaced by the top quick-action bar on mobile.
+     Its functionality remains available via the menu and Smart Search. */
   .location-search {
-    top: 56px !important;
-    left: 10px !important;
-    right: 10px !important;
-    width: auto !important;
-    max-width: calc(100vw - 20px) !important;
+    display: none !important;
   }
 
-  /* Push scale bar & attribution above the bottom pills */
+  /* The quick-action bar now lives at the top, so the scale bar and
+     attribution can sit at the bottom without being covered. */
   .maplibregl-ctrl-bottom-left,
   .maplibregl-ctrl-bottom-right {
-    bottom: 56px !important;
+    bottom: 6px !important;
+  }
+
+  /* Table view: its header has real controls, so offset it below the fixed
+     top action bar (the map view floats the bar over the canvas instead). */
+  .data-table-container {
+    padding-top: 104px;
   }
 
   /* Compact attribution so it doesn't clip */
@@ -668,6 +684,7 @@ html, body, #app {
   display: flex;
   align-items: center;
   gap: 6px;
+  min-height: 40px;
   padding: 8px 14px 8px 10px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 10px;
@@ -691,9 +708,38 @@ html, body, #app {
   transform: scale(0.96);
 }
 
-.mobile-menu-btn--open {
-  background: rgba(74, 222, 128, 0.15);
-  border-color: rgba(74, 222, 128, 0.3);
+/* Close button in the panel's top-right corner, above the Smart Search tile */
+.mobile-sidebar-close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  background: rgba(26, 26, 46, 0.7);
+  color: #e0e0e0;
+  cursor: pointer;
+}
+
+.mobile-sidebar-close svg {
+  width: 20px;
+  height: 20px;
+}
+
+.mobile-sidebar-close:active {
+  transform: scale(0.96);
+}
+
+/* Pad the sidebar header on mobile so the logo and Smart Search sit below the
+   close button rather than under it. */
+.mobile-sidebar-panel .sidebar-header {
+  padding-top: 56px;
 }
 
 /* Mobile sidebar overlay */
@@ -747,22 +793,35 @@ html, body, #app {
   transform: translateX(-100%);
 }
 
-/* Mobile bottom quick action pills */
+/* Mobile quick action pills (top bar, horizontally scrollable) */
 .mobile-quick-bar {
   position: fixed;
-  bottom: calc(12px + env(safe-area-inset-bottom));
-  left: 50%;
-  transform: translateX(-50%);
+  top: 56px;
+  left: 10px;
+  right: 10px;
   z-index: 100;
   display: flex;
   gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   transition: opacity 0.2s, transform 0.2s;
+}
+
+.mobile-quick-bar::-webkit-scrollbar {
+  display: none;
 }
 
 .mobile-quick-bar--hidden {
   opacity: 0;
   pointer-events: none;
-  transform: translateX(-50%) translateY(12px);
+  transform: translateY(-8px);
+}
+
+.mobile-pill--active {
+  background: var(--color-accent, #4ade80);
+  color: var(--color-bg-primary, #1a1a2e);
+  border-color: var(--color-accent, #4ade80);
 }
 
 .mobile-pill {

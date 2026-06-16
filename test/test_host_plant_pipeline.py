@@ -1,4 +1,5 @@
 import unittest
+import json
 from unittest.mock import patch
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -21,7 +22,29 @@ from scripts.host_plants.host_plant_pipeline import (
 )
 
 
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
+
 class HostPlantPipelineTests(unittest.TestCase):
+
+    def test_anteparra_pdf_evidence_is_curated_for_mechanitis_polymnia_sessiliflorum(self):
+        supplement_path = PROJECT_ROOT / "scripts" / "host_plants" / "host_plant_literature_supplement.json"
+        supplement = json.loads(supplement_path.read_text(encoding="utf-8"))
+
+        matching_records = [
+            record
+            for record in supplement["records"]
+            if record.get("butterfly_taxon") == "Mechanitis polymnia"
+            and record.get("host_plant_species") == "Solanum sessiliflorum"
+            and record.get("doi_or_url") == "https://doi.org/10.32911/as.2011.v4.n1.530"
+        ]
+
+        self.assertEqual(len(matching_records), 1)
+        record = matching_records[0]
+        self.assertEqual(record["confidence"], "high")
+        self.assertEqual(record["evidence_level"], "direct")
+        self.assertIn("field-collected eggs and larvae", record["evidence_type"])
+        self.assertIn("Tingo Maria", record["source_refs"])
 
     def test_host_id_and_evidence_fields_are_normalized(self):
         records = [
@@ -76,6 +99,32 @@ class HostPlantPipelineTests(unittest.TestCase):
         self.assertEqual(associations[0]["host_id_level"], "family")
         self.assertEqual(associations[0]["evidence_level"], "needs_check")
         self.assertIn("Family-only", associations[0]["evidence_detail"])
+
+    def test_source_level_audit_overrides_source_url(self):
+        # A Beccaloni-mediated row whose display citation would otherwise map to
+        # the Beccaloni PDF can be repointed to the cited primary source.
+        records = [{
+            "butterfly_taxon": "Ceratinia tutia",
+            "host_plant_species": "Solanum aphyodendron",
+            "host_plant_genus": "Solanum",
+            "host_plant_family": "Solanaceae",
+            "host_taxon_rank": "species",
+            "confidence": "high",
+            "source_citation": "Beccaloni et al. 2008",
+            "doi_or_url": "https://www.cabidigitallibrary.org/doi/full/10.5555/20093181648",
+        }]
+
+        apply_source_level_audit(records, {1: {
+            "evidence_level": "direct",
+            "source_url_override": "https://doi.org/10.17533/udea.acbi.14326",
+        }})
+        associations, _taxa = build_association_outputs(records)
+
+        self.assertEqual(associations[0]["evidence_level"], "direct")
+        self.assertEqual(
+            associations[0]["doi_or_url"],
+            "https://doi.org/10.17533/udea.acbi.14326",
+        )
 
     def test_normalization_helpers_map_rank_and_source_text(self):
         self.assertEqual(normalize_host_id_level("genus_spp"), "genus")

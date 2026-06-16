@@ -72,6 +72,65 @@ export const normalizeCountryName = (value) => {
   return CODE_TO_COUNTRY[value.toUpperCase()] || value
 }
 
+const INDIVIDUAL_ID_FIELDS = [
+  'id',
+  'specimen_id',
+  'specimenId',
+  'gbifID',
+  'occurrenceID',
+  'occurrence_id',
+  'camid',
+  'catalogNumber',
+  'recordNumber'
+]
+
+export const getIndividualKey = (point) => {
+  const props = point?.properties || point
+  if (!props) return null
+
+  for (const field of INDIVIDUAL_ID_FIELDS) {
+    const value = props[field]
+    if (value !== undefined && value !== null && String(value).trim() !== '') {
+      return `${field}:${String(value).trim()}`
+    }
+  }
+
+  return null
+}
+
+export const countUniqueIndividuals = (points = []) => {
+  const keyed = new Set()
+  let unkeyed = 0
+
+  for (const point of points) {
+    const key = getIndividualKey(point)
+    if (key) keyed.add(key)
+    else unkeyed++
+  }
+
+  return keyed.size + unkeyed
+}
+
+export const dedupePointsByIndividual = (points = []) => {
+  const keyed = new Map()
+  const unkeyed = []
+
+  for (const point of points) {
+    const key = getIndividualKey(point)
+    if (!key) {
+      unkeyed.push(point)
+      continue
+    }
+
+    const current = keyed.get(key)
+    if (!current || (!current.image_url && point.image_url)) {
+      keyed.set(key, point)
+    }
+  }
+
+  return [...keyed.values(), ...unkeyed]
+}
+
 /**
  * Format countries with codes and truncation
  * e.g., "2 (EC, CO)" or "4 (EC, CO, PE, +1)"
@@ -104,7 +163,6 @@ export const computeClusterStats = (points, centerLat, centerLng) => {
 
   // Unique locations (by coordinate pairs)
   const locationSet = new Set()
-  const specimenSet = new Set()
   const countrySet = new Set()
   let maxDistance = 0
   let farthestPoint = null
@@ -132,10 +190,6 @@ export const computeClusterStats = (points, centerLat, centerLng) => {
 
     // Get properties
     const props = point.properties || point
-
-    if (props.id || props.specimen_id || props.camid) {
-      specimenSet.add(props.id || props.specimen_id || props.camid)
-    }
 
     // Unique locations
     if (lat !== undefined && lng !== undefined) {
@@ -205,6 +259,7 @@ export const computeClusterStats = (points, centerLat, centerLng) => {
 
   // Sort countries alphabetically
   const countries = Array.from(countrySet).sort()
+  const individualCount = countUniqueIndividuals(points)
 
   return {
     // Location info
@@ -221,11 +276,11 @@ export const computeClusterStats = (points, centerLat, centerLng) => {
     // Counts
     recordCount: points.length,
     speciesCount: speciesMap.size,
-    specimenCount: specimenSet.size,
+    specimenCount: individualCount,
     // Distinct individuals at the site: unique specimen IDs where available,
     // otherwise the record count. Previously this was always points.length,
     // which double-counted specimens that appear as several records.
-    individualCount: specimenSet.size || points.length,
+    individualCount,
     maleCount,
     femaleCount,
     unknownSexCount,

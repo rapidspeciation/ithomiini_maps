@@ -279,8 +279,8 @@ Web App (Vue 3 + MapLibre GL JS)
 
 ### Visualization
 
-- Single species: warm colour ramp (yellow → orange → red) representing low → high suitability.
-- Two species: dual overlay (warm + cool) for visual range comparison.
+- Single species: colourblind-safe warm orange ramp, with higher suitability shown as darker/more saturated orange.
+- Two species: colourblind-safe orange + blue overlay for visual range comparison.
 - Suitability values below 5% are rendered transparent (below noise threshold).
 - Cursor tooltip shows the suitability percentage at the mouse position.
 - Confidence badges (high/medium/low/exploratory) indicate model reliability.

@@ -61,6 +61,9 @@ const canResetView = computed(() => zoomLevel.value > 1.05 || isPanned.value)
 const selectedSpecies = ref(null)
 const selectedSubspecies = ref(null)
 
+// Mobile: the filter/info sidebar opens as a slide-in drawer.
+const showMobileGallerySidebar = ref(false)
+
 // Thumbnail strip state - all collapsed by default (populated on mount)
 const collapsedSpecies = ref(new Set())
 const collapsedSubspecies = ref(new Set())
@@ -814,6 +817,21 @@ watch(currentIndex, () => {
       </svg>
     </button>
 
+    <!-- Mobile: open the info/filters drawer -->
+    <button class="btn-gallery-filters" @click="showMobileGallerySidebar = true" aria-label="Info and filters">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      <span>Info</span>
+    </button>
+
+    <!-- Mobile: butterflies / host-plants toggle, surfaced outside the drawer -->
+    <div class="gallery-mode-toggle-floating">
+      <button :class="{ active: galleryMode === 'butterflies' }" @click="setGalleryMode('butterflies')">Butterflies</button>
+      <button :class="{ active: galleryMode === 'host-plants' }" @click="setGalleryMode('host-plants')">Host Plants</button>
+    </div>
+
+    <!-- Mobile drawer backdrop -->
+    <div v-if="showMobileGallerySidebar" class="gallery-sidebar-backdrop" @click="showMobileGallerySidebar = false"></div>
+
     <!-- Empty state -->
     <div v-if="isHostGalleryLoading" class="empty-state">
       <div class="spinner"></div>
@@ -860,6 +878,7 @@ watch(currentIndex, () => {
           :mode="galleryMode"
           :photo-order-options="hostPhotoOrderOptions"
           :date-order="hostPlantStore.galleryDateOrder"
+          :mobile-open="showMobileGallerySidebar"
           @select-species="selectSpecies"
           @select-subspecies="selectSubspecies"
           @select-individual="selectIndividual"
@@ -867,6 +886,7 @@ watch(currentIndex, () => {
           @move-photo-order="moveHostPhotoOrder"
           @set-date-order="hostPlantStore.setGalleryDateOrder"
           @set-gallery-mode="setGalleryMode"
+          @close-mobile="showMobileGallerySidebar = false"
         />
 
         <!-- Image viewer wrapper (for positioning nav buttons) -->

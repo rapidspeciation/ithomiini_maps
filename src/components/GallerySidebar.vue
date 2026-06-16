@@ -31,6 +31,11 @@ const props = defineProps({
     type: String,
     default: 'desc',
   },
+  // On mobile the sidebar is a slide-in drawer controlled by the parent.
+  mobileOpen: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const emit = defineEmits([
@@ -41,6 +46,7 @@ const emit = defineEmits([
   'move-photo-order',
   'set-date-order',
   'set-gallery-mode',
+  'close-mobile',
 ])
 
 const subspeciesCount = computed(() => props.subspeciesList?.length || 0)
@@ -95,7 +101,10 @@ function statusClass(tier) {
 </script>
 
 <template>
-  <div class="gallery-sidebar">
+  <div class="gallery-sidebar" :class="{ 'gallery-sidebar--open': mobileOpen }">
+    <button class="gallery-sidebar-close" @click="emit('close-mobile')" aria-label="Close panel">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
     <div class="gallery-mode-toggle">
       <button
         class="mode-btn"
@@ -799,10 +808,58 @@ function statusClass(tier) {
 .status-blocked { background: #ef4444; }
 .status-unknown { background: #666; }
 
-/* Responsive */
+/* Close button only shown in the mobile drawer */
+.gallery-sidebar-close {
+  display: none;
+}
+
+/* Responsive: the sidebar becomes a slide-in drawer instead of being hidden,
+   so all gallery filters/search/details stay available on mobile. */
 @media (max-width: 768px) {
   .gallery-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 60;
+    width: min(86vw, 360px);
+    max-width: 360px;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    box-shadow: 4px 0 28px rgba(0, 0, 0, 0.5);
+  }
+
+  .gallery-sidebar--open {
+    transform: translateX(0);
+  }
+
+  /* The mode toggle is surfaced outside the drawer on mobile, so hide the
+     in-drawer copy to avoid duplication. */
+  .gallery-sidebar .gallery-mode-toggle {
     display: none;
+  }
+
+  .gallery-sidebar-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 1px solid var(--color-border, #3d3d5c);
+    border-radius: 8px;
+    background: var(--color-bg-primary, #1a1a2e);
+    color: var(--color-text-secondary, #aaa);
+    cursor: pointer;
+    z-index: 2;
+  }
+
+  .gallery-sidebar-close svg {
+    width: 18px;
+    height: 18px;
   }
 }
 </style>

@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at": "2026-05-26T20:27:15+00:00",
+    "generated_at": "2026-06-13T03:47:42+00:00",
     "source_seed": "/home/franz/Documents/CodeProjs/ithomiini_maps/scripts/host_plants/ithomiini_hostplant_evidence_seed.json",
     "source_confidence_audit": "/home/franz/Documents/CodeProjs/ithomiini_maps/scripts/host_plants/host_plant_confidence_reaudit_codex_20260521_taxon_level.csv",
     "seed_metadata": {
@@ -34,14 +34,16 @@
           "McClure, M. & Elias, M. 2016. Unravelling the role of host plant expansion in the diversification of a Neotropical butterfly genus. BMC Evolutionary Biology 16:128. DOI: 10.1186/s12862-016-0701-5.",
           "Hill, R. I., Elias, M., Dasmahapatra, K. K., Jiggins, C. D. et al. 2012. Host plant use and ecological differentiation in Mechanitis butterflies, with Table 3 host records for Mechanitis messenoides and M. mazaeus in eastern Ecuador.",
           "Melo, D. H. A. & Freitas, A. V. L. 2023. Immature stages of Mechanitis lysimnia nesaea (Nymphalidae: Danainae: Ithomiini). Tropical Lepidoptera Research 33(2): 79-85.",
-          "PLOS Biology 2026 Mechanitis mimicry study; outdoor insectary stocks used Solanum quitoense for oviposition and larval rearing."
+          "PLOS Biology 2026 Mechanitis mimicry study; outdoor insectary stocks used Solanum quitoense for oviposition and larval rearing.",
+          "Anteparra, M. E., Ayvar, J. C. & Granados, L. B. 2011. Algunos aspectos sobre la biologia de Mechanitis polymnia proceriformis Bryk, 1953 asociado con la Cocona (Solanum sessiliflorum Dunal) en Tingo Maria. Aporte Santiaguino 4(1): 64-74. DOI: 10.32911/as.2011.v4.n1.530."
         ],
         "notes": [
           "Muriel et al. Table 3 records are field-collected eggs/larvae/pupae reared in the laboratory from coffee agroecosystems in Fredonia, Antioquia, Colombia.",
           "McClure & Elias records summarize field host-use context reported for the four Melinaea species studied; experimental host-acceptance-only results are not added as default host associations here.",
           "Mechanitis messenoides records added from Hill et al. 2012 are treated as species-level direct field records where plant identity was exact, and as needs-check records where Hill et al. used cf. or naranjilla-like unresolved plant categories.",
           "Older catalogue rows under Mechanitis mazaeus that explicitly refer to ssp. messenoides or ssp. deceptus are duplicated as modern-taxonomy remap candidates for M. messenoides rather than used to copy all M. mazaeus or M. polymnia hosts.",
-          "Solanum quitoense is retained for M. messenoides with a husbandry caveat and needs-check/default-hidden support category because the strongest exact-species evidence is oviposition/rearing in outdoor insectary stocks, not a clean wild field-host record."
+          "Solanum quitoense is retained for M. messenoides with a husbandry caveat and needs-check/default-hidden support category because the strongest exact-species evidence is oviposition/rearing in outdoor insectary stocks, not a clean wild field-host record.",
+          "Anteparra et al. 2011 was retrieved by DOI and saved outside the repo at /home/franz/Documents/CodeProjs/hostplant source PDFs/unpaywall_10.32911_as.2011.v4.n1.530.pdf."
         ],
         "gpt_pro_missing_records_audit_20260526": "Applied targeted additions from hostplant_missing_and_updated_records_patch_20260526.csv."
       }
@@ -958,8 +960,8 @@
         "genus": 5
       },
       "evidence_counts": {
-        "literature": 3,
-        "needs_check": 2
+        "literature": 4,
+        "needs_check": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -2230,8 +2232,8 @@
         "genus": 8
       },
       "evidence_counts": {
-        "needs_check": 6,
-        "literature": 2
+        "literature": 6,
+        "needs_check": 2
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -2319,8 +2321,8 @@
         "genus": 11
       },
       "evidence_counts": {
-        "needs_check": 6,
-        "literature": 5
+        "literature": 10,
+        "needs_check": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -2367,7 +2369,7 @@
         "genus": 3
       },
       "evidence_counts": {
-        "needs_check": 3
+        "literature": 3
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -2556,8 +2558,7 @@
         "genus": 4
       },
       "evidence_counts": {
-        "needs_check": 3,
-        "literature": 1
+        "literature": 4
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -2612,9 +2613,9 @@
         "genus": 15
       },
       "evidence_counts": {
-        "literature": 7,
         "direct": 4,
-        "needs_check": 4
+        "literature": 10,
+        "needs_check": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -2713,8 +2714,8 @@
         "genus": 5
       },
       "evidence_counts": {
-        "needs_check": 4,
-        "literature": 1
+        "literature": 4,
+        "needs_check": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -2759,7 +2760,7 @@
         "genus": 1
       },
       "evidence_counts": {
-        "needs_check": 1
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -2797,7 +2798,7 @@
         "genus": 9
       },
       "evidence_counts": {
-        "needs_check": 9
+        "literature": 9
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -2884,8 +2885,7 @@
         "genus": 5
       },
       "evidence_counts": {
-        "needs_check": 3,
-        "literature": 2
+        "literature": 5
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -3057,9 +3057,9 @@
         "genus": 61
       },
       "evidence_counts": {
-        "needs_check": 39,
-        "direct": 2,
-        "literature": 20
+        "direct": 4,
+        "literature": 45,
+        "needs_check": 12
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -3145,9 +3145,9 @@
         "genus": 7
       },
       "evidence_counts": {
+        "direct": 1,
         "literature": 5,
-        "needs_check": 1,
-        "direct": 1
+        "needs_check": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -3302,8 +3302,7 @@
         "species": 4
       },
       "evidence_counts": {
-        "literature": 3,
-        "needs_check": 1
+        "literature": 4
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -3493,9 +3492,8 @@
         "species": 3
       },
       "evidence_counts": {
-        "literature": 1,
         "direct": 1,
-        "needs_check": 1
+        "literature": 2
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -3585,7 +3583,7 @@
         "species": 1
       },
       "evidence_counts": {
-        "needs_check": 1
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -3624,7 +3622,8 @@
         "species": 5
       },
       "evidence_counts": {
-        "needs_check": 5
+        "literature": 1,
+        "needs_check": 4
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -3716,8 +3715,8 @@
         "species": 3
       },
       "evidence_counts": {
-        "needs_check": 1,
-        "direct": 2
+        "direct": 2,
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -3766,9 +3765,9 @@
         "species": 4
       },
       "evidence_counts": {
-        "needs_check": 2,
         "direct": 1,
-        "literature": 1
+        "literature": 1,
+        "needs_check": 2
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -3863,9 +3862,9 @@
         "species": 5
       },
       "evidence_counts": {
-        "needs_check": 3,
         "direct": 1,
-        "literature": 1
+        "literature": 2,
+        "needs_check": 2
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -4002,8 +4001,7 @@
         "species": 2
       },
       "evidence_counts": {
-        "needs_check": 1,
-        "literature": 1
+        "literature": 2
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -4130,7 +4128,7 @@
         "species": 1
       },
       "evidence_counts": {
-        "needs_check": 1
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -4389,8 +4387,8 @@
         "species": 3
       },
       "evidence_counts": {
-        "literature": 1,
-        "direct": 2
+        "direct": 2,
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -4436,8 +4434,8 @@
         "species": 2
       },
       "evidence_counts": {
-        "literature": 1,
-        "direct": 1
+        "direct": 1,
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -4523,8 +4521,7 @@
       },
       "evidence_counts": {
         "direct": 2,
-        "literature": 3,
-        "needs_check": 1
+        "literature": 4
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -4569,7 +4566,7 @@
         "species": 1
       },
       "evidence_counts": {
-        "needs_check": 1
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -4895,8 +4892,8 @@
         "species": 3
       },
       "evidence_counts": {
-        "literature": 2,
-        "direct": 1
+        "direct": 1,
+        "literature": 2
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -5037,7 +5034,7 @@
       },
       "evidence_counts": {
         "direct": 4,
-        "needs_check": 1
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -5140,8 +5137,7 @@
         "species": 2
       },
       "evidence_counts": {
-        "needs_check": 1,
-        "literature": 1
+        "literature": 2
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -5240,8 +5236,8 @@
         "species": 2
       },
       "evidence_counts": {
-        "literature": 1,
-        "direct": 1
+        "direct": 1,
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -5488,8 +5484,8 @@
         "species": 2
       },
       "evidence_counts": {
-        "needs_check": 1,
-        "direct": 1
+        "direct": 1,
+        "needs_check": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -5947,7 +5943,7 @@
         "species": 1
       },
       "evidence_counts": {
-        "needs_check": 1
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -5985,8 +5981,7 @@
         "species": 4
       },
       "evidence_counts": {
-        "needs_check": 1,
-        "direct": 3
+        "direct": 4
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -6081,8 +6076,8 @@
         "species": 2
       },
       "evidence_counts": {
-        "needs_check": 1,
-        "direct": 1
+        "direct": 1,
+        "needs_check": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -6267,7 +6262,7 @@
         "species": 1
       },
       "evidence_counts": {
-        "needs_check": 1
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -6404,8 +6399,8 @@
         "species": 2
       },
       "evidence_counts": {
-        "literature": 1,
-        "direct": 1
+        "direct": 1,
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -6451,8 +6446,8 @@
         "species": 2
       },
       "evidence_counts": {
-        "needs_check": 1,
-        "direct": 1
+        "direct": 1,
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -6583,7 +6578,7 @@
         "species": 1
       },
       "evidence_counts": {
-        "needs_check": 1
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -7092,8 +7087,7 @@
       },
       "evidence_counts": {
         "direct": 3,
-        "needs_check": 1,
-        "literature": 1
+        "literature": 2
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -7138,7 +7132,7 @@
         "species": 1
       },
       "evidence_counts": {
-        "needs_check": 1
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -7221,8 +7215,8 @@
         "species": 3
       },
       "evidence_counts": {
-        "literature": 1,
-        "direct": 2
+        "direct": 2,
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -7406,8 +7400,7 @@
         "species": 2
       },
       "evidence_counts": {
-        "needs_check": 1,
-        "literature": 1
+        "literature": 2
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -7796,7 +7789,7 @@
       },
       "evidence_counts": {
         "direct": 1,
-        "needs_check": 2
+        "literature": 2
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -8950,8 +8943,7 @@
         "species": 2
       },
       "evidence_counts": {
-        "literature": 1,
-        "needs_check": 1
+        "literature": 2
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -8998,8 +8990,7 @@
         "species": 2
       },
       "evidence_counts": {
-        "literature": 1,
-        "needs_check": 1
+        "literature": 2
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -9089,7 +9080,7 @@
         "species": 1
       },
       "evidence_counts": {
-        "needs_check": 1
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -9123,7 +9114,7 @@
         "species": 1
       },
       "evidence_counts": {
-        "needs_check": 1
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -9157,7 +9148,7 @@
         "species": 1
       },
       "evidence_counts": {
-        "needs_check": 1
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -9191,7 +9182,7 @@
         "species": 1
       },
       "evidence_counts": {
-        "needs_check": 1
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -9225,7 +9216,7 @@
         "species": 1
       },
       "evidence_counts": {
-        "needs_check": 1
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -9259,7 +9250,7 @@
         "species": 1
       },
       "evidence_counts": {
-        "needs_check": 1
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -9293,7 +9284,7 @@
         "species": 1
       },
       "evidence_counts": {
-        "needs_check": 1
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -9338,7 +9329,7 @@
         "species": 1
       },
       "evidence_counts": {
-        "needs_check": 1
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -9694,7 +9685,7 @@
         "species": 1
       },
       "evidence_counts": {
-        "needs_check": 1
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -10145,7 +10136,7 @@
         "species": 1
       },
       "evidence_counts": {
-        "needs_check": 1
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -10182,8 +10173,7 @@
         "species": 3
       },
       "evidence_counts": {
-        "literature": 2,
-        "needs_check": 1
+        "literature": 3
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -10276,8 +10266,8 @@
         "species": 2
       },
       "evidence_counts": {
-        "literature": 1,
-        "direct": 1
+        "direct": 1,
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -10370,8 +10360,7 @@
         "species": 3
       },
       "evidence_counts": {
-        "literature": 2,
-        "needs_check": 1
+        "literature": 3
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -10602,8 +10591,7 @@
         "species": 3
       },
       "evidence_counts": {
-        "literature": 2,
-        "needs_check": 1
+        "literature": 3
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -10833,7 +10821,7 @@
         "species": 1
       },
       "evidence_counts": {
-        "needs_check": 1
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -11101,7 +11089,7 @@
         "species": 3
       },
       "evidence_counts": {
-        "needs_check": 3
+        "literature": 3
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -11320,8 +11308,8 @@
         "species": 2
       },
       "evidence_counts": {
-        "literature": 1,
-        "direct": 1
+        "direct": 1,
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -11753,8 +11741,8 @@
         "species": 6
       },
       "evidence_counts": {
-        "literature": 4,
-        "needs_check": 2
+        "direct": 1,
+        "literature": 5
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -11799,7 +11787,7 @@
         "species": 1
       },
       "evidence_counts": {
-        "needs_check": 1
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -11986,8 +11974,7 @@
         "species": 2
       },
       "evidence_counts": {
-        "direct": 1,
-        "needs_check": 1
+        "direct": 2
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -12131,8 +12118,8 @@
         "species": 2
       },
       "evidence_counts": {
-        "literature": 1,
-        "direct": 1
+        "direct": 1,
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -12278,8 +12265,8 @@
         "species": 4
       },
       "evidence_counts": {
-        "literature": 2,
-        "direct": 2
+        "direct": 2,
+        "literature": 2
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -12372,7 +12359,7 @@
       },
       "evidence_counts": {
         "direct": 3,
-        "needs_check": 1
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -12417,7 +12404,7 @@
         "species": 1
       },
       "evidence_counts": {
-        "needs_check": 1
+        "direct": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -12451,7 +12438,7 @@
         "species": 1
       },
       "evidence_counts": {
-        "needs_check": 1
+        "direct": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -12763,8 +12750,7 @@
         "species": 2
       },
       "evidence_counts": {
-        "literature": 1,
-        "needs_check": 1
+        "literature": 2
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -13087,7 +13073,7 @@
         "species": 1
       },
       "evidence_counts": {
-        "needs_check": 1
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -13134,7 +13120,7 @@
       },
       "evidence_counts": {
         "direct": 1,
-        "needs_check": 1
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -14339,7 +14325,7 @@
         "species": 1
       },
       "evidence_counts": {
-        "needs_check": 1
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -14477,7 +14463,7 @@
       },
       "evidence_counts": {
         "direct": 3,
-        "needs_check": 1
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -14623,8 +14609,7 @@
       },
       "evidence_counts": {
         "direct": 6,
-        "literature": 1,
-        "needs_check": 1
+        "literature": 2
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -14717,8 +14702,8 @@
         "species": 2
       },
       "evidence_counts": {
-        "literature": 1,
-        "direct": 1
+        "direct": 1,
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -14810,8 +14795,7 @@
         "species": 2
       },
       "evidence_counts": {
-        "needs_check": 1,
-        "direct": 1
+        "direct": 2
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -14858,8 +14842,8 @@
         "species": 2
       },
       "evidence_counts": {
-        "literature": 1,
-        "direct": 1
+        "direct": 1,
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -14994,7 +14978,7 @@
         "species": 1
       },
       "evidence_counts": {
-        "needs_check": 1
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -15040,7 +15024,7 @@
         "species": 2
       },
       "evidence_counts": {
-        "needs_check": 2
+        "literature": 2
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -15087,7 +15071,7 @@
         "species": 2
       },
       "evidence_counts": {
-        "needs_check": 2
+        "literature": 2
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -15132,7 +15116,7 @@
         "species": 1
       },
       "evidence_counts": {
-        "needs_check": 1
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -15166,7 +15150,7 @@
         "species": 1
       },
       "evidence_counts": {
-        "needs_check": 1
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -15211,7 +15195,7 @@
         "species": 1
       },
       "evidence_counts": {
-        "needs_check": 1
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -15256,7 +15240,7 @@
         "species": 1
       },
       "evidence_counts": {
-        "needs_check": 1
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -15301,7 +15285,7 @@
         "species": 1
       },
       "evidence_counts": {
-        "needs_check": 1
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -15351,7 +15335,7 @@
         "species": 2
       },
       "evidence_counts": {
-        "needs_check": 2
+        "literature": 2
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -15388,7 +15372,7 @@
         "species": 3
       },
       "evidence_counts": {
-        "needs_check": 3
+        "literature": 3
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -15434,7 +15418,7 @@
         "species": 2
       },
       "evidence_counts": {
-        "needs_check": 2
+        "literature": 2
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -15479,7 +15463,7 @@
         "species": 1
       },
       "evidence_counts": {
-        "needs_check": 1
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -15513,7 +15497,7 @@
         "species": 1
       },
       "evidence_counts": {
-        "needs_check": 1
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -15656,7 +15640,7 @@
       },
       "evidence_counts": {
         "direct": 3,
-        "needs_check": 1
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -15705,7 +15689,7 @@
       },
       "evidence_counts": {
         "direct": 3,
-        "needs_check": 1
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -16175,8 +16159,8 @@
         "species": 4
       },
       "evidence_counts": {
-        "literature": 3,
-        "direct": 1
+        "direct": 1,
+        "literature": 3
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -16563,9 +16547,9 @@
         "species": 9
       },
       "evidence_counts": {
-        "literature": 2,
-        "direct": 4,
-        "needs_check": 3
+        "direct": 5,
+        "literature": 3,
+        "needs_check": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -16618,9 +16602,9 @@
         "species": 7
       },
       "evidence_counts": {
-        "literature": 3,
         "direct": 2,
-        "needs_check": 2
+        "literature": 4,
+        "needs_check": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -16715,7 +16699,7 @@
       },
       "evidence_counts": {
         "direct": 2,
-        "needs_check": 1
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -16749,7 +16733,7 @@
       "slug": "species_solanum_sessiliflorum",
       "resolvable_to_gbif": true,
       "use_for_default_download": true,
-      "association_count": 5,
+      "association_count": 6,
       "butterfly_taxa": [
         "Dircenna loreta",
         "Hypothyris ninonia",
@@ -16758,14 +16742,14 @@
         "Mechanitis polymnia"
       ],
       "confidence_counts": {
-        "high": 4,
+        "high": 5,
         "medium": 1
       },
       "host_id_level_counts": {
-        "species": 5
+        "species": 6
       },
       "evidence_counts": {
-        "direct": 4,
+        "direct": 5,
         "literature": 1
       },
       "occurrence_file": null,
@@ -16863,8 +16847,8 @@
       },
       "evidence_counts": {
         "direct": 3,
-        "needs_check": 1,
-        "literature": 2
+        "literature": 2,
+        "needs_check": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -16916,7 +16900,7 @@
         "species": 7
       },
       "evidence_counts": {
-        "needs_check": 7
+        "literature": 7
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -17153,7 +17137,7 @@
         "species": 1
       },
       "evidence_counts": {
-        "needs_check": 1
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -17346,8 +17330,7 @@
         "species": 2
       },
       "evidence_counts": {
-        "needs_check": 1,
-        "literature": 1
+        "literature": 2
       },
       "occurrence_file": null,
       "gbif_resolution": {
@@ -17531,7 +17514,7 @@
       },
       "evidence_counts": {
         "direct": 3,
-        "needs_check": 1
+        "literature": 1
       },
       "occurrence_file": null,
       "gbif_resolution": {

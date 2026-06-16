@@ -523,7 +523,7 @@ const updateExportHeight = (value) => {
     <!-- Header -->
     <header class="sidebar-header">
       <a :href="config.repoUrl" target="_blank" rel="noopener noreferrer" class="logo">
-        <img :src="config.logoPath" :alt="`${config.title} Maps`" class="logo-icon" />
+        <img :src="config.logoPath" :alt="config.title" class="logo-icon" />
         <div class="logo-text">
           <span class="title">{{ config.title }}</span>
           <span class="subtitle">{{ config.subtitle }}</span>

@@ -31,6 +31,14 @@ export function useLegendPosition({
   const posX = ref(legendStore.position.x || 40)
   const posY = ref(legendStore.position.y)
 
+  // On mobile, reserve extra space below the legend's resting position so it
+  // clears the bottom scale bar and attribution.
+  const MOBILE_BOTTOM_RESERVE = 44
+  const mobileBottomReserve = () =>
+    (containerBounds.value.width > 0 && containerBounds.value.width <= LEGEND_LAYOUT.MOBILE_CONTAINER_WIDTH)
+      ? MOBILE_BOTTOM_RESERVE
+      : 0
+
   // Drag state
   const isDragging = ref(false)
   const dragStart = ref({ x: 0, y: 0 })
@@ -113,7 +121,7 @@ export function useLegendPosition({
         newY = margin
         stickyEdge.value.top = true
       }
-      const bottomSnapY = bounds.height - legendHeight - margin - bottomAttributionMargin.value
+      const bottomSnapY = bounds.height - legendHeight - margin - bottomAttributionMargin.value - mobileBottomReserve()
       if (newY > bottomSnapY - threshold && newY <= bounds.height - legendHeight) {
         newY = bottomSnapY
         stickyEdge.value.bottom = true
@@ -150,7 +158,7 @@ export function useLegendPosition({
     const effectiveY = posY.value !== null ? posY.value : bounds.height - legendHeight - 30
 
     const attrMargin = isAttributionOpen.value ? bottomAttributionMargin.value : 0
-    const bottomEdgeY = bounds.height - legendHeight - margin - attrMargin
+    const bottomEdgeY = bounds.height - legendHeight - margin - attrMargin - mobileBottomReserve()
 
     const isAtBottom = effectiveY >= bottomEdgeY - threshold
 
@@ -170,7 +178,7 @@ export function useLegendPosition({
     const margin = STICKY_MARGIN
     const minHeight = 100
 
-    const bottomMargin = margin + bottomAttributionMargin.value
+    const bottomMargin = margin + bottomAttributionMargin.value + mobileBottomReserve()
     const maxAllowedHeight = newBounds.height - margin - bottomMargin
 
     if (legendHeight > maxAllowedHeight && maxAllowedHeight >= minHeight) {
@@ -232,7 +240,7 @@ export function useLegendPosition({
 
     const legendHeight = legendRef.value?.offsetHeight || FALLBACK_LEGEND_HEIGHT
     const margin = STICKY_MARGIN
-    const bottomMargin = margin + bottomAttributionMargin.value
+    const bottomMargin = margin + bottomAttributionMargin.value + mobileBottomReserve()
 
     if (stickyEdge.value.bottom) {
       posY.value = bounds.height - legendHeight - bottomMargin
@@ -253,7 +261,7 @@ export function useLegendPosition({
     const legendHeight = legendRef.value.offsetHeight
     if (legendHeight <= 0 || !bounds.width || !bounds.height) return
     const margin = STICKY_MARGIN
-    const bottomMargin = margin + bottomAttributionMargin.value
+    const bottomMargin = margin + bottomAttributionMargin.value + mobileBottomReserve()
     const targetY = bounds.height - legendHeight - bottomMargin
 
     if (Math.abs(posY.value - targetY) > 2) {
