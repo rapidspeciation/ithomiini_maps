@@ -89,17 +89,23 @@ describe('usePlanningStore', () => {
   it('round-trips planning link settings and ignores invalid values', () => {
     const planning = usePlanningStore()
     planning.localitySettings.enabled = false
+    planning.localitySettings.mode = 'records'
     planning.localitySettings.minRecords = 12
     planning.showComparison = true
     planning.toggleShortlist('site:ec:mindo:abcde')
+    planning.hiddenLabelIds = ['site:ec:tena:fghij']
     const params = new URLSearchParams()
     planning.appendURLParams(params)
     expect(params.get('site_min')).toBe('12')
+    expect(params.get('site_labels')).toBe('records')
     planning.localitySettings.enabled = true
-    planning.localitySettings.minRecords = 1
+    planning.localitySettings.mode = 'auto'
+    planning.localitySettings.minRecords = 10
     planning.showComparison = false
+    planning.hiddenLabelIds = []
     planning.restoreFromURL(params)
-    expect(planning.localitySettings).toEqual({ enabled: false, minRecords: 12 })
+    expect(planning.localitySettings).toEqual({ enabled: false, mode: 'records', minRecords: 12 })
+    expect(planning.hiddenLabelIds).toEqual(['site:ec:tena:fghij'])
     expect(planning.showComparison).toBe(true)
     planning.restoreFromURL(new URLSearchParams('site_min=-5&site_shortlist=%5B%22bad%22%5D'))
     expect(planning.localitySettings.minRecords).toBe(12)
@@ -116,7 +122,7 @@ describe('usePlanningStore', () => {
     })
     window.history.replaceState({}, '', `/?${params}`)
     view.restoreVisualizationFromURL()
-    expect(planning.localitySettings).toEqual({ enabled: false, minRecords: 12 })
+    expect(planning.localitySettings).toEqual({ enabled: false, mode: 'auto', minRecords: 12 })
     expect(planning.shortlistIds).toEqual(['site:ec:mindo:abcde'])
     filters.filters.country = ['Ecuador']
     await nextTick()
@@ -131,5 +137,29 @@ describe('usePlanningStore', () => {
     planning.localitySettings.minRecords = 8
     await nextTick()
     expect(new URLSearchParams(window.location.search).get('site_min')).toBe('8')
+  })
+
+  it('toggles a site name: hides a named site, then always shows it', () => {
+    const planning = usePlanningStore()
+    const id = 'site:ec:mindo:abcde'
+    planning.setLabeledSites([id])
+    expect(planning.isLabelShown(id)).toBe(true)
+    planning.toggleLabel(id)
+    expect(planning.hiddenLabelIds).toEqual([id])
+    planning.setLabeledSites([])
+    expect(planning.isLabelShown(id)).toBe(false)
+    planning.toggleLabel(id)
+    expect(planning.hiddenLabelIds).toEqual([])
+    expect(planning.shortlistIds).toEqual([id])
+    expect(planning.isLabelShown(id)).toBe(true)
+  })
+
+  it('lists only sites inside the map bounds', () => {
+    const dataset = useDatasetStore()
+    const planning = usePlanningStore()
+    dataset.allFeatures = [record('a', 'Ithomia leilae'), record('b', 'Ithomia leilae', { lat: -3.5, collection_location: 'Puyo' })]
+    expect(planning.sitesInView).toHaveLength(2)
+    planning.setViewBounds([-79, -1, -78, 0])
+    expect(planning.sitesInView.map(site => site.name)).toEqual(['Mindo'])
   })
 })

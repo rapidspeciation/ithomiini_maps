@@ -45,11 +45,16 @@ export function sitesToCsv(sites) {
 
 export const usePlanningStore = defineStore('planning', () => {
   const data = useDataStore()
-  // Labels are limited per screen, so every site can be named once zoomed in.
-  const localitySettings = reactive({ enabled: true, minRecords: 1 })
+  // 'auto' names the busiest sites in view; 'records' names every site with minRecords.
+  const localitySettings = reactive({ enabled: true, mode: 'auto', minRecords: 10 })
   const showComparison = ref(false)
   const comparisonMinimized = ref(false)
+  // Sites whose names are always shown (eye on), and sites whose names are hidden (eye off).
   const shortlistIds = ref(savedShortlist())
+  const hiddenLabelIds = ref([])
+  // Written by the locality layer: sites named on the map now, and the map bounds [w, s, e, n].
+  const labeledSiteIds = ref(new Set())
+  const viewBounds = ref(null)
   const selectedSiteId = ref(null)
   const focusRequestId = ref(0)
 
@@ -72,9 +77,17 @@ export const usePlanningStore = defineStore('planning', () => {
       return site
     })
   })
-  const labeledSites = computed(() => sites.value.filter(site => site.recordCount >= localitySettings.minRecords))
+  const sitesInView = computed(() => {
+    const bounds = viewBounds.value
+    if (!bounds) return sites.value
+    const [west, south, east, north] = bounds
+    // Bounds can cross the antimeridian when the map is zoomed far out.
+    const inLongitude = west <= east ? lng => lng >= west && lng <= east : lng => lng >= west || lng <= east
+    return sites.value.filter(site => site.latitude >= south && site.latitude <= north && inLongitude(site.longitude))
+  })
 
   const shortlistSet = computed(() => new Set(shortlistIds.value))
+  const hiddenLabelSet = computed(() => new Set(hiddenLabelIds.value))
   const shortlistedSites = computed(() => sites.value.filter(site => shortlistSet.value.has(site.id)))
 
   function toggleShortlist(siteOrId) {
@@ -83,6 +96,32 @@ export const usePlanningStore = defineStore('planning', () => {
     shortlistIds.value = shortlistSet.value.has(id)
       ? shortlistIds.value.filter(value => value !== id)
       : [...shortlistIds.value, id]
+  }
+
+  const isLabelShown = id => shortlistSet.value.has(id) || labeledSiteIds.value.has(id)
+
+  /** Eye button: hide a named site, or always name one that is not named. */
+  function toggleLabel(siteOrId) {
+    const id = typeof siteOrId === 'string' ? siteOrId : siteOrId?.id
+    if (!id) return
+    if (isLabelShown(id)) {
+      shortlistIds.value = shortlistIds.value.filter(value => value !== id)
+      if (!hiddenLabelSet.value.has(id)) hiddenLabelIds.value = [...hiddenLabelIds.value, id]
+    } else {
+      hiddenLabelIds.value = hiddenLabelIds.value.filter(value => value !== id)
+      shortlistIds.value = [...shortlistIds.value, id]
+    }
+  }
+
+  function setLabeledSites(ids) {
+    const next = new Set(ids)
+    const current = labeledSiteIds.value
+    if (next.size !== current.size || [...next].some(id => !current.has(id))) labeledSiteIds.value = next
+  }
+
+  function setViewBounds(bounds) {
+    const current = viewBounds.value
+    if (!current || bounds.some((value, index) => Math.abs(value - current[index]) > 1e-6)) viewBounds.value = bounds
   }
 
   function focusSite(site) {
@@ -100,26 +139,36 @@ export const usePlanningStore = defineStore('planning', () => {
 
   function appendURLParams(params) {
     if (!localitySettings.enabled) params.set('sites', '0')
-    if (localitySettings.minRecords !== 1) params.set('site_min', String(localitySettings.minRecords))
+    if (localitySettings.mode === 'records') params.set('site_labels', 'records')
+    if (localitySettings.minRecords !== 10) params.set('site_min', String(localitySettings.minRecords))
     if (showComparison.value) params.set('site_compare', '1')
     if (shortlistIds.value.length) params.set('site_shortlist', JSON.stringify(shortlistIds.value))
+    if (hiddenLabelIds.value.length) params.set('site_hidden', JSON.stringify(hiddenLabelIds.value))
+  }
+
+  const parseSiteIds = value => {
+    try {
+      const list = JSON.parse(value)
+      if (Array.isArray(list) && list.length <= 200 && list.every(id => typeof id === 'string' && id.startsWith('site:') && id.length <= 500)) {
+        return [...new Set(list)]
+      }
+    } catch { /* Ignore invalid shared links. */ }
+    return null
   }
 
   function restoreFromURL(params) {
     if (params.get('sites') === '0') localitySettings.enabled = false
     else if (params.get('sites') === '1') localitySettings.enabled = true
+    if (params.get('site_labels') === 'records') localitySettings.mode = 'records'
+    else if (params.get('site_labels') === 'auto') localitySettings.mode = 'auto'
     const minimum = Number(params.get('site_min'))
     if (params.has('site_min') && Number.isInteger(minimum) && minimum >= 1 && minimum <= 10000) localitySettings.minRecords = minimum
     if (params.get('site_compare') === '1') showComparison.value = true
     else if (params.get('site_compare') === '0') showComparison.value = false
-    if (params.has('site_shortlist')) {
-      try {
-        const list = JSON.parse(params.get('site_shortlist'))
-        if (Array.isArray(list) && list.length <= 200 && list.every(id => typeof id === 'string' && id.startsWith('site:') && id.length <= 500)) {
-          shortlistIds.value = [...new Set(list)]
-        }
-      } catch { /* Ignore invalid shared links. */ }
-    }
+    const shortlist = params.has('site_shortlist') && parseSiteIds(params.get('site_shortlist'))
+    if (shortlist) shortlistIds.value = shortlist
+    const hidden = params.has('site_hidden') && parseSiteIds(params.get('site_hidden'))
+    if (hidden) hiddenLabelIds.value = hidden
   }
 
   watch(shortlistIds, value => {
@@ -128,11 +177,13 @@ export const usePlanningStore = defineStore('planning', () => {
   watch(showComparison, visible => {
     if (!visible) comparisonMinimized.value = false
   })
-  watch([localitySettings, showComparison, shortlistIds], () => useViewStore().syncURLState(), { deep: true })
+  watch([localitySettings, showComparison, shortlistIds, hiddenLabelIds], () => useViewStore().syncURLState(), { deep: true })
 
   return {
     localitySettings, showComparison, comparisonMinimized, shortlistIds, shortlistSet, selectedSiteId,
-    focusRequestId, targetTaxa, targetDefinitions, sites, labeledSites, shortlistedSites, toggleShortlist,
+    hiddenLabelIds, hiddenLabelSet, labeledSiteIds, viewBounds, sitesInView, isLabelShown, toggleLabel,
+    setLabeledSites, setViewBounds,
+    focusRequestId, targetTaxa, targetDefinitions, sites, shortlistedSites, toggleShortlist,
     focusSite, exportSiteCsv, appendURLParams, restoreFromURL,
   }
 })

@@ -1,7 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
 const state = vi.hoisted(() => ({
-  planning: { localitySettings: { enabled: true, minRecords: 2 }, shortlistIds: [], selectedSiteId: null, sites: [] },
+  planning: { localitySettings: { enabled: true, mode: 'records', minRecords: 2 }, shortlistIds: [], selectedSiteId: null, sites: [],
+    hiddenLabelIds: [], hiddenLabelSet: new Set(), labeled: [], bounds: null,
+    setLabeledSites(ids) { this.labeled = ids }, setViewBounds(bounds) { this.bounds = bounds } },
   data: { visualizationMode: 'points', mapStyle: { pointSize: 10 } },
   legend: { shapeSettings: { enabled: false } },
 }))
@@ -48,8 +50,11 @@ beforeEach(() => {
   state.data.visualizationMode = 'points'
   state.data.mapStyle = { pointSize: 10 }
   state.legend.shapeSettings.enabled = false
-  state.planning.localitySettings = { enabled: true, minRecords: 2 }
+  state.planning.localitySettings = { enabled: true, mode: 'records', minRecords: 2 }
   state.planning.shortlistIds = []
+  state.planning.hiddenLabelIds = []
+  state.planning.hiddenLabelSet = new Set()
+  state.planning.labeled = []
   state.planning.selectedSiteId = null
   state.planning.sites = []
 })
@@ -74,6 +79,21 @@ describe('native locality labels', () => {
     state.planning.localitySettings.minRecords = 3
     await layer.refresh()
     expect(sources['collection-localities'].data.features).toEqual([])
+  })
+
+  it('ignores the record minimum in busiest-in-view mode, skips hidden sites and reports named sites', async () => {
+    const { layer, sources, layers } = fixture()
+    layers['points-layer'] = {}
+    state.planning.localitySettings = { enabled: true, mode: 'auto', minRecords: 100 }
+    await layer.refresh()
+    const [label] = sources['collection-localities'].data.features
+    expect(label.properties.label).toBe('Suchipakari')
+    expect(state.planning.labeled).toEqual([label.properties.siteId])
+    state.planning.hiddenLabelIds = [label.properties.siteId]
+    state.planning.hiddenLabelSet = new Set(state.planning.hiddenLabelIds)
+    await layer.refresh()
+    expect(sources['collection-localities'].data.features).toEqual([])
+    expect(state.planning.labeled).toEqual([])
   })
 
   it('shows a shortlisted callout below threshold, then hides labels when disabled', async () => {

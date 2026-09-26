@@ -50,6 +50,12 @@ describe('screen-space locality placement', () => {
       .placements[0].candidate).toBeGreaterThanOrEqual(8)
   })
 
+  it('does not name markers whose centre is past the map edge', () => {
+    const edge = { ...item('edge', 405, 150, -5, 'Km 55'), shortlisted: true }
+    expect(layoutLocalityLabels([edge, item('inside', 200, 150, -1)], view).placements.map(placed => placed.item.key))
+      .toEqual(['inside'])
+  })
+
   it('scales the label budget with the map area', () => {
     expect(labelBudget(1450, 1380)).toBe(8)
     expect(labelBudget(390, 600)).toBe(3)

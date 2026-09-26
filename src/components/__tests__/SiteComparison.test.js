@@ -18,11 +18,12 @@ const site = (name, count) => ({
 beforeEach(() => {
   vi.clearAllMocks()
   planning = reactive({
-    localitySettings: { enabled: true, minRecords: 1 },
+    localitySettings: { enabled: true, mode: 'auto', minRecords: 10 },
     showComparison: true, comparisonMinimized: false, targetTaxa: ['Mechanitis polymnia'],
-    sites: [site('Suchipakari', 59), site('Cavernas', 61)], shortlistSet: new Set(),
-    get shortlistedSites() { return this.sites.filter(site => this.shortlistSet.has(site.id)) },
-    toggleShortlist(site) { this.shortlistSet.has(site.id) ? this.shortlistSet.delete(site.id) : this.shortlistSet.add(site.id) },
+    sites: [site('Suchipakari', 59), site('Cavernas', 61)], shortlistSet: new Set(), labeled: new Set(['Cavernas']),
+    get sitesInView() { return this.sites.filter(site => site.name !== 'Suchipakari') },
+    isLabelShown(id) { return this.shortlistSet.has(id) || this.labeled.has(id) },
+    toggleLabel(site) { this.labeled.has(site.id) ? this.labeled.delete(site.id) : this.labeled.add(site.id) },
     focusSite: vi.fn(),
   })
 })
@@ -37,31 +38,32 @@ function mount() {
 }
 
 describe('SiteComparison', () => {
-  it('shows a compact single-target list while preserving focus and shortlist actions', async () => {
+  it('lists sites in view with focus and label visibility actions', async () => {
     const host = mount()
     expect(host.querySelectorAll('.target-breakdown')).toHaveLength(0)
     expect(host.querySelector('.single-target').textContent).toBe('Mechanitis polymnia')
-    expect(host.querySelector('.site-name').textContent).toBe('Cavernas')
-    expect(host.querySelector('.shortlist-filter')).toBeNull()
-    expect(host.textContent).not.toMatch(/dated record|target taxa|0 shortlisted|Counts are/)
+    expect(host.querySelector('.comparison-header p').textContent).toBe('1 site in view')
+    expect(host.querySelectorAll('.site-row')).toHaveLength(1)
+    expect(host.textContent).not.toMatch(/dated record|target taxa|shortlist|Counts are/i)
     host.querySelector('.site-focus').click()
     expect(planning.focusSite).toHaveBeenCalledWith(planning.sites[1])
-    host.querySelector('.shortlist-button').click()
+    const eye = host.querySelector('.label-button')
+    expect(eye.getAttribute('aria-label')).toBe('Hide Cavernas name on map')
+    eye.click()
     await nextTick()
-    expect(host.querySelector('.shortlist-filter').textContent).toContain('1')
-    host.querySelector('.shortlist-filter').click()
-    await nextTick()
-    expect(host.querySelectorAll('.site-row')).toHaveLength(1)
-    host.querySelector('.shortlist-button').click()
+    expect(eye.getAttribute('aria-label')).toBe('Show Cavernas name on map')
+    host.querySelector('.view-filter').click()
     await nextTick()
     expect(host.querySelectorAll('.site-row')).toHaveLength(2)
-    expect(host.querySelector('.shortlist-filter')).toBeNull()
+    expect(host.querySelector('.comparison-header p').textContent).toBe('2 sites')
   })
 
   it('retains zero counts for multiple targets and hides coverage sorting when no longer relevant', async () => {
     planning.targetTaxa.push('Ithomia salapia derasa')
     planning.sites.forEach(site => site.targetCounts.push({ label: 'Ithomia salapia derasa', count: 0 }))
     const host = mount()
+    host.querySelector('.view-filter').click()
+    await nextTick()
     expect(host.querySelectorAll('.target-breakdown')).toHaveLength(2)
     expect(host.querySelector('.target-breakdown').textContent).toContain('Ithomia salapia derasa0')
     const select = host.querySelector('.sort-label select')
@@ -77,9 +79,13 @@ describe('SiteComparison', () => {
     const host = mount()
     const input = host.querySelector('input[type=search]')
     input.value = 'Suchipakari'; input.dispatchEvent(new Event('input'))
+    expect(host.querySelector('#site-min-records')).toBeNull()
+    host.querySelector('[role="radio"]:not(.active)').click()
+    await nextTick()
+    expect(planning.localitySettings.mode).toBe('records')
     host.querySelector('[aria-label="Increase minimum records"]').click()
     await nextTick()
-    expect(planning.localitySettings.minRecords).toBe(2)
+    expect(planning.localitySettings.minRecords).toBe(11)
     host.querySelector('[aria-label="Collapse field sites"]').click()
     await nextTick()
     expect(planning.comparisonMinimized).toBe(true)
@@ -88,7 +94,7 @@ describe('SiteComparison', () => {
     await nextTick()
     expect(planning.comparisonMinimized).toBe(false)
     expect(input.value).toBe('Suchipakari')
-    expect(host.querySelector('#site-min-records').value).toBe('2')
+    expect(host.querySelector('#site-min-records').value).toBe('11')
     host.querySelector('[role="switch"]').click()
     await nextTick()
     expect(host.querySelector('#site-min-records').disabled).toBe(true)
@@ -96,6 +102,7 @@ describe('SiteComparison', () => {
 
   it('exports the search results rather than silently exporting all sites', async () => {
     const host = mount()
+    host.querySelector('.view-filter').click()
     const input = host.querySelector('input[type=search]')
     input.value = 'Suchipakari'; input.dispatchEvent(new Event('input'))
     await nextTick()

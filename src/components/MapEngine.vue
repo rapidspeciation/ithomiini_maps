@@ -678,7 +678,7 @@ watch(
     })
   }
 )
-watch([() => planning.localitySettings, () => planning.shortlistIds, () => planning.selectedSiteId], () => {
+watch([() => planning.localitySettings, () => planning.shortlistIds, () => planning.hiddenLabelIds, () => planning.selectedSiteId], () => {
   localityLayer.invalidate()
   localityLayer.refresh()
 }, { deep: true })

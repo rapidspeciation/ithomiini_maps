@@ -1,6 +1,6 @@
 <script setup>
 import { computed, nextTick, ref, watch } from 'vue'
-import { Download, ChevronLeft, ChevronRight, MapPin, Star } from 'lucide-vue-next'
+import { Download, ChevronLeft, ChevronRight, Eye, EyeOff, MapPin, Scan } from 'lucide-vue-next'
 import { usePlanningStore, sitesToCsv } from '../stores/planning'
 import { downloadCsv } from '../utils/tableExport'
 import LocalityMapLink from './LocalityMapLink.vue'
@@ -23,12 +23,12 @@ async function collapsePanel() {
 }
 const query = ref('')
 const sortBy = ref('records')
-const shortlistOnly = ref(false)
+const inViewOnly = ref(true)
 const visibleCount = ref(50)
 
 const matchingSites = computed(() => {
   const term = query.value.trim().toLocaleLowerCase()
-  const candidateSites = shortlistOnly.value ? planning.shortlistedSites : planning.sites
+  const candidateSites = inViewOnly.value ? planning.sitesInView : planning.sites
   const list = term
     ? candidateSites.filter(site => `${site.name} ${site.country}`.toLocaleLowerCase().includes(term))
     : candidateSites
@@ -40,14 +40,13 @@ const matchingSites = computed(() => {
 })
 const multipleTargets = computed(() => planning.targetTaxa.length > 1)
 const showCountries = computed(() => new Set(matchingSites.value.map(site => site.country).filter(Boolean)).size > 1)
-const exportScope = ref('listed')
-const exportSites = computed(() => exportScope.value === 'shortlist' ? matchingSites.value.filter(site => planning.shortlistSet.has(site.id)) : matchingSites.value)
 watch(multipleTargets, value => { if (!value && sortBy.value === 'coverage') sortBy.value = 'records' })
-watch(() => planning.shortlistedSites.length, count => {
-  if (!count) { shortlistOnly.value = false; exportScope.value = 'listed' }
-})
 const visibleSites = computed(() => matchingSites.value.slice(0, visibleCount.value))
-watch([query, sortBy, shortlistOnly], () => { visibleCount.value = 50 })
+watch([query, sortBy, inViewOnly], () => { visibleCount.value = 50 })
+
+function labelAction(site) {
+  return planning.isLabelShown(site.id) ? `Hide ${site.name} name on map` : `Show ${site.name} name on map`
+}
 
 function focus(site) {
   planning.focusSite(site)
@@ -63,7 +62,7 @@ function focus(site) {
     <header class="comparison-header">
       <div>
         <h2>Field sites</h2>
-        <p>{{ matchingSites.length.toLocaleString() }} {{ matchingSites.length === 1 ? 'site' : 'sites' }}</p>
+        <p>{{ matchingSites.length.toLocaleString() }} {{ matchingSites.length === 1 ? 'site' : 'sites' }}{{ inViewOnly ? ' in view' : '' }}</p>
       </div>
       <div class="comparison-actions">
         <button ref="collapseButton" type="button" class="icon-button" aria-label="Collapse field sites" title="Collapse field sites" @click="collapsePanel"><ChevronRight :size="20" /></button>
@@ -87,10 +86,9 @@ function focus(site) {
       </label>
     </div>
 
-    <button v-if="planning.shortlistedSites.length" type="button" class="shortlist-filter" :class="{ active: shortlistOnly }" :aria-pressed="shortlistOnly" @click="shortlistOnly = !shortlistOnly">
-      <Star :size="14" :fill="shortlistOnly ? 'currentColor' : 'none'" aria-hidden="true" />
-      Shortlist only
-      <span>{{ planning.shortlistedSites.length.toLocaleString() }}</span>
+    <button type="button" class="view-filter" :class="{ active: inViewOnly }" :aria-pressed="inViewOnly" @click="inViewOnly = !inViewOnly">
+      <Scan :size="14" aria-hidden="true" />
+      In view
     </button>
 
     <div class="list-heading">
@@ -112,24 +110,21 @@ function focus(site) {
         <LocalityMapLink :site="site" />
         <button
           type="button"
-          class="shortlist-button"
-          :class="{ active: planning.shortlistSet.has(site.id) }"
-          :aria-label="`${planning.shortlistSet.has(site.id) ? 'Remove' : 'Add'} ${site.name} ${planning.shortlistSet.has(site.id) ? 'from' : 'to'} shortlist`"
-          :aria-pressed="planning.shortlistSet.has(site.id)"
-          @click="planning.toggleShortlist(site)"
-        ><Star :size="18" :fill="planning.shortlistSet.has(site.id) ? 'currentColor' : 'none'" /></button>
+          class="label-button"
+          :class="{ active: planning.isLabelShown(site.id), pinned: planning.shortlistSet.has(site.id) }"
+          :aria-label="labelAction(site)"
+          :title="labelAction(site)"
+          :aria-pressed="planning.isLabelShown(site.id)"
+          @click="planning.toggleLabel(site)"
+        ><component :is="planning.isLabelShown(site.id) ? Eye : EyeOff" :size="18" /></button>
         </div>
       </article>
-      <p v-if="!matchingSites.length" class="empty-sites">{{ query ? 'No sites match this search.' : shortlistOnly ? 'No shortlisted sites in the current selection. Turn off Shortlist only to add one, or change the filters.' : 'No sites in the current selection. Change the filters to see sites.' }}</p>
+      <p v-if="!matchingSites.length" class="empty-sites">{{ query ? 'No sites match this search.' : inViewOnly ? 'No sites in view. Zoom out or turn off In view.' : 'No sites in the current selection. Change the filters to see sites.' }}</p>
       <button v-if="visibleCount < matchingSites.length" type="button" class="show-more" @click="visibleCount += 50">Show 50 more sites</button>
     </div>
 
     <footer class="comparison-footer">
-      <select v-if="planning.shortlistedSites.length && !shortlistOnly" v-model="exportScope" aria-label="Sites to export">
-        <option value="listed">Listed sites</option>
-        <option value="shortlist">Shortlisted sites</option>
-      </select>
-      <button type="button" :disabled="!exportSites.length" @click="downloadCsv('field-sites.csv', sitesToCsv(exportSites))"><Download :size="15" aria-hidden="true" /> {{ shortlistOnly || exportScope === 'shortlist' ? 'Export shortlist' : 'Export sites' }}</button>
+      <button type="button" :disabled="!matchingSites.length" @click="downloadCsv('field-sites.csv', sitesToCsv(matchingSites))"><Download :size="15" aria-hidden="true" /> Export sites</button>
     </footer>
   </aside>
   </Transition>
@@ -153,9 +148,8 @@ button { font: inherit; cursor: pointer; }
 .comparison-controls label { display: grid; gap: 4px; min-width: 0; color: var(--color-text-secondary, #aaa); font-size: .72rem; }
 .comparison-controls input, .comparison-controls select { width: 100%; min-width: 0; padding: 7px 8px; color: var(--color-text-primary, #e0e0e0); background: var(--color-bg-primary, #1a1a2e); border: 1px solid var(--color-border, #3d3d5c); border-radius: 6px; font: inherit; font-size: .77rem; }
 .comparison-controls input::placeholder { color: var(--color-text-secondary, #aaa); }
-.shortlist-filter { display: flex; align-items: center; gap: 7px; align-self: flex-start; margin: 0 16px 10px; padding: 6px 9px; color: var(--color-text-secondary, #aaa); border: 1px solid var(--color-border, #3d3d5c); border-radius: 6px; background: var(--color-bg-primary, #1a1a2e); font-size: .74rem; }
-.shortlist-filter:hover, .shortlist-filter.active { color: var(--color-accent, #4ade80); border-color: var(--color-accent, #4ade80); }
-.shortlist-filter span { font-variant-numeric: tabular-nums; }
+.view-filter { display: flex; align-items: center; gap: 7px; align-self: flex-start; margin: 0 16px 10px; padding: 6px 9px; color: var(--color-text-secondary, #aaa); border: 1px solid var(--color-border, #3d3d5c); border-radius: 6px; background: var(--color-bg-primary, #1a1a2e); font-size: .74rem; }
+.view-filter:hover, .view-filter.active { color: var(--color-accent, #4ade80); border-color: var(--color-accent, #4ade80); }
 .site-list { flex: 1; min-height: 0; overflow-y: auto; border-top: 1px solid var(--color-border, #3d3d5c); scrollbar-color: var(--color-border, #3d3d5c) transparent; }
 .site-row { display: flex; align-items: flex-start; border-bottom: 1px solid var(--color-border, #3d3d5c); }
 .site-row.selected { background: var(--color-bg-tertiary, #2d2d4a); }
@@ -167,8 +161,9 @@ button { font: inherit; cursor: pointer; }
 .target-breakdown > span { display: flex; justify-content: space-between; gap: 12px; color: var(--color-text-secondary, #aaa); }
 .target-breakdown > span > span { overflow-wrap: anywhere; }
 .target-breakdown strong { color: var(--color-text-primary, #e0e0e0); font-variant-numeric: tabular-nums; }
-.shortlist-button { display: grid; place-items: center; flex: none; width: 32px; height: 32px; margin: 0; color: var(--color-text-secondary, #aaa); border: 0; border-radius: 6px; background: transparent; }
-.shortlist-button:hover, .shortlist-button.active { color: var(--color-accent, #4ade80); }
+.label-button { display: grid; place-items: center; flex: none; width: 32px; height: 32px; margin: 0; color: var(--color-text-secondary, #aaa); border: 0; border-radius: 6px; background: transparent; }
+.label-button:hover, .label-button.active { color: var(--color-text-primary, #e0e0e0); }
+.label-button.pinned { color: var(--color-accent, #4ade80); }
 .empty-sites { margin: 0; padding: 24px 16px; color: var(--color-text-secondary, #aaa); line-height: 1.5; }
 .show-more { width: 100%; padding: 12px; color: var(--color-accent, #4ade80); border: 0; background: transparent; font-weight: 650; }
 .show-more:hover { background: var(--color-bg-tertiary, #2d2d4a); }
@@ -182,7 +177,6 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .site-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
 .record-count { font-variant-numeric: tabular-nums; }
 .site-actions { display: flex; align-items: flex-start; flex: none; gap: 0; padding: 6px 8px; }
-.comparison-footer select { min-width: 0; color: var(--color-text-primary); background: var(--color-bg-primary); border: 1px solid var(--color-border); border-radius: 6px; padding: 6px; font: inherit; }
 @media (max-width: 600px) {
   .site-comparison { top: 54px; right: 0; width: 100%; height: calc(100% - 108px); border-top: 1px solid var(--color-border, #3d3d5c); }
 }

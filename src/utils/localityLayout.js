@@ -3,7 +3,7 @@ const MAX_TEXT_WIDTH = 164
 const TEXT_LINE_HEIGHT = 16
 // Room for a visible leader and arrowhead between the text and its marker.
 const LABEL_GAP = 16
-// Fallback ring for shortlisted sites when every near position is taken.
+// Fallback ring for pinned sites, or all sites when labelling by records, when every near position is taken.
 const FAR_GAP = 40
 const CANDIDATES = Array.from({ length: 16 }, (_, index) => index)
 const NEAR_CANDIDATES = CANDIDATES.slice(0, 8)
@@ -98,12 +98,12 @@ function leaderGeometry(rect, anchor, radius) {
 /**
  * Greedy label layout in priority order. Selected and shortlisted sites try
  * eight near positions, then eight farther ones, and are always labelled when
- * they fit. Other sites use near positions only, up to `maxLabels`, so the
- * largest sites in view are named and zooming in reveals smaller ones. Only
- * text and marker boxes block placement; leaders may cross.
+ * they fit. Other sites use near positions only (unless `allowFar`), up to
+ * `maxLabels`, so the largest sites in view are named and zooming in reveals
+ * smaller ones. Only text and marker boxes block placement; leaders may cross.
  */
 export function layoutLocalityLabels(items, { project, width, height, measure, markerObstacles = [],
-  preferred = new Map(), maxLabels = Infinity }) {
+  preferred = new Map(), maxLabels = Infinity, allowFar = false }) {
   const grid = new SpatialGrid()
   for (const obstacle of markerObstacles) {
     const { x, y, radius } = obstacle
@@ -119,6 +119,8 @@ export function layoutLocalityLabels(items, { project, width, height, measure, m
     // A labeled record is also a marker obstacle even if the renderer omits it from queries.
     grid.add({ left: anchor.x - radius, right: anchor.x + radius,
       top: anchor.y - radius, bottom: anchor.y + radius })
+    // Markers clipped by the map edge still block text, but are not named.
+    if (anchor.x < 0 || anchor.x > width || anchor.y < 0 || anchor.y > height) continue
     projected.push({ item, anchor, radius })
   }
   projected.sort((a, b) => a.item.priority - b.item.priority || a.item.key.localeCompare(b.item.key))
@@ -134,7 +136,7 @@ export function layoutLocalityLabels(items, { project, width, height, measure, m
     // Font metrics differ slightly from MapLibre glyphs; leave conservative slack.
     const labelWidth = measured * 1.15 + 14
     const labelHeight = lines.length * TEXT_LINE_HEIGHT + 10
-    const allowed = priority ? CANDIDATES : NEAR_CANDIDATES
+    const allowed = priority || allowFar ? CANDIDATES : NEAR_CANDIDATES
     const previous = preferred.get(item.key)
     const indices = previous == null || !allowed.includes(previous) ? allowed
       : [previous, ...allowed.filter(index => index !== previous)]

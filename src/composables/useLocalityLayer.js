@@ -250,7 +250,7 @@ export function useLocalityLayer(map, { isDarkBasemap = () => false } = {}) {
     return obstacles
   }
 
-  function layoutFeatures(labels, callouts, renderedMarkers) {
+  function layoutFeatures(labels, callouts, renderedMarkers, { byRecords = false } = {}) {
     const m = map.value
     const inputs = [...callouts.map(feature => ({ feature, selected: !!feature.properties.selected,
       shortlisted: true })), ...labels.map(feature => ({ feature, selected: false, shortlisted: false }))]
@@ -267,7 +267,9 @@ export function useLocalityLayer(map, { isDarkBasemap = () => false } = {}) {
     const result = layoutLocalityLabels(items, {
       project: coordinates => m.project(coordinates), width, height, measure,
       markerObstacles: markerObstacles(m, renderedMarkers), preferred: preferredPlacements,
-      maxLabels: labelBudget(width, height),
+      // By records, every site over the minimum is named where it fits; otherwise
+      // only the busiest in view, next to their markers.
+      maxLabels: byRecords ? Infinity : labelBudget(width, height), allowFar: byRecords,
     })
     preferredPlacements = result.choices
     const placedLabels = [], placedCallouts = []
@@ -359,17 +361,22 @@ export function useLocalityLayer(map, { isDarkBasemap = () => false } = {}) {
     if (disposed || !m?.isStyleLoaded() || !m.getSource('points-source')) return
     // Existing symbols remain screen-aligned while the camera moves.
     if (m.isMoving?.()) return
+    const bounds = m.getBounds?.()
+    if (bounds) planning.setViewBounds([bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()])
     const settings = planning.localitySettings
-    const minimum = Math.max(1, Number(settings.minRecords) || 1)
+    const byRecords = settings.mode === 'records'
+    const minimum = byRecords ? Math.max(1, Number(settings.minRecords) || 1) : 1
+    const hidden = planning.hiddenLabelSet
     const clustered = store.visualizationMode === 'clusters' && m.getLayer('clusters')
-    const baseKey = JSON.stringify([generation, settings.enabled, minimum, planning.shortlistIds,
-      planning.selectedSiteId, selectedAnchorKey, selectedClusterId, store.visualizationMode, cameraKey(m)])
+    const baseKey = JSON.stringify([generation, settings.enabled, settings.mode, minimum, planning.shortlistIds,
+      planning.hiddenLabelIds, planning.selectedSiteId, selectedAnchorKey, selectedClusterId, store.visualizationMode, cameraKey(m)])
     const layersReady = m.getLayer(LABELS) && m.getLayer(CALLOUTS)
     if (!settings.enabled) {
       if (lastKey === 'disabled' && layersReady) return
       lastKey = 'disabled'
       hovered = null
       selectedFeature = null
+      planning.setLabeledSites([])
       await render([], [], 'disabled')
       return
     }
@@ -439,11 +446,15 @@ export function useLocalityLayer(map, { isDarkBasemap = () => false } = {}) {
         `${cluster.properties.pointCount} individuals including ${names.join(', ')}`))
     }
     const labels = [
-      ...anchorFeatures.filter(f => (siteCounts.get(f.properties.siteId) || 0) >= minimum && !claimed.has(f.properties.anchorKey)),
-      ...clusterFeatures.filter(f => f.properties.pointCount >= minimum && !claimed.has(`cluster:${f.properties.clusterId}`)),
+      ...anchorFeatures.filter(f => (siteCounts.get(f.properties.siteId) || 0) >= minimum &&
+        !hidden.has(f.properties.siteId) && !claimed.has(f.properties.anchorKey)),
+      ...clusterFeatures.filter(f => f.properties.pointCount >= minimum &&
+        !hidden.has(f.properties.siteId) && !claimed.has(`cluster:${f.properties.clusterId}`)),
     ]
-    const laidOut = layoutFeatures(labels, callouts, clustered ? rendered : undefined)
+    const laidOut = layoutFeatures(labels, callouts, clustered ? rendered : undefined, { byRecords })
     selectedFeature = laidOut.placedCallouts.find(f => f.properties.selected) || null
+    planning.setLabeledSites([...laidOut.placedLabels, ...laidOut.placedCallouts]
+      .map(f => f.properties.siteId).filter(Boolean))
     await render(laidOut.placedLabels, laidOut.placedCallouts, key)
   }
 

@@ -5,8 +5,12 @@ import { usePlanningStore } from '../stores/planning'
 const planning = usePlanningStore()
 function setMinimum(value) {
   const number = Number(value)
-  planning.localitySettings.minRecords = Number.isFinite(number) ? Math.max(1, Math.min(10000, Math.floor(number))) : 1
+  planning.localitySettings.minRecords = Number.isFinite(number) ? Math.max(1, Math.min(10000, Math.floor(number))) : 10
 }
+const modes = [
+  { value: 'auto', label: 'Busiest in view', title: 'Name the sites with most records in view; zoom in to name smaller ones' },
+  { value: 'records', label: 'By records', title: 'Name every site with at least the minimum number of records' },
+]
 function clampMinimum(event) {
   setMinimum(event.target.value)
   event.target.value = planning.localitySettings.minRecords
@@ -20,7 +24,20 @@ function clampMinimum(event) {
       <input v-model="planning.localitySettings.enabled" type="checkbox" role="switch" />
       <span class="switch-track" aria-hidden="true"></span>
     </label>
-    <div class="locality-minimum">
+    <div class="locality-mode" role="radiogroup" aria-label="Which sites to name">
+      <button
+        v-for="option in modes"
+        :key="option.value"
+        type="button"
+        role="radio"
+        :aria-checked="planning.localitySettings.mode === option.value"
+        :class="{ active: planning.localitySettings.mode === option.value }"
+        :disabled="!planning.localitySettings.enabled"
+        :title="option.title"
+        @click="planning.localitySettings.mode = option.value"
+      >{{ option.label }}</button>
+    </div>
+    <div v-if="planning.localitySettings.mode === 'records'" class="locality-minimum">
       <label for="site-min-records">Minimum records for labels</label>
       <div class="record-stepper">
         <button type="button" aria-label="Decrease minimum records" :disabled="!planning.localitySettings.enabled || planning.localitySettings.minRecords <= 1" @click="setMinimum(planning.localitySettings.minRecords - 1)"><Minus :size="14" /></button>
@@ -40,6 +57,12 @@ function clampMinimum(event) {
 .locality-toggle input:checked + .switch-track { background: var(--color-accent); border-color: var(--color-accent); }
 .locality-toggle input:checked + .switch-track::after { transform: translateX(16px); background: var(--color-bg-primary); }
 .locality-toggle input:focus-visible + .switch-track { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+.locality-mode { display: grid; grid-template-columns: 1fr 1fr; margin-top: 12px; border: 1px solid var(--color-border); border-radius: 6px; overflow: hidden; }
+.locality-mode button { padding: 6px 4px; border: 0; color: var(--color-text-secondary); background: var(--color-bg-primary); font: inherit; cursor: pointer; }
+.locality-mode button + button { border-left: 1px solid var(--color-border); }
+.locality-mode button.active { color: var(--color-accent); background: var(--color-bg-tertiary); }
+.locality-mode button:disabled { opacity: .45; cursor: default; }
+.locality-mode button:focus-visible { outline: 2px solid var(--color-accent); outline-offset: -2px; }
 .locality-minimum { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 12px; }
 .record-stepper { display: flex; flex: none; align-items: center; border: 1px solid var(--color-border); border-radius: 6px; overflow: hidden; }
 .record-stepper button { display: grid; place-items: center; width: 28px; height: 30px; padding: 0; border: 0; color: var(--color-text-primary); background: var(--color-bg-tertiary); cursor: pointer; }
