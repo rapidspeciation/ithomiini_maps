@@ -45,8 +45,8 @@ export function resolvePointFeatures(features, { attribute, palette, hiddenItems
 }
 
 /**
- * One marker per site, as drawn in the browser: a colour (single group or
- * individuals ramp) or pie segments, and a size factor from individuals.
+ * One marker per site, as drawn in the browser: a single colour or pie
+ * segments, and a size factor from individuals.
  * Large sites come first so small ones are painted on top.
  */
 export function resolveSiteFeatures(sites, { project, shapeFor = () => 'circle', strokeFor = () => null }) {
@@ -141,13 +141,9 @@ export function snapshotLegend(container) {
     return lines.size ? [...lines.values()] : [{ text: el.textContent.trim(), box: relative(el) }]
   }
   const rows = []
-  const selectors = '.legend-title, .legend-group-header, .legend-item, .legend-more, .individuals-ramp, .individuals-scale > span'
+  const selectors = '.legend-title, .legend-group-header, .legend-item, .legend-more'
   element.querySelectorAll(selectors).forEach(el => {
     if (!visible(el)) return
-    if (el.classList.contains('individuals-ramp')) {
-      rows.push({ type: 'ramp', box: relative(el), colors: (el.dataset.colors || '').split(',').filter(Boolean), lines: [] })
-      return
-    }
     let type = 'item'
     let textEl = el.querySelector('.legend-label') || el
     if (el.classList.contains('legend-title')) {

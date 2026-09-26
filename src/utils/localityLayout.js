@@ -3,10 +3,18 @@ const MAX_TEXT_WIDTH = 164
 const TEXT_LINE_HEIGHT = 16
 // Room for a visible leader and arrowhead between the text and its marker.
 const LABEL_GAP = 16
-// Fallback ring used when every near position is taken; longer leaders keep the link clear.
+// Fallback ring for shortlisted sites when every near position is taken.
 const FAR_GAP = 40
 const CANDIDATES = Array.from({ length: 16 }, (_, index) => index)
+const NEAR_CANDIDATES = CANDIDATES.slice(0, 8)
 const VIEWPORT_MARGIN = 8
+// Screen area per ordinary label: about 8 on a laptop-sized map.
+const AREA_PER_LABEL = 250000
+
+/** How many ordinary site names fit a map of this size before it reads as clutter. */
+export function labelBudget(width, height) {
+  return clamp(Math.round(width * height / AREA_PER_LABEL), 3, 12)
+}
 
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value))
 
@@ -87,8 +95,15 @@ function leaderGeometry(rect, anchor, radius) {
   } }
 }
 
-/** Greedy label layout: eight near positions, then eight farther ones. Only text and marker boxes block placement; leaders may cross. */
-export function layoutLocalityLabels(items, { project, width, height, measure, markerObstacles = [], preferred = new Map() }) {
+/**
+ * Greedy label layout in priority order. Selected and shortlisted sites try
+ * eight near positions, then eight farther ones, and are always labelled when
+ * they fit. Other sites use near positions only, up to `maxLabels`, so the
+ * largest sites in view are named and zooming in reveals smaller ones. Only
+ * text and marker boxes block placement; leaders may cross.
+ */
+export function layoutLocalityLabels(items, { project, width, height, measure, markerObstacles = [],
+  preferred = new Map(), maxLabels = Infinity }) {
   const grid = new SpatialGrid()
   for (const obstacle of markerObstacles) {
     const { x, y, radius } = obstacle
@@ -109,16 +124,20 @@ export function layoutLocalityLabels(items, { project, width, height, measure, m
   projected.sort((a, b) => a.item.priority - b.item.priority || a.item.key.localeCompare(b.item.key))
   const placements = []
   const choices = new Map()
+  let ordinary = 0
   for (const { item, anchor, radius } of projected) {
+    const priority = item.selected || item.shortlisted
+    if (!priority && ordinary >= maxLabels) continue
     const text = wrapLocalityLabel(item.label, measure)
     const lines = text.split('\n')
     const measured = Math.max(...lines.map(line => measure(line)))
     // Font metrics differ slightly from MapLibre glyphs; leave conservative slack.
     const labelWidth = measured * 1.15 + 14
     const labelHeight = lines.length * TEXT_LINE_HEIGHT + 10
+    const allowed = priority ? CANDIDATES : NEAR_CANDIDATES
     const previous = preferred.get(item.key)
-    const indices = previous == null ? CANDIDATES
-      : [previous, ...CANDIDATES.filter(index => index !== previous)]
+    const indices = previous == null || !allowed.includes(previous) ? allowed
+      : [previous, ...allowed.filter(index => index !== previous)]
     for (const index of indices) {
       const rect = candidate(anchor, radius, labelWidth, labelHeight, index)
       if (rect.left < VIEWPORT_MARGIN || rect.top < VIEWPORT_MARGIN ||
@@ -126,6 +145,7 @@ export function layoutLocalityLabels(items, { project, width, height, measure, m
         grid.intersects(rect)) continue
       grid.add(rect)
       choices.set(item.key, index)
+      if (!priority) ordinary++
       const inkWidth = measured + 4
       const inkHeight = lines.length * 14 + 4
       const inkRect = { left: rect.x - inkWidth / 2, right: rect.x + inkWidth / 2,

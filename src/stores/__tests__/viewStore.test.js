@@ -19,7 +19,7 @@ describe('useViewStore', () => {
     store.clusterSettings.compositionRings = true
     store.restoreVisualizationFromURL()
     expect(store.clusterSettings.compositionRings).toBe(false)
-    expect(store.colorBy).toBe('subspecies')
+    expect(store.colorBy).toBe('species')
     window.history.replaceState({}, '', '/')
   })
 
@@ -53,9 +53,9 @@ describe('useViewStore', () => {
     })
   })
 
-  it('defaults colorBy to subspecies', () => {
+  it('defaults colorBy to species', () => {
     const store = useViewStore()
 
-    expect(store.colorBy).toBe('subspecies')
+    expect(store.colorBy).toBe('species')
   })
 })

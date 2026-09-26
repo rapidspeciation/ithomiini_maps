@@ -1,5 +1,5 @@
 import { countUniqueIndividuals } from './clusterStats'
-import { individualsPosition, OTHER_COLOR, rampColor } from './colorPlan'
+import { OTHER_COLOR } from './colorPlan'
 
 /** Records within ~11 m share a marker; this matches popup coordinate lookup. */
 export const siteKeyFor = ([lng, lat]) => `${lat.toFixed(4)},${lng.toFixed(4)}`
@@ -37,20 +37,17 @@ function mostCommon(values) {
 }
 
 /**
- * Summarise every site for display. In category mode each site lists colour
- * segments in legend order ("Other" last); in individuals mode its fill comes
- * from the ramp position relative to the busiest site.
+ * Summarise every site for display. Each site lists colour segments in legend
+ * order ("Other" last); a site with one segment is filled with its colour.
  */
-export function summarizeSites(siteIndex, { plan, ramp, sizeByIndividuals = true }) {
+export function summarizeSites(siteIndex, { plan, sizeByIndividuals = true }) {
   const order = new Map((plan?.groups || []).map((group, index) => [group.key, index]))
   const summaries = []
-  let maximum = 1
   for (const site of siteIndex.values()) {
     const properties = site.records.map(record => record.properties)
     const individuals = countUniqueIndividuals(properties)
-    maximum = Math.max(maximum, individuals)
     let segments = []
-    if (plan?.mode === 'categories') {
+    if (plan) {
       const byGroup = new Map()
       for (const record of properties) {
         const group = plan.groupForRecord(record)
@@ -76,12 +73,10 @@ export function summarizeSites(siteIndex, { plan, ramp, sizeByIndividuals = true
     })
   }
   for (const summary of summaries) {
-    summary.fill = plan?.mode === 'categories'
-      ? (summary.segments.length === 1 ? summary.segments[0].color : null)
-      : rampColor(ramp, individualsPosition(summary.individuals, maximum))
-    if (plan?.mode === 'categories' && !summary.segments.length) summary.fill = OTHER_COLOR
+    summary.fill = summary.segments.length === 1 ? summary.segments[0].color
+      : summary.segments.length ? null : OTHER_COLOR
   }
-  return { sites: summaries, maxIndividuals: maximum }
+  return { sites: summaries }
 }
 
 /** Pie images are cached by quantized composition so similar sites share one image. */

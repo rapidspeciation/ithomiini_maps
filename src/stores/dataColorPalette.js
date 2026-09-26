@@ -4,8 +4,6 @@
 import { computed } from 'vue'
 import { STATUS_COLORS, SOURCE_COLORS } from '../utils/constants'
 import { OTHER_COLOR, planColors } from '../utils/colorPlan'
-import { countUniqueIndividuals } from '../utils/clusterStats'
-import { groupRecordsBySite } from '../utils/sites'
 import { useLegendStore } from './legend'
 
 /**
@@ -63,17 +61,7 @@ export function useColorMapping(colorBy, displayGeoJSON, colorByAttribute) {
       collapsedSpecies: colorBy.value === 'subspecies' ? legendStore.collapsedSpecies : [],
       fixedColors: COLOR_PALETTES[colorBy.value] || null,
       customColors: legendStore.customColors,
-      override: legendStore.colorOverride,
     })
-  })
-
-  /** Busiest site's individuals, for the individuals legend scale. */
-  const maxSiteIndividuals = computed(() => {
-    let maximum = 1
-    for (const site of groupRecordsBySite(displayGeoJSON.value?.features || []).values()) {
-      maximum = Math.max(maximum, countUniqueIndividuals(site.records.map(record => record.properties)))
-    }
-    return maximum
   })
 
   // Every displayed category keeps an entry so the legend and filters can list
@@ -127,7 +115,6 @@ export function useColorMapping(colorBy, displayGeoJSON, colorByAttribute) {
   // Legend title based on colorBy
   const legendTitle = computed(() => {
     const legendStore = useLegendStore()
-    if (colorPlan.value.mode === 'individuals') return 'Individuals per site'
     if (colorBy.value === 'subspecies' &&
         legendStore.effectiveGroupBy === 'species' &&
         legendStore.collapsedSpecies.length > 0) {
@@ -147,7 +134,6 @@ export function useColorMapping(colorBy, displayGeoJSON, colorByAttribute) {
   return {
     speciesSubspeciesMap,
     colorPlan,
-    maxSiteIndividuals,
     baseColorMap,
     activeColorMap,
     speciesColorMap,

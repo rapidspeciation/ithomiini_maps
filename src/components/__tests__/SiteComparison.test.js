@@ -18,7 +18,7 @@ const site = (name, count) => ({
 beforeEach(() => {
   vi.clearAllMocks()
   planning = reactive({
-    localitySettings: { enabled: true, minRecords: 10 },
+    localitySettings: { enabled: true, minRecords: 1 },
     showComparison: true, comparisonMinimized: false, targetTaxa: ['Mechanitis polymnia'],
     sites: [site('Suchipakari', 59), site('Cavernas', 61)], shortlistSet: new Set(),
     get shortlistedSites() { return this.sites.filter(site => this.shortlistSet.has(site.id)) },
@@ -79,7 +79,7 @@ describe('SiteComparison', () => {
     input.value = 'Suchipakari'; input.dispatchEvent(new Event('input'))
     host.querySelector('[aria-label="Increase minimum records"]').click()
     await nextTick()
-    expect(planning.localitySettings.minRecords).toBe(11)
+    expect(planning.localitySettings.minRecords).toBe(2)
     host.querySelector('[aria-label="Collapse field sites"]').click()
     await nextTick()
     expect(planning.comparisonMinimized).toBe(true)
@@ -88,7 +88,7 @@ describe('SiteComparison', () => {
     await nextTick()
     expect(planning.comparisonMinimized).toBe(false)
     expect(input.value).toBe('Suchipakari')
-    expect(host.querySelector('#site-min-records').value).toBe('11')
+    expect(host.querySelector('#site-min-records').value).toBe('2')
     host.querySelector('[role="switch"]').click()
     await nextTick()
     expect(host.querySelector('#site-min-records').disabled).toBe(true)

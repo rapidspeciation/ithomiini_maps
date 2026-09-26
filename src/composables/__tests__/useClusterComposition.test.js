@@ -4,7 +4,7 @@ import { ref } from 'vue'
 const state = vi.hoisted(() => ({
   data: {
     visualizationMode: 'clusters', clusterSettings: { compositionRings: true },
-    colorPlan: { mode: 'categories' },
+    colorPlan: {},
   },
 }))
 vi.mock('../../stores/data', () => ({ useDataStore: () => state.data }))
@@ -90,18 +90,5 @@ describe('cluster composition layer', () => {
     layer.cleanup()
     expect(map.value.off).toHaveBeenCalledWith('idle', expect.any(Function))
     expect(images.size).toBe(0)
-  })
-
-  it('keeps plain clusters when sites are coloured by individuals', async () => {
-    const getLeaves = vi.fn(async () => siteLeaves)
-    const { layer, map } = fixture(getLeaves)
-    state.data.colorPlan = { mode: 'individuals' }
-    try {
-      await layer.refresh()
-      expect(getLeaves).not.toHaveBeenCalled()
-      expect(map.value.addLayer).not.toHaveBeenCalled()
-    } finally {
-      state.data.colorPlan = { mode: 'categories' }
-    }
   })
 })

@@ -6,7 +6,7 @@ import { clusterCircleRadius } from '../utils/clusterComposition'
 import { visibleSiteRadius } from './useDataLayer'
 import { siteKeyFor } from '../utils/sites'
 import { drawLocalityLeader, groupLocalityAnchors, leaderImageSpec, LOCALITY_PALETTES } from '../utils/localityArrows'
-import { layoutLocalityLabels } from '../utils/localityLayout'
+import { labelBudget, layoutLocalityLabels } from '../utils/localityLayout'
 
 const SOURCE = 'collection-localities'
 const LABELS = 'collection-locality-labels'
@@ -267,6 +267,7 @@ export function useLocalityLayer(map, { isDarkBasemap = () => false } = {}) {
     const result = layoutLocalityLabels(items, {
       project: coordinates => m.project(coordinates), width, height, measure,
       markerObstacles: markerObstacles(m, renderedMarkers), preferred: preferredPlacements,
+      maxLabels: labelBudget(width, height),
     })
     preferredPlacements = result.choices
     const placedLabels = [], placedCallouts = []

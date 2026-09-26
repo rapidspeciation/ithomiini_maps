@@ -32,25 +32,23 @@ describe('sites', () => {
       record('c', -77, -2, { subspecies: 'veritabilis', scientific_name: 'Ithomia salapia' }),
     ]
     const plan = planColors(features, { attribute: 'subspecies' })
-    const { sites, maxIndividuals } = summarizeSites(groupRecordsBySite(features), { plan, ramp: ['#000000', '#ffffff'] })
+    const { sites } = summarizeSites(groupRecordsBySite(features), { plan })
     const mixed = sites.find(site => site.recordCount === 3)
     expect(mixed).toMatchObject({ individuals: 2, speciesCount: 2, locality: 'Mindo', country: 'Ecuador', fill: null })
     expect(mixed.segments.map(segment => [segment.label, segment.count])).toEqual([['casabranca', 2], ['veritabilis', 1]])
     expect(sites.find(site => site.recordCount === 1).fill).toBe(plan.colorForRecord({ subspecies: 'veritabilis' }))
-    expect(maxIndividuals).toBe(2)
   })
 
-  it('fills sites from the ramp in individuals mode and can keep equal sizes', () => {
+  it('can keep equal marker sizes', () => {
     const features = [record('a', -78, -1), record('b', -78, -1), record('c', -77, -2)]
-    const plan = { mode: 'individuals', groups: [] }
-    const { sites } = summarizeSites(groupRecordsBySite(features), { plan, ramp: ['#000000', '#ffffff'], sizeByIndividuals: false })
-    expect(sites.map(site => [site.individuals, site.fill, site.sizeFactor])).toEqual([[2, '#ffffff', 1], [1, '#000000', 1]])
-    expect(sites[0].segments).toEqual([])
+    const plan = planColors(features, { attribute: 'subspecies' })
+    const { sites } = summarizeSites(groupRecordsBySite(features), { plan, sizeByIndividuals: false })
+    expect(sites.map(site => [site.individuals, site.sizeFactor])).toEqual([[2, 1], [1, 1]])
   })
 
   it('greys sites whose records are all outside the coloured groups', () => {
-    const plan = { mode: 'categories', groups: [], groupForRecord: () => ({ key: 'other', label: 'Other', color: OTHER_COLOR }) }
-    const { sites } = summarizeSites(groupRecordsBySite([record('a', 0, 0)]), { plan, ramp: [] })
+    const plan = { groups: [], groupForRecord: () => ({ key: 'other', label: 'Other', color: OTHER_COLOR }) }
+    const { sites } = summarizeSites(groupRecordsBySite([record('a', 0, 0)]), { plan })
     expect(sites[0].fill).toBe(OTHER_COLOR)
   })
 

@@ -345,19 +345,6 @@ export function useLegendMeasurement({
       !bounds.height
     if (isHiddenLayout) return
 
-    // Individuals mode shows a fixed-size key instead of rows: fit it snugly.
-    const keyEl = contentEl.querySelector('.legend-individuals')
-    if (keyEl) {
-      const legendEl = legendRef.value
-      if (!legendEl) return
-      const height = Math.ceil((keyEl.getBoundingClientRect().bottom - legendEl.getBoundingClientRect().top) / renderScale.value + 16)
-      measuredItemCount.value = 1
-      measuredSnugHeight.value = Math.max(80, height)
-      correctionSettled.value = true
-      prevMeasuredCount.value = 1
-      return
-    }
-
     const itemsEl = contentEl.querySelector('.legend-items')
     if (!itemsEl || !itemsEl.children.length) return
 
@@ -366,8 +353,8 @@ export function useLegendMeasurement({
     const contentRect = contentEl.getBoundingClientRect()
     const contentBottom = contentRect.bottom
     const contentPaddingBottom = 12
-    // Rows after the items ("Other", colour-mode switch) always stay visible.
-    const trailingRows = [...contentEl.querySelectorAll('.legend-other, .legend-mode-switch')]
+    // The "Other" row after the items always stays visible.
+    const trailingRows = [...contentEl.querySelectorAll('.legend-other')]
     const trailingReserve = trailingRows.reduce((sum, el) => sum + el.getBoundingClientRect().height / renderScale.value + 8, 0)
     const moreIndicatorReserve = 40 + trailingReserve
 

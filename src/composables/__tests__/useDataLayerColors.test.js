@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   buildClusterOutlineExpression, buildPointColorExpression, buildRangePointCirclePaint,
-  buildSiteCirclePaint, buildSiteIconSize, siteFeatureCollection, visibleSiteRadius,
+  buildSiteIconSize, siteFeatureCollection, visibleSiteRadius,
 } from '../useDataLayer'
 import { getColoredShapeImageName } from '../../utils/shapes'
 
@@ -48,18 +48,6 @@ describe('site markers', () => {
       sort_key: -94, fill: '#6b7280', marker_icon: 'site-pie:x', collection_location: 'Suchipakari',
     })
     expect(siteFeatureCollection([site]).features[0].properties).not.toHaveProperty('marker_icon')
-  })
-
-  it('scales circle radius by each site size factor at every zoom stop', () => {
-    const paint = buildSiteCirclePaint(style)
-    expect(paint['circle-radius']).toEqual(['interpolate', ['linear'], ['zoom'],
-      3, ['+', ['*', 3.375, ['get', 'size_factor']], 0],
-      6, ['+', ['*', 5.625, ['get', 'size_factor']], 0],
-      10, ['+', ['*', 9, ['get', 'size_factor']], 0],
-      14, ['+', ['*', 13.5, ['get', 'size_factor']], 0]])
-    expect(paint['circle-color']).toEqual(['get', 'fill'])
-    expect(paint['circle-opacity']).toBe(0.4)
-    expect(paint['circle-stroke-opacity']).toBe(0.8)
   })
 
   it('sizes icons to the same outer radius as circles', () => {

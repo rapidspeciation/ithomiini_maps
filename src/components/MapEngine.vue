@@ -40,7 +40,7 @@ const pointPopupContainer = ref(null)
 // MapLibre owns its internal render state; Vue only observes replacement.
 const map = shallowRef(null)
 let popup = null
-// Satellite imagery reads like a dark basemap for label and ramp contrast.
+// Satellite imagery reads like a dark basemap for label contrast.
 const isDarkBasemap = () => MAP_STYLES[currentStyle.value]?.theme === 'night' || currentStyle.value === 'satellite'
 const localityLayer = useLocalityLayer(map, { isDarkBasemap })
 const clusterComposition = useClusterComposition(map)
@@ -229,8 +229,6 @@ const { currentStyle, switchStyle } = useStyleSwitcher(map, addDataLayer, {
   },
   onStyleIdle: () => updateSDMLayer()
 })
-// The individuals ramp runs dark→light on dark maps and light→dark on light maps.
-watch(currentStyle, () => { store.basemapIsDark = isDarkBasemap() }, { immediate: true, flush: 'sync' })
 const { showBoundaries, toggleBoundaries, addBoundariesLayer } = useCountryBoundaries(map, currentStyle)
 const { updateLayer: updateSDMLayer, invalidatePending: invalidatePendingSDM, cursorValue: sdmCursorValue, cursorPos: sdmCursorPos } = useSDMLayer(map)
 const { updateLayer: updateHostPlantLayer } = useHostPlantLayer(map, { onShowPopup: handleShowPopup })

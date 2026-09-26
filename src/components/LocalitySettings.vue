@@ -5,7 +5,7 @@ import { usePlanningStore } from '../stores/planning'
 const planning = usePlanningStore()
 function setMinimum(value) {
   const number = Number(value)
-  planning.localitySettings.minRecords = Number.isFinite(number) ? Math.max(1, Math.min(10000, Math.floor(number))) : 10
+  planning.localitySettings.minRecords = Number.isFinite(number) ? Math.max(1, Math.min(10000, Math.floor(number))) : 1
 }
 function clampMinimum(event) {
   setMinimum(event.target.value)

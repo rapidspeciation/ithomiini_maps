@@ -95,9 +95,7 @@ export function useClusterComposition(map) {
   async function refresh() {
     const m = map.value
     if (disposed || !m?.isStyleLoaded()) return
-    // Rings show category colours, so individuals mode keeps plain clusters.
-    if (store.visualizationMode !== 'clusters' || store.clusterSettings.compositionRings === false ||
-        store.colorPlan.mode !== 'categories' || !sites ||
+    if (store.visualizationMode !== 'clusters' || store.clusterSettings.compositionRings === false || !sites ||
         !m.getLayer('clusters') || !m.getLayer('cluster-count')) {
       clear()
       return

@@ -208,9 +208,7 @@ const speciesRows = computed(() => {
   const plan = store.colorPlan
   const rows = Object.entries(groupedBySpecies.value).map(([species, group]) => {
     const records = Object.values(group.subspecies).flatMap(subspecies => subspecies.individuals)
-    const colors = plan.mode === 'categories'
-      ? [...new Set(records.map(record => plan.colorForRecord(record)))].slice(0, 4)
-      : []
+    const colors = [...new Set(records.map(record => plan.colorForRecord(record)))].slice(0, 4)
     return { species, count: group.count, colors }
   })
   return rows.sort((a, b) => b.count - a.count || a.species.localeCompare(b.species))

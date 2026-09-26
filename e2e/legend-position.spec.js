@@ -1,10 +1,8 @@
 import { test, expect } from '@playwright/test'
 
-// Unfiltered data has too many taxa to colour, so the legend would show the
-// individuals key; request the top ten groups to get a full, tall legend.
+// Unfiltered data colours the top ten groups, giving a full, tall legend.
 const showFullLegend = page => page.evaluate(() => {
   window.legendTestStores.data.filters.species = []
-  window.legendTestStores.legend.setColorOverride('categories')
 })
 
 test.beforeEach(async ({ page }) => {

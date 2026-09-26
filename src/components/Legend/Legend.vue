@@ -9,7 +9,6 @@ import { useLegendBaseData, useLegendDisplayData } from './useLegendItemData'
 import { useLegendMeasurement } from './useLegendMeasurement'
 import { useLegendPosition } from './useLegendPosition'
 import { log } from '../../utils/logger'
-import { INDIVIDUAL_RAMPS, MAX_CATEGORY_COLORS } from '../../utils/colorPlan'
 import { ArrowUpAZ, ArrowDownZA, ChartBarDecreasing, ChartBarIncreasing, ChevronDown, Hash } from 'lucide-vue-next'
 import LegendItem from './LegendItem.vue'
 import LegendToolbar from './LegendToolbar.vue'
@@ -198,16 +197,12 @@ const display = useLegendDisplayData(
 const { legendItems, groupedLegendData, moreCount, morePointCount } = display
 
 const colorPlan = computed(() => dataStore.colorPlan)
-const maxSiteIndividuals = computed(() => dataStore.maxSiteIndividuals)
 const GROUP_NOUNS = {
   subspecies: 'subspecies', species: 'species', genus: 'genera',
   mimicry: 'mimicry rings', status: 'statuses', source: 'sources',
 }
 const groupNoun = computed(() => legendStore.collapsedSpecies.length && dataStore.colorBy === 'subspecies'
   ? 'taxa' : GROUP_NOUNS[dataStore.colorBy] || 'groups')
-const individualsRamp = computed(() => INDIVIDUAL_RAMPS[dataStore.basemapIsDark ? 'dark' : 'light'])
-const individualsGradient = computed(() => `linear-gradient(90deg, ${individualsRamp.value.join(', ')})`)
-watch(() => colorPlan.value.mode, () => invalidateMeasurement('colorMode'))
 
 // True when the legend is truncating items (so a "show less" affordance makes
 // sense once expanded).
@@ -711,20 +706,8 @@ onUnmounted(() => {
         </span>
       </div>
 
-      <!-- Individuals mode: marker size and colour both encode individuals per site. -->
-      <div v-if="colorPlan.mode === 'individuals'" class="legend-individuals" :style="{ fontSize: fontSize + 'px' }">
-        <div class="individuals-ramp" :style="{ background: individualsGradient }" :data-colors="individualsRamp.join(',')"></div>
-        <div class="individuals-scale"><span>1</span><span>{{ maxSiteIndividuals.toLocaleString() }}</span></div>
-        <p v-if="colorPlan.overflow" class="individuals-note">
-          {{ colorPlan.groups.length.toLocaleString() }} {{ groupNoun }}: too many to colour
-          <button v-if="!isExportMode" type="button" class="legend-link" @click.stop="legendStore.setColorOverride('categories')">
-            Colour top {{ MAX_CATEGORY_COLORS }}
-          </button>
-        </p>
-      </div>
-
       <!-- Items (Flat view) -->
-      <div v-else-if="groupedLegendData.type === 'flat'" class="legend-items">
+      <div v-if="groupedLegendData.type === 'flat'" class="legend-items">
         <LegendItem
           v-for="item in groupedLegendData.items"
           v-show="item.visible !== false || showEditUI"
@@ -826,7 +809,7 @@ onUnmounted(() => {
 
       <!-- Groups beyond the coloured ones are grey on the map. -->
       <div
-        v-if="colorPlan.mode === 'categories' && colorPlan.otherGroupCount > 0"
+        v-if="colorPlan.otherGroupCount > 0"
         class="legend-more legend-other"
         :style="{ fontSize: fontSize + 'px' }"
         :title="`Top ${colorPlan.colored.length} ${groupNoun} cover ${Math.round(colorPlan.coverage * 100)}% of records`"
@@ -835,17 +818,10 @@ onUnmounted(() => {
         Other · {{ colorPlan.otherGroupCount.toLocaleString() }} {{ groupNoun }}
         <span v-if="legendStore.showCounts" class="more-count">{{ colorPlan.otherRecordCount.toLocaleString() }}</span>
       </div>
-      <button
-        v-if="colorPlan.mode === 'categories' && colorPlan.overflow && !isExportMode"
-        type="button"
-        class="legend-link legend-mode-switch"
-        :style="{ fontSize: fontSize * 0.85 + 'px' }"
-        @click.stop="legendStore.setColorOverride('individuals')"
-      >Colour by individuals per site</button>
 
       <!-- More indicator: coloured rows that do not fit; tap to scroll them. -->
       <button
-        v-if="colorPlan.mode === 'categories' && moreCount > 0 && !legendExpanded"
+        v-if="moreCount > 0 && !legendExpanded"
         type="button"
         class="legend-more legend-more--button"
         :style="{ fontSize: fontSize + 'px' }"

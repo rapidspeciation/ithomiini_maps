@@ -276,21 +276,6 @@ paint_legend <- function() {
     r = grid::unit(8 * SETTINGS$output_scale * 72 / 96, "pt"),
     gp = grid::gpar(fill = color(bg), col = color(legend$border)))
   for (row in legend$rows) {
-    if (row$type == "ramp") {
-      # Individuals-per-site key: the browser gradient as thin adjacent bars.
-      rb <- row$box
-      steps <- 64
-      colors <- grDevices::colorRampPalette(unlist(row$colors))(steps)
-      step_width <- rb$width / steps
-      for (i in seq_len(steps)) {
-        grid::grid.rect(x = grid::unit(rb$x + (i - 0.5) * step_width + dx, "native"),
-          y = grid::unit(rb$y + rb$height / 2 + dy, "native"),
-          width = grid::unit(step_width * 1.05 * SETTINGS$output_scale * 72 / 96, "pt"),
-          height = grid::unit(rb$height * SETTINGS$output_scale * 72 / 96, "pt"),
-          gp = grid::gpar(fill = colors[i], col = NA))
-      }
-      next
-    }
     face <- if (row$fontStyle == "italic") "italic" else if (row$fontWeight %in% c("600", "700", "bold")) "bold" else "plain"
     for (line in row$lines) {
       tb <- line$box

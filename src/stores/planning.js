@@ -45,7 +45,8 @@ export function sitesToCsv(sites) {
 
 export const usePlanningStore = defineStore('planning', () => {
   const data = useDataStore()
-  const localitySettings = reactive({ enabled: true, minRecords: 10 })
+  // Labels are limited per screen, so every site can be named once zoomed in.
+  const localitySettings = reactive({ enabled: true, minRecords: 1 })
   const showComparison = ref(false)
   const comparisonMinimized = ref(false)
   const shortlistIds = ref(savedShortlist())
@@ -99,7 +100,7 @@ export const usePlanningStore = defineStore('planning', () => {
 
   function appendURLParams(params) {
     if (!localitySettings.enabled) params.set('sites', '0')
-    if (localitySettings.minRecords !== 10) params.set('site_min', String(localitySettings.minRecords))
+    if (localitySettings.minRecords !== 1) params.set('site_min', String(localitySettings.minRecords))
     if (showComparison.value) params.set('site_compare', '1')
     if (shortlistIds.value.length) params.set('site_shortlist', JSON.stringify(shortlistIds.value))
   }

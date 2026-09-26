@@ -6,7 +6,7 @@ import { generateSpeciesBorderColors } from '../utils/colors'
 import { withHeatmapWeights } from '../utils/heatmap'
 import { readClusterLeaves } from '../utils/clusterLeaves'
 import { computeClusterStats } from '../utils/clusterStats'
-import { OTHER_COLOR, INDIVIDUAL_RAMPS } from '../utils/colorPlan'
+import { OTHER_COLOR } from '../utils/colorPlan'
 import { drawSitePie, groupRecordsBySite, pieSignature, summarizeSites } from '../utils/sites'
 import {
   generateColoredShapeImage,
@@ -77,20 +77,7 @@ function siteRadiusExpression(style, extra = 0) {
     ])]
 }
 
-/** Individuals mode: one native circle per site, filled from the ramp. */
-export function buildSiteCirclePaint(style) {
-  return {
-    'circle-radius': siteRadiusExpression(style),
-    'circle-color': ['get', 'fill'],
-    'circle-opacity': style.fillOpacity,
-    'circle-stroke-width': ['interpolate', ['linear'], ['zoom'],
-      ...BORDER_SCALE_STOPS.flatMap(([zoom, scale]) => [zoom, style.borderWidth * scale])],
-    'circle-stroke-color': style.borderColor,
-    'circle-stroke-opacity': style.borderOpacity,
-  }
-}
-
-/** Category mode: pie or shape icons, scaled to the same radius as circles. */
+/** Pie or shape icons for site markers, scaled with zoom and site size. */
 export function buildSiteIconSize(style) {
   const base = style.pointSize * 0.9
   return ['interpolate', ['linear'], ['zoom'],
@@ -404,7 +391,6 @@ export function useDataLayer(map, options = {}) {
     const colorMap = store.activeColorMap
     const colorAttr = store.colorByAttribute
     const plan = store.colorPlan
-    const categoryIcons = plan.mode === 'categories'
     const shapesEnabled = legendStore.shapeSettings.enabled
     const speciesBordersEnabled = legendStore.speciesStyling.borderColor && store.colorBy === 'subspecies'
     const speciesBorderColors = speciesBordersEnabled
@@ -421,7 +407,6 @@ export function useDataLayer(map, options = {}) {
     } else if (siteMode) {
       const { sites } = summarizeSites(groupRecordsBySite(mapData.features), {
         plan,
-        ramp: INDIVIDUAL_RAMPS[store.basemapIsDark ? 'dark' : 'light'],
         sizeByIndividuals: store.sizeByIndividuals,
       })
       sitesByKey = new Map(sites.map(site => [site.key, site]))
@@ -440,7 +425,7 @@ export function useDataLayer(map, options = {}) {
         activeMarkerImages.add(name)
         return name
       }
-      sourceData = siteFeatureCollection(sites, categoryIcons ? iconFor : null)
+      sourceData = siteFeatureCollection(sites, iconFor)
     }
 
     dataGeneration++
@@ -455,7 +440,7 @@ export function useDataLayer(map, options = {}) {
 
     // Check if we can update the existing source instead of full rebuild
     const existingSource = map.value.getSource('points-source')
-    const nextPointLayerType = siteMode ? (categoryIcons ? 'symbol' : 'circle') : null
+    const nextPointLayerType = siteMode ? 'symbol' : null
     // A circle-to-symbol change cannot reuse tile buckets under the same layer ID.
     const pointLayerTypeChanged = (map.value.getLayer('points-layer')?.type || null) !== nextPointLayerType
     const needsSourceRebuild = !existingSource ||
@@ -755,31 +740,20 @@ export function useDataLayer(map, options = {}) {
     }
 
     const unclustered = shouldCluster ? ['!', ['has', 'point_count']] : ['all']
-    if (categoryIcons) {
-      map.value.addLayer({
-        id: 'points-layer',
-        type: 'symbol',
-        source: 'points-source',
-        filter: unclustered,
-        layout: {
-          'icon-image': ['get', 'marker_icon'],
-          'icon-padding': 0,
-          'icon-size': buildSiteIconSize(style),
-          'icon-allow-overlap': true,
-          'icon-ignore-placement': style.fillOpacity === 0 && style.borderOpacity === 0,
-          'symbol-sort-key': ['get', 'sort_key'],
-        }
-      })
-    } else {
-      map.value.addLayer({
-        id: 'points-layer',
-        type: 'circle',
-        source: 'points-source',
-        filter: unclustered,
-        layout: { 'circle-sort-key': ['get', 'sort_key'] },
-        paint: buildSiteCirclePaint(style),
-      })
-    }
+    map.value.addLayer({
+      id: 'points-layer',
+      type: 'symbol',
+      source: 'points-source',
+      filter: unclustered,
+      layout: {
+        'icon-image': ['get', 'marker_icon'],
+        'icon-padding': 0,
+        'icon-size': buildSiteIconSize(style),
+        'icon-allow-overlap': true,
+        'icon-ignore-placement': style.fillOpacity === 0 && style.borderOpacity === 0,
+        'symbol-sort-key': ['get', 'sort_key'],
+      }
+    })
 
     // Hover ring just outside the hovered site
     map.value.addLayer({

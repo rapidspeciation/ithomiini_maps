@@ -36,9 +36,7 @@ export const useViewStore = defineStore('view', () => {
   const rangeSettings = ref({ ...DEFAULT_RANGE_SETTINGS, ...getStorage('app-range-settings', DEFAULT_RANGE_SETTINGS) })
   // Site markers scale with individuals unless the user prefers equal sizes.
   const sizeByIndividuals = ref(getStorage('map-size-by-individuals', true))
-  // Set by the map when the basemap changes; picks the individuals colour ramp.
-  const basemapIsDark = ref(true)
-  const colorBy = ref(getStorage('map-color-by', 'subspecies'))
+  const colorBy = ref(getStorage('map-color-by', 'species'))
 
   // Site markers overlap at regional zooms; a translucent fill keeps stacked
   // sites readable while the border stays crisp.
@@ -111,7 +109,6 @@ export const useViewStore = defineStore('view', () => {
   const {
     speciesSubspeciesMap,
     colorPlan,
-    maxSiteIndividuals,
     speciesColorMap,
     baseColorMap,
     activeColorMap,
@@ -190,8 +187,6 @@ export const useViewStore = defineStore('view', () => {
   watch(rangeSettings, value => setStorage('app-range-settings', value), { deep: true })
   watch(colorBy, value => setStorage('map-color-by', value))
   watch(mapStyle, value => setStorage('map-style', value), { deep: true })
-  // basemapIsDark is not listed: a basemap switch already rebuilds the data
-  // layer once the new style has loaded, and rebuilding mid-load loses it.
   watch([colorBy, mapStyle, sizeByIndividuals], () => { styleVersion.value++ }, { deep: true })
   watch(mapView, value => setStorage('map-view', value), { deep: true })
   watch(exportSettings, value => {
@@ -209,7 +204,6 @@ export const useViewStore = defineStore('view', () => {
     DEFAULT_RANGE_SETTINGS,
     rangeSettings,
     sizeByIndividuals,
-    basemapIsDark,
     colorBy,
     mapStyle,
     styleVersion,
@@ -223,7 +217,6 @@ export const useViewStore = defineStore('view', () => {
     colorByAttribute,
     speciesSubspeciesMap,
     colorPlan,
-    maxSiteIndividuals,
     speciesColorMap,
     baseColorMap,
     activeColorMap,

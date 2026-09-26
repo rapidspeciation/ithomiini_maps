@@ -32,14 +32,6 @@ export const useLegendStore = defineStore('legend', () => {
   const textScale = ref(getStorage('legend-text-scale', 1))
   const scale = ref(getStorage('legend-scale', 1))
 
-  // Session-only choice when there are too many groups to colour:
-  // null (automatic), 'categories' (top groups + Other) or 'individuals'.
-  const colorOverride = ref(null)
-
-  function setColorOverride(mode) {
-    colorOverride.value = mode === 'categories' || mode === 'individuals' ? mode : null
-  }
-
   // ═══════════════════════════════════════════════════════════════════════════
   // BEHAVIOR SETTINGS
   // ═══════════════════════════════════════════════════════════════════════════
@@ -617,7 +609,7 @@ export const useLegendStore = defineStore('legend', () => {
   }
 
   watch(
-    [customColors, speciesStyling, speciesBorderColors, shapeSettings, groupShapes, hiddenItems, collapsedSpecies, colorOverride],
+    [customColors, speciesStyling, speciesBorderColors, shapeSettings, groupShapes, hiddenItems, collapsedSpecies],
     () => { styleVersion.value++ },
     { deep: true }
   )
@@ -632,8 +624,6 @@ export const useLegendStore = defineStore('legend', () => {
     scale,
     stickyEdges,
     snapThreshold,
-    colorOverride,
-    setColorOverride,
     customLabels,
     customColors,
     styleVersion,

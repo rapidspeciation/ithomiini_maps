@@ -5,7 +5,6 @@ import { generateRScript } from './rExport/rScriptGenerator'
 import { generateReadme } from './rExport/htmlReadmeGenerators'
 import { resolvePointFeatures, resolveRangeFeatures, resolveSiteFeatures, snapshotLegend, snapshotControls } from './rExport/snapshot'
 import { groupRecordsBySite, summarizeSites } from './sites'
-import { INDIVIDUAL_RAMPS } from './colorPlan'
 import { withMapExport } from './mapExportQueue'
 import { generateSpeciesBorderColors } from './colors'
 import { useHostPlantStore } from '../stores/hostPlants'
@@ -85,7 +84,7 @@ function pointStyle(store, legendStore, zoom, mode) {
     strokeWidth: interpolate(zoom, [[3, style.borderWidth * 0.33], [10, style.borderWidth]]),
     strokeColor: style.borderColor,
     strokeOpacity: style.borderOpacity,
-    useShapes: legendStore.shapeSettings.enabled && store.colorPlan.mode === 'categories'
+    useShapes: legendStore.shapeSettings.enabled
   }
 }
 
@@ -164,7 +163,7 @@ async function exportForRLocked(map) {
     filters: store.filters, colorBy: store.colorBy, activeColorMap: store.activeColorMap,
     mode: store.visualizationMode,
     range: store.rangeSettings, mapStyle: store.mapStyle,
-    colorPlan: store.colorPlan.mode, colored: [...store.coloredLabels], hidden: legendStore.hiddenItems,
+    colored: [...store.coloredLabels], hidden: legendStore.hiddenItems,
     sizeByIndividuals: store.sizeByIndividuals,
     shapes: legendStore.shapeSettings, groupShapes: legendStore.groupShapes,
     legendPosition: legendStore.position, legendSize: legendStore.size,
@@ -214,7 +213,6 @@ async function exportForRLocked(map) {
       }).map(feature => ({ ...feature, properties: { ...feature.properties, display_shape: 'circle' } }))
     : resolveSiteFeatures(summarizeSites(groupRecordsBySite(visibleRecords), {
         plan: store.colorPlan,
-        ramp: INDIVIDUAL_RAMPS[store.basemapIsDark ? 'dark' : 'light'],
         sizeByIndividuals: store.sizeByIndividuals,
       }).sites, {
         project,
@@ -234,7 +232,7 @@ async function exportForRLocked(map) {
     : null
   const dataGeoJSON = {
     type: 'FeatureCollection',
-    metadata: { appCommit: commitHash, colorBy: store.colorBy, colorMode: store.colorPlan.mode,
+    metadata: { appCommit: commitHash, colorBy: store.colorBy,
       features: mode === 'ranges' ? 'records' : 'sites' },
     features
   }
@@ -255,7 +253,6 @@ async function exportForRLocked(map) {
     filteredRecordCount: geo.features.length,
     displayedRecordCount: visibleRecords.length,
     displayedMarkerCount: features.length,
-    colorMode: store.colorPlan.mode,
     mode,
     rangeMethod: mode === 'ranges' ? rangeMethod : null,
     colorBy: store.colorBy,

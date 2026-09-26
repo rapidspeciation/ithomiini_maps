@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { layoutLocalityLabels, wrapLocalityLabel } from '../localityLayout'
+import { labelBudget, layoutLocalityLabels, wrapLocalityLabel } from '../localityLayout'
 
 const measure = text => text.length * 7
 const view = { project: coordinates => ({ x: coordinates[0], y: coordinates[1] }),
@@ -32,6 +32,28 @@ describe('screen-space locality placement', () => {
     }
     expect(intersects(placements[0].rect, placements[1].rect)).toBe(false)
     expect(placements[0].candidate).not.toBe(0)
+  })
+
+  it('names only the largest sites within the budget and always keeps shortlisted ones', () => {
+    const sites = [item('small', 60, 60, -1), item('large', 200, 150, -50), item('medium', 330, 240, -10)]
+    const shortlisted = { ...item('shortlisted', 330, 60, 0), shortlisted: true }
+    const { placements } = layoutLocalityLabels([...sites, shortlisted], { ...view, maxLabels: 2 })
+    expect(placements.map(placed => placed.item.key).sort()).toEqual(['large', 'medium', 'shortlisted'])
+  })
+
+  it('does not push ordinary labels onto long leaders', () => {
+    // Every near position is blocked; only the far ring is free.
+    const blockers = [[200, 110], [200, 190], [140, 150], [260, 150]].map(([x, y]) => ({ x, y, radius: 30 }))
+    const site = item('site', 200, 150, -5, 'Río')
+    expect(layoutLocalityLabels([site], { ...view, markerObstacles: blockers }).placements).toHaveLength(0)
+    expect(layoutLocalityLabels([{ ...site, shortlisted: true }], { ...view, markerObstacles: blockers })
+      .placements[0].candidate).toBeGreaterThanOrEqual(8)
+  })
+
+  it('scales the label budget with the map area', () => {
+    expect(labelBudget(1450, 1380)).toBe(8)
+    expect(labelBudget(390, 600)).toBe(3)
+    expect(labelBudget(4000, 3000)).toBe(12)
   })
 
   it('places selected first and reuses a previous candidate after a small pan', () => {

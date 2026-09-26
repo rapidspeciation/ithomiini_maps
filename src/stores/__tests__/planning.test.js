@@ -96,7 +96,7 @@ describe('usePlanningStore', () => {
     planning.appendURLParams(params)
     expect(params.get('site_min')).toBe('12')
     planning.localitySettings.enabled = true
-    planning.localitySettings.minRecords = 10
+    planning.localitySettings.minRecords = 1
     planning.showComparison = false
     planning.restoreFromURL(params)
     expect(planning.localitySettings).toEqual({ enabled: false, minRecords: 12 })
