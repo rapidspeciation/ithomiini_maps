@@ -54,11 +54,11 @@ function resetRangeSettings() {
     <!-- Points settings -->
     <div v-if="store.visualizationMode === 'points'" style="margin-top: 12px;">
       <label class="toggle-row scatter-toggle">
-        <input type="checkbox" v-model="store.scatterOverlappingPoints" />
-        <span>Scatter overlapping points</span>
+        <input type="checkbox" v-model="store.sizeByIndividuals" />
+        <span>Size markers by individuals</span>
       </label>
       <p class="filter-hint">
-        Evenly distribute overlapping points within 2.5km radius with connecting lines
+        One marker per site; larger markers hold more individuals.
       </p>
     </div>
 
@@ -90,6 +90,15 @@ function resetRangeSettings() {
           Points within this pixel distance are grouped into clusters.
           Lower values create more clusters; higher values merge nearby points.
         </p>
+      </div>
+
+      <div class="setting-row">
+        <label for="cluster-appearance">Cluster appearance</label>
+        <select id="cluster-appearance" v-model="store.clusterSettings.compositionRings" class="style-select">
+          <option :value="true">Taxon composition rings</option>
+          <option :value="false">Plain numbered circles</option>
+        </select>
+        <p v-if="store.clusterSettings.compositionRings" class="count-mode-hint">Ring segments show proportions of records, using legend colours. The centre counts all matching records.</p>
       </div>
 
       <label class="toggle-row cluster-points-toggle">

@@ -6,6 +6,32 @@ import { isValidValue } from '../utils/validation'
 import { useDatasetStore } from './datasetStore'
 import { log } from '../utils/logger'
 
+/**
+ * Subspecies narrow only the species they belong to. With M. polymnia and
+ * I. salapia selected, choosing I. salapia's travella keeps every
+ * M. polymnia record. Returns species -> selected subspecies, or null when
+ * the selection is not scoped (no species chosen, or OR combinator).
+ */
+export function buildSubspeciesScope(features, species, subspecies, combinator = 'AND') {
+  if (!species.length || !subspecies.length || combinator === 'OR') return null
+  const speciesSet = new Set(species)
+  const subspeciesSet = new Set(subspecies)
+  const scope = new Map()
+  for (const item of features) {
+    if (!speciesSet.has(item.scientific_name) || !subspeciesSet.has(item.subspecies)) continue
+    if (!scope.has(item.scientific_name)) scope.set(item.scientific_name, new Set())
+    scope.get(item.scientific_name).add(item.subspecies)
+  }
+  return scope
+}
+
+export function matchesSubspeciesSelection(item, subspeciesSet, scope) {
+  if (!subspeciesSet) return true
+  if (!scope) return subspeciesSet.has(item.subspecies)
+  const selected = scope.get(item.scientific_name)
+  return !selected || selected.has(item.subspecies)
+}
+
 export const useFilterStore = defineStore('filters', () => {
   const datasetStore = useDatasetStore()
 
@@ -27,6 +53,7 @@ export const useFilterStore = defineStore('filters', () => {
     source: ['Sanger Institute'],
     sex: 'all',
     country: [],
+    collectionLocation: [],
     camidSearch: '',
     dateStart: null,
     dateEnd: null,
@@ -74,6 +101,14 @@ export const useFilterStore = defineStore('filters', () => {
     if (params.get('source')) filters.value.source = params.get('source').split(',')
     const country = parseListParam(params.get('country'))
     if (country) filters.value.country = country
+    if (params.has('locality')) {
+      try {
+        const locations = JSON.parse(params.get('locality'))
+        if (Array.isArray(locations) && locations.every(value => typeof value === 'string' && isValidValue(value))) {
+          filters.value.collectionLocation = [...new Set(locations)]
+        }
+      } catch { /* Ignore invalid shared locality filters. */ }
+    }
     if (params.get('sex')) filters.value.sex = params.get('sex')
     if (params.get('cam')) filters.value.camidSearch = params.get('cam')
     if (params.get('from')) filters.value.dateStart = params.get('from')
@@ -166,6 +201,34 @@ export const useFilterStore = defineStore('filters', () => {
     ]
   }
 
+  const subspeciesScope = computed(() => buildSubspeciesScope(
+    datasetStore.allFeatures,
+    filters.value.species,
+    filters.value.subspecies,
+    filters.value.taxonomyCombinators?.subspecies,
+  ))
+
+  /** One target per whole species, or per chosen subspecies when a species is narrowed. */
+  const taxonTargets = computed(() => filters.value.species.flatMap(species => {
+    const subspecies = subspeciesScope.value?.get(species)
+    return subspecies?.size
+      ? [...subspecies].sort().map(name => ({ label: `${species} ${name}`, species, subspecies: name }))
+      : [{ label: species, species, subspecies: null }]
+  }))
+
+  /** Subspecies options grouped under their species so the per-species scope is visible. */
+  const subspeciesOptionGroups = computed(() => {
+    const groups = new Map()
+    for (const item of getFilteredSubset(4)) {
+      if (!isValidValue(item.subspecies) || !isValidValue(item.scientific_name)) continue
+      if (!groups.has(item.scientific_name)) groups.set(item.scientific_name, new Set())
+      groups.get(item.scientific_name).add(item.subspecies)
+    }
+    return [...groups.entries()]
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([species, names]) => ({ label: species, options: [...names].sort() }))
+  })
+
   const availableMimicryRings = computed(() => {
     let data = datasetStore.allFeatures
 
@@ -173,7 +236,10 @@ export const useFilterStore = defineStore('filters', () => {
     if (filters.value.tribe.length > 0) data = data.filter(item => filters.value.tribe.includes(item.tribe))
     if (filters.value.genus.length > 0) data = data.filter(item => filters.value.genus.includes(item.genus))
     if (filters.value.species.length > 0) data = data.filter(item => filters.value.species.includes(item.scientific_name))
-    if (filters.value.subspecies.length > 0) data = data.filter(item => filters.value.subspecies.includes(item.subspecies))
+    if (filters.value.subspecies.length > 0) {
+      const subspeciesSet = new Set(filters.value.subspecies)
+      data = data.filter(item => matchesSubspeciesSelection(item, subspeciesSet, subspeciesScope.value))
+    }
 
     return uniqueValuesOf(data, 'mimicry_ring')
   })
@@ -186,6 +252,14 @@ export const useFilterStore = defineStore('filters', () => {
   const uniqueStatuses = computed(() => uniqueValuesOf(datasetStore.allFeatures, 'sequencing_status'))
   const uniqueSources = computed(() => Object.keys(datasetStore.sourceConfig))
   const uniqueCountries = computed(() => uniqueValuesOf(datasetStore.allFeatures, 'country'))
+  const uniqueCollectionLocations = computed(() => {
+    const sources = filters.value.source
+    const names = datasetStore.allFeatures
+      .filter(item => sources.length === 0 || sources.includes(item.source))
+      .map(item => item.collection_location)
+      .filter(isValidValue)
+    return [...new Set([...names, ...filters.value.collectionLocation])].sort()
+  })
   const uniqueCamids = computed(() => uniqueValuesOf(datasetStore.allFeatures, 'id'))
 
   const temporalDistribution = computed(() => {
@@ -268,6 +342,10 @@ export const useFilterStore = defineStore('filters', () => {
     const statusSet = filters.value.status.length > 0 ? new Set(filters.value.status) : null
     const sourceSet = filters.value.source.length > 0 ? new Set(filters.value.source) : null
     const countrySet = filters.value.country.length > 0 ? new Set(filters.value.country) : null
+    const collectionLocationSet = filters.value.collectionLocation.length > 0
+      ? new Set(filters.value.collectionLocation)
+      : null
+    const scope = subspeciesScope.value
 
     const f = filters.value
     const bb = boundingBox.value
@@ -290,12 +368,14 @@ export const useFilterStore = defineStore('filters', () => {
         { set: tribeSet, value: item.tribe, combinator: f.taxonomyCombinators?.tribe || 'AND' },
         { set: genusSet, value: item.genus, combinator: f.taxonomyCombinators?.genus || 'AND' },
         { set: speciesSet, value: item.scientific_name, combinator: f.taxonomyCombinators?.species || 'AND' },
-        { set: subspeciesSet, value: item.subspecies, combinator: f.taxonomyCombinators?.subspecies || 'AND' },
+        { set: subspeciesSet, value: item.subspecies, combinator: f.taxonomyCombinators?.subspecies || 'AND',
+          matches: () => matchesSubspeciesSelection(item, subspeciesSet, scope) },
       ].filter(L => L.set)
       if (taxLevels.length > 0) {
-        let taxResult = taxLevels[0].set.has(taxLevels[0].value)
+        const levelMatches = level => level.matches ? level.matches() : level.set.has(level.value)
+        let taxResult = levelMatches(taxLevels[0])
         for (let i = 1; i < taxLevels.length; i++) {
-          const match = taxLevels[i].set.has(taxLevels[i].value)
+          const match = levelMatches(taxLevels[i])
           taxResult = taxLevels[i].combinator === 'OR' ? (taxResult || match) : (taxResult && match)
         }
         if (!taxResult) return false
@@ -304,6 +384,7 @@ export const useFilterStore = defineStore('filters', () => {
       if (statusSet && !statusSet.has(item.sequencing_status)) return false
       if (sourceSet && !sourceSet.has(item.source)) return false
       if (countrySet && !countrySet.has(item.country)) return false
+      if (collectionLocationSet && !collectionLocationSet.has(item.collection_location)) return false
       if (f.sex !== 'all') {
         if (f.sex === 'male' && item.sex !== 'male') return false
         if (f.sex === 'female' && item.sex !== 'female') return false
@@ -375,6 +456,7 @@ export const useFilterStore = defineStore('filters', () => {
       params.set('source', f.source.join(','))
     }
     if (f.country.length > 0) params.set('country', f.country.join(','))
+    if (f.collectionLocation.length > 0) params.set('locality', JSON.stringify(f.collectionLocation))
     if (f.sex !== 'all') params.set('sex', f.sex)
     if (f.camidSearch) params.set('cam', f.camidSearch)
     if (f.dateStart) params.set('from', f.dateStart)
@@ -415,6 +497,10 @@ export const useFilterStore = defineStore('filters', () => {
     uniqueStatuses,
     uniqueSources,
     uniqueCountries,
+    uniqueCollectionLocations,
+    subspeciesScope,
+    taxonTargets,
+    subspeciesOptionGroups,
     uniqueCamids,
     temporalDistribution,
     filteredGeoJSON,

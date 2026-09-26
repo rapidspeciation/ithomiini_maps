@@ -4,7 +4,6 @@ export { MAP_STYLES, getBasemapPair, getStylesByTheme } from '../utils/mapStyles
 export { getThemeAccentColor } from '../utils/mapHelpers'
 export { useLocationSearch } from './useLocationSearch'
 export { useExportPreview } from './useExportPreview'
-export { useScatterVisualization } from './useScatterVisualization'
 export { useDataLayer } from './useDataLayer'
 export { useStyleSwitcher } from './useStyleSwitcher'
 export { useScaleBar } from './useScaleBar'

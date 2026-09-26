@@ -51,3 +51,14 @@ export function getGoatUrl(speciesName, getGoatForSpecies) {
   if (!goat?.taxon_id) return null
   return `https://goat.genomehubs.org/record?recordId=${goat.taxon_id}&result=taxon&taxonomy=ncbi`
 }
+
+/** GoaT returns one BioProject ID, a list, or a JSON-encoded list; keep valid, unique IDs. */
+export function parseBioprojectIds(value) {
+  if (!value) return []
+  let parsed = value
+  if (typeof parsed === 'string' && parsed.trim().startsWith('[')) {
+    try { parsed = JSON.parse(parsed) } catch { /* fall back to splitting */ }
+  }
+  const ids = Array.isArray(parsed) ? parsed : String(parsed).split(/[\s,;]+/)
+  return [...new Set(ids.map(id => String(id).trim()).filter(id => /^PRJ[A-Z]{2}\d+$/i.test(id)))]
+}

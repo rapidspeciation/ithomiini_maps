@@ -1,6 +1,7 @@
 <script setup>
-import { ref, onMounted, provide } from 'vue'
+import { ref, shallowRef, onMounted, provide, watch } from 'vue'
 import { useDataStore } from './stores/data'
+import { usePlanningStore } from './stores/planning'
 import { useMobileLayout } from './composables/useMobileLayout'
 import Sidebar from './components/Sidebar.vue'
 import MapEngine from './components/MapEngine.vue'
@@ -9,10 +10,8 @@ import ExportPanel from './components/ExportPanel.vue'
 import MimicrySelector from './components/MimicrySelector.vue'
 import ImageGallery from './components/ImageGallery.vue'
 import CommandPaletteDialog from './components/sidebar/CommandPaletteDialog.vue'
-import { ASPECT_RATIOS } from './utils/constants'
-import { loadImage } from './utils/canvasHelpers'
 import { exportForR } from './utils/rExport'
-import { toPng } from 'html-to-image'
+import { captureMapImage } from './utils/mapImageExport'
 import { checkAllTiers, extractGoogleDriveFileId } from './utils/imageProxy'
 import { log } from './utils/logger'
 
@@ -22,6 +21,10 @@ provide('mobileLayout', mobileLayout)
 const { isMobile } = mobileLayout
 
 const showMobileSidebar = ref(false)
+const planning = usePlanningStore()
+watch(() => planning.showComparison, visible => {
+  if (visible && isMobile.value) showMobileSidebar.value = false
+})
 const commandPaletteRef = ref(null)
 
 // View state
@@ -34,7 +37,7 @@ const showImageGallery = ref(false)
 const exportPanelInitialTab = ref('export') // 'export' for data, 'citation' for citation
 
 // Map reference for export
-const mapRef = ref(null)
+const mapRef = shallowRef(null)
 
 // View control
 const setView = (view) => {
@@ -70,146 +73,28 @@ const openImageGallery = (mode = 'butterflies') => {
 }
 const closeImageGallery = () => { showImageGallery.value = false }
 
-// Direct export function - captures the map container which is already sized to aspect ratio
-// Uses MapLibre's setPixelRatio() for true high-resolution rendering
+// Capture is serialized so concurrent clicks cannot race pixel ratio restoration.
+const isExportingMap = ref(false)
 const directExportMap = async () => {
-  if (!mapRef.value) {
-    alert('Map not available. Please ensure you are on the Map view.')
+  if (isExportingMap.value) return
+  if (!mapRef.value || currentView.value !== 'map') {
+    alert('Open the map view before exporting an image.')
     return
   }
-
-  const map = mapRef.value
-  let originalPixelRatio = null
-
+  isExportingMap.value = true
   try {
-    // Ensure map style is loaded
-    if (!map.isStyleLoaded()) {
-      await new Promise(resolve => map.once('style.load', resolve))
-    }
-
-    // Wait for map to be idle (all tiles loaded)
-    if (!map.areTilesLoaded()) {
-      await new Promise(resolve => map.once('idle', resolve))
-    }
-
-    // Get the map container - it's already sized to the correct aspect ratio
-    const container = map.getContainer()
-
-    // Calculate output dimensions with DPI scale
-    const ratio = store.exportSettings.aspectRatio
-    let baseWidth, baseHeight
-    if (ratio === 'custom') {
-      baseWidth = store.exportSettings.customWidth
-      baseHeight = store.exportSettings.customHeight
-    } else {
-      const dims = ASPECT_RATIOS[ratio] || { width: 1920, height: 1080 }
-      baseWidth = dims.width
-      baseHeight = dims.height
-    }
-    const dpiScale = store.exportSettings.dpi / 100
-    const exportWidth = Math.round(baseWidth * dpiScale)
-    const exportHeight = Math.round(baseHeight * dpiScale)
-
-    // Calculate the pixel ratio needed for true high-resolution rendering
-    // This makes MapLibre render its canvas at the target resolution
-    const targetPixelRatio = exportWidth / container.clientWidth
-
-    // Save original pixel ratio and set high-resolution mode
-    // Cap at 8 to avoid WebGL limits (some browsers have issues above 9)
-    originalPixelRatio = map.getPixelRatio()
-    const safePixelRatio = Math.min(targetPixelRatio, 8)
-    map.setPixelRatio(safePixelRatio)
-
-    // Wait for map to re-render at high resolution
-    map.triggerRepaint()
-    await new Promise(resolve => map.once('idle', resolve))
-
-    // html-to-image pixelRatio for HTML elements (legend, scale bar)
-    // Since map canvas is now high-res, we match it for HTML overlays
-    const htmlPixelRatio = safePixelRatio
-
-    // Temporarily remove export preview border class for clean capture
-    const hadExportPreviewClass = container.classList.contains('map-export-preview')
-    if (hadExportPreviewClass) {
-      container.classList.remove('map-export-preview')
-    }
-
-    // Capture the map container (canvas + HTML overlays like scale bar, legend)
-    const includeScaleBar = store.exportSettings.includeScaleBar
-    const includeLegend = store.exportSettings.includeLegend
-    const includeAttribution = store.exportSettings.includeAttribution
-
-    // Check if attribution is visually expanded (user hasn't clicked the icon to hide it)
-    const attributionElement = container.querySelector('.maplibregl-ctrl-attrib')
-    const isAttributionOpen = attributionElement?.hasAttribute('open') ?? false
-
-    let containerDataUrl
-    try {
-      containerDataUrl = await toPng(container, {
-        pixelRatio: htmlPixelRatio,
-        backgroundColor: '#1a1a2e',
-        filter: (node) => {
-          // Exclude navigation controls (zoom buttons, compass, etc.)
-          if (node.classList?.contains('maplibregl-ctrl-top-right')) return false
-          // Exclude export info badge
-          if (node.classList?.contains('export-info-badge')) return false
-          // Exclude scale bar if user disabled it
-          if (!includeScaleBar && node.classList?.contains('maplibregl-ctrl-scale')) return false
-          // Exclude legend if user disabled it
-          if (!includeLegend && node.classList?.contains('legend')) return false
-          // Exclude attribution if user disabled it OR if it's collapsed (user clicked icon to hide)
-          if (node.classList?.contains('maplibregl-ctrl-attrib')) {
-            if (!includeAttribution || !isAttributionOpen) return false
-          }
-          return true
-        }
-      })
-    } finally {
-      // Always restore the class
-      if (hadExportPreviewClass) {
-        container.classList.add('map-export-preview')
-      }
-    }
-
-    // Restore original pixel ratio immediately after capture
-    map.setPixelRatio(originalPixelRatio)
-    originalPixelRatio = null // Mark as restored
-    map.triggerRepaint()
-
-    // Load the captured image
-    const containerImage = await loadImage(containerDataUrl)
-
-    // Create output canvas at the desired resolution
-    const canvas = document.createElement('canvas')
-    const ctx = canvas.getContext('2d')
-    canvas.width = exportWidth
-    canvas.height = exportHeight
-
-    // Draw the captured container scaled to output size
-    ctx.drawImage(containerImage, 0, 0, canvas.width, canvas.height)
-
-    // Download the image via Blob URL (avoids Chrome data-URL size warning and is faster)
-    const format = store.exportSettings.format || 'png'
-    const mimeType = format === 'jpg' ? 'image/jpeg' : 'image/png'
-    const quality = format === 'jpg' ? 0.95 : 1.0
-    const blob = await new Promise(resolve => canvas.toBlob(resolve, mimeType, quality))
-    if (!blob) throw new Error('Failed to encode image')
-    const blobUrl = URL.createObjectURL(blob)
+    const { blob, width, height, format } = await captureMapImage(mapRef.value, { ...store.exportSettings })
+    const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
-    link.download = `ithomiini_map_${exportWidth}x${exportHeight}_${Date.now()}.${format}`
-    link.href = blobUrl
+    link.download = `wings_atlas_map_${width}x${height}_${Date.now()}.${format}`
+    link.href = url
     link.click()
-    setTimeout(() => URL.revokeObjectURL(blobUrl), 1000)
-
-  } catch (e) {
-    log.export.error('Image export failed:', e)
-    alert('Export failed: ' + e.message)
+    setTimeout(() => URL.revokeObjectURL(url), 1000)
+  } catch (error) {
+    log.export.error('Image export failed:', error)
+    alert('Export failed: ' + error.message)
   } finally {
-    // Always restore pixel ratio even if export fails
-    if (originalPixelRatio !== null && map) {
-      map.setPixelRatio(originalPixelRatio)
-      map.triggerRepaint()
-    }
+    isExportingMap.value = false
   }
 }
 

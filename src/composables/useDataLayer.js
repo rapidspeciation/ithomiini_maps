@@ -3,11 +3,14 @@ import maplibregl from 'maplibre-gl'
 import { useDataStore } from '../stores/data'
 import { useLegendStore } from '../stores/legend'
 import { generateSpeciesBorderColors } from '../utils/colors'
-import { computeClusterStats, haversineDistance } from '../utils/clusterStats'
+import { withHeatmapWeights } from '../utils/heatmap'
+import { readClusterLeaves } from '../utils/clusterLeaves'
+import { computeClusterStats } from '../utils/clusterStats'
+import { OTHER_COLOR, INDIVIDUAL_RAMPS } from '../utils/colorPlan'
+import { drawSitePie, groupRecordsBySite, pieSignature, summarizeSites } from '../utils/sites'
 import {
   generateColoredShapeImage,
-  getColoredShapeImageName,
-  buildColoredShapeExpression
+  getColoredShapeImageName
 } from '../utils/shapes'
 import {
   removeLayerAndSource,
@@ -19,10 +22,143 @@ import { generateRangePolygons, generateHexBins, invalidateRangeCache } from '..
 import { DYNAMIC_COLORS } from '../utils/constants'
 import { log } from '../utils/logger'
 
+/** Category colours for range-mode record points (not aggregated into sites). */
+export function buildPointColorExpression({ colorMap, colorAttribute, speciesColorMap, collapsedSpecies }) {
+  const entries = Object.entries(colorMap)
+  let expression = entries.length === 0
+    ? OTHER_COLOR
+    : ['match', ['get', colorAttribute], ...entries.flat(), OTHER_COLOR]
+
+  if (collapsedSpecies.length > 0) {
+    expression = ['case', ...collapsedSpecies.flatMap(species => [
+      ['==', ['get', 'scientific_name'], species], speciesColorMap[species] || OTHER_COLOR
+    ]), expression]
+  }
+  return expression
+}
+
+const CLUSTER_RADII = [12, 16, 20, 25, 32]
+const POINT_CIRCLE_SCALE_STOPS = [[3, 0.375], [6, 0.625], [10, 1], [14, 1.5]]
+const BORDER_SCALE_STOPS = [[3, 0.33], [10, 1]]
+// Site icons are 32 CSS px square, so icon-size 1 renders a 16 px radius.
+const SITE_ICON_RADIUS = 16
+const clusterOutlineName = radius => `cluster-outline-${radius}`
+
+/** Clusters sum the individuals of their sites; thresholds match clusterCircleRadius. */
+export function buildClusterOutlineExpression() {
+  return ['step', ['get', 'individuals'],
+    clusterOutlineName(12), 20, clusterOutlineName(16),
+    50, clusterOutlineName(20), 100, clusterOutlineName(25),
+    500, clusterOutlineName(32)]
+}
+
+function interpolateZoom(stops, zoom) {
+  const upper = stops.findIndex(([at]) => zoom <= at)
+  if (upper === -1) return stops[stops.length - 1][1]
+  if (upper === 0) return stops[0][1]
+  const [startZoom, startValue] = stops[upper - 1]
+  const [endZoom, endValue] = stops[upper]
+  return startValue + (endValue - startValue) * (zoom - startZoom) / (endZoom - startZoom)
+}
+
+/** Outer radius of a site marker in screen pixels, including half its border. */
+export function visibleSiteRadius(style, zoom, sizeFactor = 1) {
+  const circleRadius = style.pointSize * 0.9 * interpolateZoom(POINT_CIRCLE_SCALE_STOPS, zoom) * sizeFactor
+  const borderWidth = (style.borderWidth || 0) * interpolateZoom(BORDER_SCALE_STOPS, zoom)
+  return circleRadius + borderWidth / 2
+}
+
+/** Radius expression shared by site circles, icons and hover rings. */
+function siteRadiusExpression(style, extra = 0) {
+  const base = style.pointSize * 0.9
+  return ['interpolate', ['linear'], ['zoom'],
+    ...POINT_CIRCLE_SCALE_STOPS.flatMap(([zoom, scale]) => [
+      zoom, ['+', ['*', base * scale, ['get', 'size_factor']], extra],
+    ])]
+}
+
+/** Individuals mode: one native circle per site, filled from the ramp. */
+export function buildSiteCirclePaint(style) {
+  return {
+    'circle-radius': siteRadiusExpression(style),
+    'circle-color': ['get', 'fill'],
+    'circle-opacity': style.fillOpacity,
+    'circle-stroke-width': ['interpolate', ['linear'], ['zoom'],
+      ...BORDER_SCALE_STOPS.flatMap(([zoom, scale]) => [zoom, style.borderWidth * scale])],
+    'circle-stroke-color': style.borderColor,
+    'circle-stroke-opacity': style.borderOpacity,
+  }
+}
+
+/** Category mode: pie or shape icons, scaled to the same radius as circles. */
+export function buildSiteIconSize(style) {
+  const base = style.pointSize * 0.9
+  return ['interpolate', ['linear'], ['zoom'],
+    ...POINT_CIRCLE_SCALE_STOPS.map(([zoom, scale]) => {
+      const border = style.borderWidth * interpolateZoom(BORDER_SCALE_STOPS, zoom) / 2
+      return [zoom, ['/', ['+', ['*', base * scale, ['get', 'size_factor']], border], SITE_ICON_RADIUS]]
+    }).flat()]
+}
+
+export function buildRangePointCirclePaint({ radii, colorMap, colorAttribute,
+  speciesColorMap, collapsedSpecies, opacity, strokeWidth, strokeOpacity }) {
+  return {
+    'circle-radius': ['interpolate', ['linear'], ['zoom'], ...radii.flat()],
+    'circle-color': buildPointColorExpression({
+      colorMap, colorAttribute, speciesColorMap, collapsedSpecies,
+    }),
+    'circle-opacity': opacity,
+    'circle-stroke-width': strokeWidth,
+    'circle-stroke-color': '#ffffff',
+    'circle-stroke-opacity': strokeOpacity,
+  }
+}
+
+/** GeoJSON for site markers; large sites sort first so small ones stay visible on top. */
+export function siteFeatureCollection(sites, iconFor = null) {
+  return {
+    type: 'FeatureCollection',
+    features: sites.map(site => ({
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: site.coordinates },
+      properties: {
+        site_key: site.key,
+        individuals: site.individuals,
+        record_count: site.recordCount,
+        species_count: site.speciesCount,
+        size_factor: site.sizeFactor,
+        sort_key: -site.individuals,
+        fill: site.fill || OTHER_COLOR,
+        collection_location: site.locality,
+        country: site.country,
+        ...(iconFor ? { marker_icon: iconFor(site) } : {}),
+      },
+    })),
+  }
+}
+
+function drawClusterOutline(radius) {
+  const pixelRatio = 2
+  const size = (radius + 3) * 2 * pixelRatio
+  const canvas = document.createElement('canvas')
+  canvas.width = size
+  canvas.height = size
+  const context = canvas.getContext('2d')
+  context.beginPath()
+  context.arc(size / 2, size / 2, (radius - 1) * pixelRatio, 0, Math.PI * 2)
+  context.strokeStyle = '#ffffff'
+  context.globalAlpha = 0.9
+  context.lineWidth = 2 * pixelRatio
+  context.stroke()
+  return context.getImageData(0, 0, size, size)
+}
+
 export function useDataLayer(map, options = {}) {
   const store = useDataStore()
   const legendStore = useLegendStore()
-  const { onShowPopup } = options
+  const { onShowPopup, onDataChanged } = options
+  let dataGeneration = 0
+  let clusterClickGeneration = 0
 
   let clusterHandlersRegistered = false
   let pointsHandlersRegistered = false
@@ -30,6 +166,37 @@ export function useDataLayer(map, options = {}) {
   let rangePopup = null
   let _lastClusterState = null
   let _lastClusterRadius = null
+  const registeredMarkerImages = new Set()
+  // Site key → summary with its records; replaced on every data or style change.
+  let sitesByKey = new Map()
+
+  const siteRegistry = {
+    get: key => sitesByKey.get(key),
+    list: () => [...sitesByKey.values()],
+    /** Expand rendered site features (e.g. cluster leaves) back to their records. */
+    records: features => features.flatMap(feature => sitesByKey.get(feature.properties?.site_key)?.records || []),
+  }
+
+  const addShapeImage = ({ shape, fill, stroke, width, fillOpacity, strokeOpacity }) => {
+    const name = getColoredShapeImageName(shape, fill, stroke, width, fillOpacity, strokeOpacity)
+    if (!map.value.hasImage(name)) {
+      map.value.addImage(name,
+        generateColoredShapeImage(shape, fill, stroke, width, 64, fillOpacity, strokeOpacity),
+        { pixelRatio: 2 })
+    }
+    return name
+  }
+
+  const addPieImage = (segments, pieStyle) => {
+    const name = `site-pie:${pieSignature(segments)}:${pieStyle.stroke}:${pieStyle.strokeWidth}:${pieStyle.fillOpacity}:${pieStyle.strokeOpacity}`
+    if (!map.value.hasImage(name)) {
+      const quantized = segments.map(segment => ({ ...segment, fraction: Math.max(1, Math.round(segment.fraction * 24)) }))
+      const total = quantized.reduce((sum, segment) => sum + segment.fraction, 0)
+      map.value.addImage(name, drawSitePie(quantized.map(segment => ({ ...segment, fraction: segment.fraction / total })), pieStyle),
+        { pixelRatio: 2 })
+    }
+    return name
+  }
 
   // Store current cluster extent parameters for recreation after style change
   const currentExtentParams = ref(null)
@@ -229,15 +396,72 @@ export function useDataLayer(map, options = {}) {
 
     const isHeatmap = store.visualizationMode === 'heatmap'
     const isRanges = store.visualizationMode === 'ranges'
+    const collapsedSpecies = store.colorBy === 'subspecies' ? legendStore.collapsedSpecies || [] : []
     const shouldCluster = store.visualizationMode === 'clusters'
     const settings = store.clusterSettings
     const clusterRadiusPixels = settings.radiusPixels
+    const style = store.mapStyle
+    const colorMap = store.activeColorMap
+    const colorAttr = store.colorByAttribute
+    const plan = store.colorPlan
+    const categoryIcons = plan.mode === 'categories'
+    const shapesEnabled = legendStore.shapeSettings.enabled
+    const speciesBordersEnabled = legendStore.speciesStyling.borderColor && store.colorBy === 'subspecies'
+    const speciesBorderColors = speciesBordersEnabled
+      ? generateSpeciesBorderColors(Object.keys(store.speciesSubspeciesMap).sort(), legendStore.speciesBorderColors)
+      : legendStore.speciesBorderColors
+    const activeMarkerImages = new Set()
+    let sourceData = mapData
+
+    // Points and clusters draw one marker per site; heatmap and ranges keep records.
+    const siteMode = !isHeatmap && !isRanges
+    sitesByKey = new Map()
+    if (isHeatmap) {
+      sourceData = withHeatmapWeights(mapData)
+    } else if (siteMode) {
+      const { sites } = summarizeSites(groupRecordsBySite(mapData.features), {
+        plan,
+        ramp: INDIVIDUAL_RAMPS[store.basemapIsDark ? 'dark' : 'light'],
+        sizeByIndividuals: store.sizeByIndividuals,
+      })
+      sitesByKey = new Map(sites.map(site => [site.key, site]))
+      const iconFor = site => {
+        const species = site.speciesCount === 1 ? site.records[0].properties.scientific_name : null
+        const stroke = species && (speciesBordersEnabled || shapesEnabled)
+          ? speciesBorderColors[species] || style.borderColor
+          : style.borderColor
+        const shape = shapesEnabled && species ? legendStore.getGroupShape(species) || 'circle' : 'circle'
+        const name = shape !== 'circle' && site.segments.length === 1
+          ? addShapeImage({ shape, fill: site.fill, stroke, width: style.borderWidth,
+              fillOpacity: style.fillOpacity, strokeOpacity: style.borderOpacity })
+          : addPieImage(site.segments.length ? site.segments : [{ color: OTHER_COLOR, fraction: 1 }], {
+              stroke, strokeWidth: style.borderWidth, fillOpacity: style.fillOpacity, strokeOpacity: style.borderOpacity,
+            })
+        activeMarkerImages.add(name)
+        return name
+      }
+      sourceData = siteFeatureCollection(sites, categoryIcons ? iconFor : null)
+    }
+
+    dataGeneration++
+    onDataChanged?.(mapData, siteRegistry)
+    if (shouldCluster) {
+      for (const radius of CLUSTER_RADII) {
+        const image = clusterOutlineName(radius)
+        if (!map.value.hasImage(image)) map.value.addImage(image, drawClusterOutline(radius), { pixelRatio: 2 })
+        activeMarkerImages.add(image)
+      }
+    }
 
     // Check if we can update the existing source instead of full rebuild
     const existingSource = map.value.getSource('points-source')
+    const nextPointLayerType = siteMode ? (categoryIcons ? 'symbol' : 'circle') : null
+    // A circle-to-symbol change cannot reuse tile buckets under the same layer ID.
+    const pointLayerTypeChanged = (map.value.getLayer('points-layer')?.type || null) !== nextPointLayerType
     const needsSourceRebuild = !existingSource ||
       (shouldCluster !== _lastClusterState) ||
-      (clusterRadiusPixels !== _lastClusterRadius)
+      (clusterRadiusPixels !== _lastClusterRadius) ||
+      pointLayerTypeChanged
 
     if (rangePopup) { rangePopup.remove(); rangePopup = null }
 
@@ -255,20 +479,23 @@ export function useDataLayer(map, options = {}) {
       log.perf.start('addSource (full rebuild)')
       map.value.addSource('points-source', {
         type: 'geojson',
-        data: mapData,
+        data: sourceData,
         cluster: shouldCluster,
         clusterMaxZoom: 14,
         clusterRadius: clusterRadiusPixels,
         clusterMinPoints: 2,
+        // Cluster markers report individuals, not the number of sites.
+        ...(shouldCluster ? { clusterProperties: { individuals: ['+', ['get', 'individuals']] } } : {}),
         generateId: true
       })
       log.perf.end('addSource (full rebuild)')
       _lastClusterState = shouldCluster
       _lastClusterRadius = clusterRadiusPixels
     } else {
-      // Fast path: only update data, keep layers
+      // Site colours, sizes and icons are baked into the source, so every
+      // rebuild sends it; there is one feature per site, not per record.
       log.perf.start('setData (fast update)')
-      existingSource.setData(mapData)
+      existingSource.setData(sourceData)
       log.perf.end('setData (fast update)')
 
       // Still need to rebuild layers for styling changes
@@ -282,6 +509,12 @@ export function useDataLayer(map, options = {}) {
       removeLayerAndSource(map.value, null, 'range-source')
     }
 
+    for (const image of registeredMarkerImages) {
+      if (!activeMarkerImages.has(image) && map.value.hasImage(image)) map.value.removeImage(image)
+    }
+    registeredMarkerImages.clear()
+    activeMarkerImages.forEach(image => registeredMarkerImages.add(image))
+
     // Heatmap visualization mode
     if (isHeatmap) {
       const heatSettings = store.heatmapSettings
@@ -290,27 +523,17 @@ export function useDataLayer(map, options = {}) {
         type: 'heatmap',
         source: 'points-source',
         paint: {
-          'heatmap-weight': 1,
-          'heatmap-intensity': [
-            'interpolate', ['linear'], ['zoom'],
-            0, heatSettings.intensity * 0.3,
-            5, heatSettings.intensity * 1,
-            12, heatSettings.intensity * 3
-          ],
-          'heatmap-radius': [
-            'interpolate', ['linear'], ['zoom'],
-            0, heatSettings.radius * 0.3,
-            5, heatSettings.radius * 1,
-            12, heatSettings.radius * 2.5
-          ],
+          'heatmap-weight': ['get', 'heat_weight'],
+          'heatmap-intensity': heatSettings.intensity,
+          'heatmap-radius': heatSettings.radius,
           'heatmap-color': [
             'interpolate', ['linear'], ['heatmap-density'],
-            0, 'rgba(0, 0, 0, 0)',
-            0.2, 'rgba(25, 0, 255, 0.4)',
-            0.4, 'rgba(0, 200, 255, 0.6)',
-            0.6, 'rgba(0, 255, 100, 0.7)',
-            0.8, 'rgba(255, 255, 0, 0.8)',
-            1, 'rgba(255, 50, 0, 0.9)'
+            0, 'rgba(31, 83, 129, 0)',
+            0.1, 'rgba(49, 113, 161, 0.3)',
+            0.3, '#428fac',
+            0.55, '#65b9ac',
+            0.8, '#b8dd9b',
+            1, '#f6e8a5'
           ],
           'heatmap-opacity': heatSettings.opacity
         }
@@ -322,6 +545,14 @@ export function useDataLayer(map, options = {}) {
       log.perf.end('addDataLayer', `${mapData.features.length} features, shapes=${legendStore.shapeSettings.enabled}`)
       return
     }
+
+    const addRangePointCircles = (radii, opacity, strokeWidth, strokeOpacity) => map.value.addLayer({
+      id: 'range-points',
+      type: 'circle',
+      source: 'points-source',
+      paint: buildRangePointCirclePaint({ radii, opacity, strokeWidth, strokeOpacity,
+        colorMap, colorAttribute: colorAttr, speciesColorMap: store.speciesColorMap, collapsedSpecies }),
+    })
 
     // Range polygon visualization mode
     if (isRanges) {
@@ -368,27 +599,7 @@ export function useDataLayer(map, options = {}) {
         }
 
         if (rangeSettings.showPoints) {
-          const pointColorMap = store.activeColorMap
-          const pointAttr = store.colorByAttribute
-          map.value.addLayer({
-            id: 'range-points',
-            type: 'circle',
-            source: 'points-source',
-            paint: {
-              'circle-radius': [
-                'interpolate', ['linear'], ['zoom'],
-                3, 1, 6, 2, 10, 3, 14, 5
-              ],
-              'circle-color': Object.keys(pointColorMap).length > 0
-                ? ['match', ['get', pointAttr],
-                    ...Object.entries(pointColorMap).flatMap(([v, c]) => [v, c]),
-                    '#6b7280']
-                : '#6b7280',
-              'circle-opacity': 0.4,
-              'circle-stroke-width': 0,
-              'circle-stroke-opacity': 0
-            }
-          })
+          addRangePointCircles([[3, 1], [6, 2], [10, 3], [14, 5]], 0.4, 0, 0)
         }
 
         // Hex click popup
@@ -466,28 +677,7 @@ export function useDataLayer(map, options = {}) {
         }
 
         if (rangeSettings.showPoints) {
-          const pointColorMap = store.activeColorMap
-          const pointAttr = store.colorByAttribute
-          map.value.addLayer({
-            id: 'range-points',
-            type: 'circle',
-            source: 'points-source',
-            paint: {
-              'circle-radius': [
-                'interpolate', ['linear'], ['zoom'],
-                3, 1.5, 6, 2.5, 10, 4, 14, 6
-              ],
-              'circle-color': Object.keys(pointColorMap).length > 0
-                ? ['match', ['get', pointAttr],
-                    ...Object.entries(pointColorMap).flatMap(([v, c]) => [v, c]),
-                    '#6b7280']
-                : '#6b7280',
-              'circle-opacity': 0.5,
-              'circle-stroke-width': 0.5,
-              'circle-stroke-color': '#ffffff',
-              'circle-stroke-opacity': 0.3
-            }
-          })
+          addRangePointCircles([[3, 1.5], [6, 2.5], [10, 4], [14, 6]], 0.5, 0.5, 0.3)
         }
 
         // Hull polygon click handler
@@ -527,6 +717,8 @@ export function useDataLayer(map, options = {}) {
     }
 
     if (shouldCluster) {
+      // Keep the circle as the existing hit target and fill; its visible
+      // outline is a symbol so locality text collides with the whole marker.
       map.value.addLayer({
         id: 'clusters',
         type: 'circle',
@@ -534,17 +726,12 @@ export function useDataLayer(map, options = {}) {
         filter: ['has', 'point_count'],
         paint: {
           'circle-radius': [
-            'step', ['get', 'point_count'],
+            'step', ['get', 'individuals'],
             12, 20, 16, 50, 20, 100, 25, 500, 32
           ],
-          'circle-color': [
-            'step', ['get', 'point_count'],
-            '#4ade80', 20, '#22d3ee', 50, '#facc15', 100, '#fb923c', 500, '#ef4444'
-          ],
+          'circle-color': '#34404b',
           'circle-opacity': 0.9,
-          'circle-stroke-width': 2,
-          'circle-stroke-color': '#ffffff',
-          'circle-stroke-opacity': 0.9
+          'circle-stroke-width': 0
         }
       })
 
@@ -554,157 +741,47 @@ export function useDataLayer(map, options = {}) {
         source: 'points-source',
         filter: ['has', 'point_count'],
         layout: {
-          'text-field': ['concat', ['get', 'point_count_abbreviated'], '\nrecords'],
+          'icon-image': buildClusterOutlineExpression(),
+          'icon-padding': 0,
+          'icon-allow-overlap': true,
+          'icon-ignore-placement': false,
+          'text-field': ['to-string', ['get', 'individuals']],
           'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
-          'text-size': 10,
+          'text-size': 13,
           'text-allow-overlap': true
         },
-        paint: { 'text-color': '#1a1a2e' }
+        paint: { 'text-color': '#ffffff' }
       })
     }
 
-    // Individual points styling
-    const colorMap = store.activeColorMap
-    const colorAttr = store.colorByAttribute
-    const style = store.mapStyle
-
-    // Build color expression: items in the legend get their color,
-    // overflow items (in color map but not shown in legend) get grey
-    const shownLabels = legendStore.shownLabels
-    const colorEntries = Object.entries(colorMap)
-    let colorExpression
-    if (colorEntries.length === 0) {
-      colorExpression = '#6b7280'
-    } else {
-      colorExpression = ['match', ['get', colorAttr]]
-      colorEntries.forEach(([value, color]) => {
-        colorExpression.push(value, shownLabels.size > 0 && !shownLabels.has(value) ? '#6b7280' : color)
-      })
-      colorExpression.push('#6b7280')
-    }
-
-    // Sort key: colored (legend) points render above grey (overflow) points
-    const shownLabelsArray = Array.from(shownLabels)
-    const sortKeyExpression = shownLabelsArray.length > 0
-      ? ['case', ['in', ['get', colorAttr], ['literal', shownLabelsArray]], 1, 0]
-      : 1
-
-    const baseSize = style.pointSize * 0.9
-    const sizeExpression = [
-      'interpolate', ['linear'], ['zoom'],
-      3, baseSize * 0.375,
-      6, baseSize * 0.625,
-      10, baseSize,
-      14, baseSize * 1.5
-    ]
-
-    // Build border color expression (per-species or single color)
-    let borderColorExpression = style.borderColor
-    if (legendStore.speciesStyling.borderColor && store.colorBy === 'subspecies') {
-      const speciesList = Object.keys(store.speciesSubspeciesMap).sort()
-      const speciesBorderColors = generateSpeciesBorderColors(speciesList, legendStore.speciesBorderColors)
-
-      borderColorExpression = ['match', ['get', 'scientific_name']]
-      for (const [species, color] of Object.entries(speciesBorderColors)) {
-        borderColorExpression.push(species, color)
-      }
-      borderColorExpression.push(style.borderColor)
-    }
-
-    const useShapes = legendStore.shapeSettings.enabled
-
-    if (useShapes) {
-      // BAKED-COLOR APPROACH: pre-rendered images with borders baked in
-      // @see https://github.com/maplibre/maplibre-native/issues/2175
-      const attrToImageMap = new Map()
-
-      Object.entries(colorMap).forEach(([attrValue, fillColor]) => {
-        let species = null
-        for (const [sp, subs] of Object.entries(store.speciesSubspeciesMap || {})) {
-          if (subs.includes(attrValue)) {
-            species = sp
-            break
-          }
-        }
-        if (!species && store.colorBy !== 'subspecies') {
-          species = attrValue
-        }
-
-        const shape = legendStore.getGroupShape(species) || 'circle'
-        const strokeColor = legendStore.speciesBorderColors[species] || style.borderColor
-        const imageName = getColoredShapeImageName(shape, fillColor, strokeColor, style.borderWidth)
-
-        if (!map.value.hasImage(imageName)) {
-          const imageData = generateColoredShapeImage(shape, fillColor, strokeColor, style.borderWidth, 64)
-          map.value.addImage(imageName, imageData, { pixelRatio: 2 })
-        }
-
-        attrToImageMap.set(attrValue, imageName)
-      })
-
-      const defaultImageName = getColoredShapeImageName('circle', '#6b7280', style.borderColor, style.borderWidth)
-      if (!map.value.hasImage(defaultImageName)) {
-        const imageData = generateColoredShapeImage('circle', '#6b7280', style.borderColor, style.borderWidth, 64)
-        map.value.addImage(defaultImageName, imageData, { pixelRatio: 2 })
-      }
-
-      const iconImageExpression = buildColoredShapeExpression(attrToImageMap, colorAttr, defaultImageName)
-
-      const iconSizeExpression = [
-        'interpolate', ['linear'], ['zoom'],
-        3, baseSize * 0.03,
-        6, baseSize * 0.05,
-        10, baseSize * 0.08,
-        14, baseSize * 0.12
-      ]
-
+    const unclustered = shouldCluster ? ['!', ['has', 'point_count']] : ['all']
+    if (categoryIcons) {
       map.value.addLayer({
         id: 'points-layer',
         type: 'symbol',
         source: 'points-source',
-        filter: shouldCluster ? ['!', ['has', 'point_count']] : ['all'],
+        filter: unclustered,
         layout: {
-          'icon-image': iconImageExpression,
-          'icon-size': iconSizeExpression,
+          'icon-image': ['get', 'marker_icon'],
+          'icon-padding': 0,
+          'icon-size': buildSiteIconSize(style),
           'icon-allow-overlap': true,
-          'icon-ignore-placement': true,
-          'symbol-sort-key': sortKeyExpression
-        },
-        paint: { 'icon-opacity': style.fillOpacity }
+          'icon-ignore-placement': style.fillOpacity === 0 && style.borderOpacity === 0,
+          'symbol-sort-key': ['get', 'sort_key'],
+        }
       })
     } else {
       map.value.addLayer({
         id: 'points-layer',
         type: 'circle',
         source: 'points-source',
-        filter: shouldCluster ? ['!', ['has', 'point_count']] : ['all'],
-        layout: {
-          'circle-sort-key': sortKeyExpression
-        },
-        paint: {
-          'circle-radius': sizeExpression,
-          'circle-color': colorExpression,
-          'circle-opacity': style.fillOpacity,
-          'circle-stroke-width': [
-            'interpolate', ['linear'], ['zoom'],
-            3, style.borderWidth * 0.33,
-            10, style.borderWidth
-          ],
-          'circle-stroke-color': borderColorExpression,
-          'circle-stroke-opacity': style.borderOpacity
-        }
+        filter: unclustered,
+        layout: { 'circle-sort-key': ['get', 'sort_key'] },
+        paint: buildSiteCirclePaint(style),
       })
     }
 
-    // Highlight layer (hover on individual points)
-    const highlightSizeExpression = [
-      'interpolate', ['linear'], ['zoom'],
-      3, baseSize * 0.75,
-      6, baseSize * 1.25,
-      10, baseSize * 1.75,
-      14, baseSize * 2.25
-    ]
-
+    // Hover ring just outside the hovered site
     map.value.addLayer({
       id: 'points-highlight',
       type: 'circle',
@@ -713,7 +790,7 @@ export function useDataLayer(map, options = {}) {
         ? ['all', ['!', ['has', 'point_count']], ['==', ['id'], -1]]
         : ['==', ['id'], -1],
       paint: {
-        'circle-radius': highlightSizeExpression,
+        'circle-radius': siteRadiusExpression(style, style.borderWidth / 2 + 3),
         'circle-color': 'transparent',
         'circle-stroke-width': 2,
         'circle-stroke-color': '#ffffff'
@@ -740,51 +817,24 @@ export function useDataLayer(map, options = {}) {
         const clusterLng = coords[0]
         const clusterLat = coords[1]
 
-        // Proximity-based fallback for finding cluster points
-        const findClusterPointsByProximity = () => {
-          const allPoints = store.displayGeoJSON?.features || []
-          const zoom = map.value.getZoom()
-          const clusterRadiusPx = store.clusterSettings.radiusPixels
-          const metersPerPixel = 40075000 * Math.cos(clusterLat * Math.PI / 180) / (256 * Math.pow(2, zoom))
-          const searchRadiusKm = (clusterRadiusPx * metersPerPixel / 1000) * 2.0
-
-          const pointsWithDistance = allPoints.map(f => {
-            const [lng, lat] = f.geometry.coordinates
-            const distKm = haversineDistance(clusterLat, clusterLng, lat, lng)
-            return { feature: f, distance: distKm }
-          }).filter(p => p.distance <= searchRadiusKm)
-
-          pointsWithDistance.sort((a, b) => a.distance - b.distance)
-          return pointsWithDistance.slice(0, pointCount).map(p => p.feature)
-        }
-
         const source = map.value.getSource('points-source')
-        let clusterFeatures = null
-
-        if (source && typeof source.getClusterLeaves === 'function') {
-          try {
-            clusterFeatures = await new Promise((resolve) => {
-              const timeout = setTimeout(() => resolve(null), 500)
-              source.getClusterLeaves(clusterId, pointCount, 0, (error, features) => {
-                clearTimeout(timeout)
-                resolve(error ? null : features)
-              })
-            })
-          } catch {
-            clusterFeatures = null
-          }
+        const generation = dataGeneration
+        const click = ++clusterClickGeneration
+        let clusterFeatures
+        try {
+          clusterFeatures = await readClusterLeaves(source, clusterId, pointCount)
+        } catch (error) {
+          log.map.warn('Cluster membership is no longer available. Select the cluster again.', error)
+          return
         }
+        if (generation !== dataGeneration || click !== clusterClickGeneration ||
+            map.value?.getSource('points-source') !== source || !clusterFeatures.length) return
 
-        if (!clusterFeatures || clusterFeatures.length === 0) {
-          clusterFeatures = findClusterPointsByProximity()
-        }
-
-        if (!clusterFeatures || clusterFeatures.length === 0) return
-
-        const clusterPoints = clusterFeatures.map(f => f.properties)
+        const clusterRecords = siteRegistry.records(clusterFeatures)
+        const clusterPoints = clusterRecords.map(f => f.properties)
 
         if (clusterPoints.length > 0 && onShowPopup) {
-          const clusterStats = computeClusterStats(clusterFeatures, clusterLat, clusterLng)
+          const clusterStats = computeClusterStats(clusterRecords, clusterLat, clusterLng)
           updateClusterExtentCircle(clusterLat, clusterLng, clusterStats?.radiusKm || 0, clusterFeatures)
 
           onShowPopup({
@@ -812,29 +862,15 @@ export function useDataLayer(map, options = {}) {
     map.value.on('click', 'points-layer', (e) => {
       if (!e.features || e.features.length === 0) return
 
-      const feature = e.features[0]
-      const props = feature.properties
-      const coords = feature.geometry.coordinates.slice()
-
-      const lat = props._originalLat || coords[1]
-      const lng = props._originalLng || coords[0]
-
-      const isScattered = props._isScattered
-      const scatteredSpecies = props._scatteredSpecies
-      const scatteredSubspecies = props._scatteredSubspecies
-
-      const pointsAtLocation = store.getPointsAtCoordinates(lat, lng)
-
-      if (onShowPopup) {
-        onShowPopup({
-          type: 'point',
-          coordinates: { lat, lng },
-          lngLat: coords,
-          points: pointsAtLocation.length > 0 ? pointsAtLocation : [props],
-          initialSpecies: isScattered ? scatteredSpecies : null,
-          initialSubspecies: isScattered ? scatteredSubspecies : null
-        })
-      }
+      const site = sitesByKey.get(e.features[0].properties.site_key)
+      if (!site || !onShowPopup) return
+      const [lng, lat] = site.coordinates
+      onShowPopup({
+        type: 'point',
+        coordinates: { lat, lng },
+        lngLat: site.coordinates,
+        points: site.records.map(record => record.properties),
+      })
     })
 
     // Points layer hover effects

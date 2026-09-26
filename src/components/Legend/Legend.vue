@@ -9,6 +9,7 @@ import { useLegendBaseData, useLegendDisplayData } from './useLegendItemData'
 import { useLegendMeasurement } from './useLegendMeasurement'
 import { useLegendPosition } from './useLegendPosition'
 import { log } from '../../utils/logger'
+import { INDIVIDUAL_RAMPS, MAX_CATEGORY_COLORS } from '../../utils/colorPlan'
 import { ArrowUpAZ, ArrowDownZA, ChartBarDecreasing, ChartBarIncreasing, ChevronDown, Hash } from 'lucide-vue-next'
 import LegendItem from './LegendItem.vue'
 import LegendToolbar from './LegendToolbar.vue'
@@ -43,21 +44,24 @@ const isAutoWidth = computed(() => legendStore.size.width === 'auto')
 const isAutoHeight = computed(() => legendStore.size.height === 'auto')
 const currentWidth = ref(isAutoWidth.value ? null : legendStore.size.width)
 const currentHeight = ref(isAutoHeight.value ? null : legendStore.size.height)
+const previewSize = ref(null)
+const scaleLayoutSize = ref(null)
+let preserveCountAfterScale = false
 
 // Previous container bounds (for detecting changes)
 const prevContainerBounds = ref({ width: 0, height: 0 })
 
-// Attribution state
-const attributionHeight = ref(24)
-const isAttributionOpen = ref(true)
+// MapLibre places the scale and attribution together at bottom-right.
+const bottomControlsHeight = ref(0)
+const bottomControlsWidth = ref(0)
 
 // Is export mode active?
 const isExportMode = computed(() => dataStore.exportSettings.enabled)
 
-const bottomAttributionMargin = computed(() => {
-  if (!isAttributionOpen.value) return 0
-  return attributionHeight.value
-})
+const bottomAttributionMargin = computed(() => bottomControlsHeight.value)
+const uiScale = computed(() => dataStore.exportSettings.uiScale)
+const renderScale = computed(() => (isExportMode.value ? Number(uiScale.value) || 1 : 1) *
+  (scaleOverride.value?.scale ?? legendStore.scale))
 
 // Container dimensions
 const containerBounds = computed(() => {
@@ -78,10 +82,10 @@ const containerBounds = computed(() => {
 // ═══════════════════════════════════════════════════════════════════════════
 
 const {
-  STICKY_MARGIN, posX, posY, isDragging, stickyEdge,
+  STICKY_MARGIN, posX, posY, corner, isDragging, stickyEdge,
   startDrag, endDrag, detectStickyEdges,
-  applyPositionForBounds, repositionForAttributionChange,
-  repositionIfBottomSticky, setupLegendResizeObserver,
+  applyPositionForBounds, repositionAfterSizeChange,
+  setCorner, setFreePosition, enterExportPreview, leaveExportPreview, setupLegendResizeObserver,
   cleanup: cleanupPosition
 } = useLegendPosition({
   legendRef,
@@ -89,11 +93,11 @@ const {
   containerBounds,
   prevContainerBounds,
   bottomAttributionMargin,
-  isAttributionOpen,
-  currentWidth,
-  currentHeight,
+  bottomControlWidth: bottomControlsWidth,
   legendStore,
-  props
+  props,
+  isExportMode,
+  renderScale
 })
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -101,18 +105,60 @@ const {
 // ═══════════════════════════════════════════════════════════════════════════
 
 // Multi-directional resize (must come before measurement for isResizing)
-const { isResizing, resizeOverride, startResize, startResizeTouch } = useElementResize(legendRef, {
+const {
+  isResizing, isScaling, resizeOverride, scaleOverride,
+  startResize, startResizeTouch, cleanup: cleanupResize
+} = useElementResize(legendRef, {
   getPosition: () => ({ x: posX.value, y: posY.value ?? 0 }),
-  getLimits: () => ({ minW: 200, maxW: maxResizeWidth.value, minH: 120, maxH: maxLegendHeight.value }),
+  getLimits: () => ({ minW: 200, maxW: maxResizeWidth.value, minH: 120, maxH: boundedMaxHeight.value }),
+  getScale: () => renderScale.value,
+  getUniformScale: () => legendStore.scale,
+  getScaleLimits: () => {
+    const width = scaleLayoutSize.value?.width || legendRef.value?.offsetWidth || 200
+    const height = scaleLayoutSize.value?.height || legendRef.value?.offsetHeight || 120
+    const frame = containerBounds.value
+    const exportScale = isExportMode.value ? Number(uiScale.value) || 1 : 1
+    let max = Math.min(2,
+      (frame.width - 2 * STICKY_MARGIN) / width / exportScale,
+      (frame.height - 2 * STICKY_MARGIN) / height / exportScale)
+    const overlapsControls = bottomControlsWidth.value > 0 &&
+      (stickyEdge.value.right || posX.value + width * max * exportScale > frame.width - bottomControlsWidth.value)
+    if (overlapsControls) {
+      max = Math.min(max, (frame.height - 2 * STICKY_MARGIN - bottomControlsHeight.value) / height / exportScale)
+    }
+    return { min: 0.5, max: Math.max(0.5, max) }
+  },
+  onScaleStart: ({ width, height }) => { scaleLayoutSize.value = { width, height } },
+  onScaleCancel: () => { scaleLayoutSize.value = null },
+  onScaleEnd: ({ scale, x, y }) => {
+    const layout = scaleLayoutSize.value
+    if (layout) {
+      preserveCountAfterScale = true
+      currentWidth.value = layout.width
+      currentHeight.value = layout.height
+      legendStore.updateSize(layout.width, layout.height)
+    }
+    legendStore.setScale(scale)
+    nextTick(() => {
+      if (corner.value === 'free') setFreePosition(x, y)
+      else repositionAfterSizeChange()
+      scaleLayoutSize.value = null
+      preserveCountAfterScale = false
+    })
+  },
   onEnd: ({ x, y, width, height }) => {
     log.legend.debug(`[Legend] resize end: ${width}x${height} at (${x},${y})`)
-    posX.value = x
-    posY.value = y
     currentWidth.value = width
     currentHeight.value = height
+    previewSize.value = null
     legendStore.updateSize(width, height)
-    legendStore.updatePosition(x, y)
-    detectStickyEdges()
+    nextTick(() => {
+      if (corner.value === 'free') setFreePosition(x, y)
+      else {
+        repositionAfterSizeChange()
+        if (!isExportMode.value) legendStore.updatePosition(posX.value, posY.value)
+      }
+    })
   }
 })
 
@@ -132,9 +178,11 @@ const {
   resetToAutoSize, cleanup: cleanupMeasurement
 } = useLegendMeasurement({
   legendRef, contentRef, containerBounds,
+  previewSize,
   isAutoWidth, isAutoHeight, currentWidth, currentHeight,
   isResizing, resizeOverride,
   sortedAllItems,
+  itemGroupMap,
   legendCounts,
   legendStore, dataStore
 })
@@ -148,6 +196,18 @@ const display = useLegendDisplayData(
   isExportMode
 )
 const { legendItems, groupedLegendData, moreCount, morePointCount } = display
+
+const colorPlan = computed(() => dataStore.colorPlan)
+const maxSiteIndividuals = computed(() => dataStore.maxSiteIndividuals)
+const GROUP_NOUNS = {
+  subspecies: 'subspecies', species: 'species', genus: 'genera',
+  mimicry: 'mimicry rings', status: 'statuses', source: 'sources',
+}
+const groupNoun = computed(() => legendStore.collapsedSpecies.length && dataStore.colorBy === 'subspecies'
+  ? 'taxa' : GROUP_NOUNS[dataStore.colorBy] || 'groups')
+const individualsRamp = computed(() => INDIVIDUAL_RAMPS[dataStore.basemapIsDark ? 'dark' : 'light'])
+const individualsGradient = computed(() => `linear-gradient(90deg, ${individualsRamp.value.join(', ')})`)
+watch(() => colorPlan.value.mode, () => invalidateMeasurement('colorMode'))
 
 // True when the legend is truncating items (so a "show less" affordance makes
 // sense once expanded).
@@ -195,6 +255,10 @@ watch([
   invalidateMeasurement(`setting:${changed.join(',')}`)
 }, { deep: true })
 
+watch(() => legendStore.collapsedSpecies, () => {
+  invalidateMeasurement('speciesCollapse')
+}, { deep: true })
+
 watch(sortedAllItems, (newItems, oldItems) => {
   const delta = newItems.length - (oldItems?.length || 0)
   invalidateMeasurement(`data:${newItems.length}items(${delta >= 0 ? '+' : ''}${delta})`, { debounced: true })
@@ -204,10 +268,14 @@ watch(isResizing, (resizing) => {
   if (!resizing) scheduleMeasurement(true, 'resizeEnd', true)
 })
 
+watch(scaleOverride, () => {
+  if (corner.value !== 'free') nextTick(() => repositionAfterSizeChange())
+})
+
 watch(
-  [effectiveHeight, bottomAttributionMargin],
+  [effectiveHeight, bottomAttributionMargin, bottomControlsWidth, renderScale],
   () => {
-    nextTick(() => repositionIfBottomSticky())
+    nextTick(() => repositionAfterSizeChange())
   }
 )
 
@@ -230,14 +298,6 @@ watch(showEditUI, (editing) => {
   }
 })
 
-watch(legendItems, (items) => {
-  const labels = new Set()
-  for (const item of items) {
-    if (item.visible !== false) labels.add(item.label)
-  }
-  legendStore.setShownLabels(labels)
-}, { immediate: true })
-
 // Position/size sync from store
 watch(() => legendStore.position, (newPos) => {
   if (!isDragging.value) {
@@ -246,6 +306,10 @@ watch(() => legendStore.position, (newPos) => {
   }
 }, { deep: true })
 
+watch(() => legendStore.stickyEdges, (enabled) => {
+  if (!enabled && corner.value !== 'free') setFreePosition(posX.value, posY.value)
+})
+
 watch(() => legendStore.size, (newSize, oldSize) => {
   if (!isResizing.value) {
     currentWidth.value = newSize.width === 'auto' ? null : newSize.width
@@ -253,7 +317,7 @@ watch(() => legendStore.size, (newSize, oldSize) => {
     // Re-measure when size changes externally (e.g. settings panel, tests)
     const widthChanged = newSize.width !== oldSize?.width
     const heightChanged = newSize.height !== oldSize?.height
-    if (widthChanged || heightChanged) {
+    if ((widthChanged || heightChanged) && !preserveCountAfterScale) {
       scheduleMeasurement(true, 'sizeChange', true)
     }
   }
@@ -261,8 +325,21 @@ watch(() => legendStore.size, (newSize, oldSize) => {
 
 // Export mode → capture sticky state before container resizes
 watch(isExportMode, (enabled, wasEnabled) => {
-  detectStickyEdges(wasEnabled)
-})
+  if (enabled) {
+    previewSize.value = {
+      width: legendRef.value?.offsetWidth || effectiveWidth.value,
+      height: legendRef.value?.offsetHeight || effectiveHeight.value || 120
+    }
+    enterExportPreview()
+  }
+  else if (wasEnabled) {
+    previewSize.value = null
+    nextTick(() => { previewRestoreFrame = requestAnimationFrame(() => {
+      if (!props.containerRef) return
+      leaveExportPreview({ width: props.containerRef.clientWidth, height: props.containerRef.clientHeight })
+    }) })
+  }
+}, { flush: 'sync' })
 
 // ═══════════════════════════════════════════════════════════════════════════
 // VISUAL STATE
@@ -270,25 +347,48 @@ watch(isExportMode, (enabled, wasEnabled) => {
 
 const dotSize = computed(() => Math.max(10, Math.min(20, dataStore.mapStyle.pointSize * 1.4)))
 const fontSize = computed(() => Math.round(14 * legendStore.textScale))
+const toolbarBelow = computed(() => corner.value.startsWith('top') || (posY.value ?? 100) < 60)
+const toolbarRight = computed(() => stickyEdge.value.right || posX.value > containerBounds.value.width / 2)
+const toolbarInside = computed(() => {
+  if (!isExportMode.value || !previewSize.value) return false
+  const height = Math.min(previewSize.value.height, boundedMaxHeight.value) * renderScale.value
+  return (posY.value ?? 0) < 70 && containerBounds.value.height - (posY.value ?? 0) - height < 70
+})
+const boundedMaxHeight = computed(() => {
+  const scale = renderScale.value
+  const layoutWidth = scaleLayoutSize.value?.width ??
+    (isExportMode.value && previewSize.value ? previewSize.value.width : effectiveWidth.value)
+  const overlapsControls = bottomControlsWidth.value > 0 &&
+    posX.value + layoutWidth * scale > containerBounds.value.width - bottomControlsWidth.value
+  const reserve = overlapsControls ? bottomControlsHeight.value : 0
+  return Math.min(maxLegendHeight.value,
+    Math.max(120, Math.floor((containerBounds.value.height - 2 * STICKY_MARGIN - reserve) / scale)))
+})
 
 const positionStyle = computed(() => {
+  const transform = `scale(${renderScale.value})`
   if (resizeOverride.value) {
     return {
       width: resizeOverride.value.width + 'px',
       height: resizeOverride.value.height + 'px',
-      maxHeight: maxLegendHeight.value + 'px',
+      maxHeight: boundedMaxHeight.value + 'px',
       left: resizeOverride.value.x + 'px',
-      top: resizeOverride.value.y + 'px'
+      top: resizeOverride.value.y + 'px',
+      transformOrigin: 'top left',
+      transform
     }
   }
 
   const style = {
-    width: effectiveWidth.value + 'px',
-    maxHeight: maxLegendHeight.value + 'px'
+    width: (scaleLayoutSize.value?.width ??
+      (isExportMode.value && previewSize.value ? previewSize.value.width : effectiveWidth.value)) + 'px',
+    maxHeight: boundedMaxHeight.value + 'px',
+    transformOrigin: 'top left',
+    transform
   }
 
-  if (posY.value !== null) {
-    style.top = posY.value + 'px'
+  if (posY.value !== null || scaleOverride.value) {
+    style.top = (scaleOverride.value && corner.value === 'free' ? scaleOverride.value.y : posY.value) + 'px'
   } else {
     // On mobile the bottom quick-action bar sits at the bottom of the screen;
     // lift the default legend position above it so it is not hidden behind the
@@ -297,9 +397,10 @@ const positionStyle = computed(() => {
     style.bottom = isMobile ? 'calc(84px + env(safe-area-inset-bottom))' : '30px'
   }
 
-  style.left = posX.value + 'px'
+  style.left = (scaleOverride.value && corner.value === 'free' ? scaleOverride.value.x : posX.value) + 'px'
 
-  const h = effectiveHeight.value
+  const h = scaleLayoutSize.value?.height ??
+    (isExportMode.value && previewSize.value ? previewSize.value.height : effectiveHeight.value)
   if (h && h !== 'auto') {
     style.height = h + 'px'
   }
@@ -309,6 +410,20 @@ const positionStyle = computed(() => {
 
 function handleMouseEnter() { isHovered.value = true }
 function handleMouseLeave() { isHovered.value = false }
+
+function handleLegendKeydown(event) {
+  if (event.target !== event.currentTarget) return
+  const horizontal = stickyEdge.value.right ? 'right' : 'left'
+  const vertical = stickyEdge.value.top ? 'top' : 'bottom'
+  const destination = {
+    ArrowLeft: `${vertical}-left`, ArrowRight: `${vertical}-right`,
+    ArrowUp: `top-${horizontal}`, ArrowDown: `bottom-${horizontal}`,
+    Home: 'bottom-left'
+  }[event.key]
+  if (!destination) return
+  event.preventDefault()
+  setCorner(destination)
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ITEM HANDLERS
@@ -393,40 +508,36 @@ function toggleShowCounts() { legendStore.toggleShowCounts() }
 // ═══════════════════════════════════════════════════════════════════════════
 
 let attributionObserver = null
+let controlsResizeObserver = null
 let containerResizeObserver = null
+let attributionRetryTimer = null
+let mountedPositionTimer = null
+let mountedObserverTimer = null
+let previewRestoreFrame = null
 
 function updateAttributionState() {
   if (!props.containerRef) return
-  const attrEl = props.containerRef.querySelector('.maplibregl-ctrl-attrib')
-  if (!attrEl) {
-    isAttributionOpen.value = false
-    attributionHeight.value = 0
-    return
-  }
-  const wasOpen = isAttributionOpen.value
-  isAttributionOpen.value = attrEl.hasAttribute('open')
-  attributionHeight.value = attrEl.offsetHeight || 24
-  if (wasOpen !== isAttributionOpen.value && stickyEdge.value.bottom) {
-    repositionForAttributionChange()
-  }
+  const controls = props.containerRef.querySelector('.maplibregl-ctrl-bottom-right')
+  const rect = controls?.getBoundingClientRect()
+  bottomControlsHeight.value = rect?.height || 0
+  bottomControlsWidth.value = rect?.width || 0
 }
 
 function setupAttributionObserver() {
   if (!props.containerRef) return
   const attrEl = props.containerRef.querySelector('.maplibregl-ctrl-attrib')
   if (!attrEl) {
-    setTimeout(setupAttributionObserver, 100)
+    attributionRetryTimer = setTimeout(setupAttributionObserver, 100)
     return
   }
   updateAttributionState()
-  attributionObserver = new MutationObserver((mutations) => {
-    for (const mutation of mutations) {
-      if (mutation.type === 'attributes' && mutation.attributeName === 'open') {
-        updateAttributionState()
-      }
-    }
-  })
+  attributionObserver = new MutationObserver(updateAttributionState)
   attributionObserver.observe(attrEl, { attributes: true })
+  const controls = props.containerRef.querySelector('.maplibregl-ctrl-bottom-right')
+  if (controls) {
+    controlsResizeObserver = new ResizeObserver(updateAttributionState)
+    controlsResizeObserver.observe(controls)
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -479,7 +590,7 @@ function handleWindowResize() {
 onMounted(() => {
   document.addEventListener('click', handleGlobalClick)
 
-  setTimeout(() => {
+  mountedPositionTimer = setTimeout(() => {
     if (props.containerRef) {
       const bounds = {
         width: props.containerRef.clientWidth || 800,
@@ -489,28 +600,14 @@ onMounted(() => {
       setupAttributionObserver()
       setupContainerResizeObserver()
 
-      const legendHeight = legendRef.value?.offsetHeight || 200
-      const margin = STICKY_MARGIN
-
-      const isDefaultPosition = posY.value === null || (posX.value === 40 && posY.value === legendStore.position.y)
-      const isOutsideBounds = posY.value !== null && (
-        posY.value < 0 || posY.value > bounds.height - legendHeight - margin
-      )
-
-      if (isDefaultPosition || isOutsideBounds) {
-        posX.value = margin
-        posY.value = bounds.height - legendHeight - margin - bottomAttributionMargin.value
-        stickyEdge.value = { left: true, right: false, top: false, bottom: true }
-        legendStore.updatePosition(posX.value, posY.value)
-      } else {
-        detectStickyEdges()
-      }
+      detectStickyEdges()
+      repositionAfterSizeChange()
     }
   }, 150)
 
-  setTimeout(() => {
+  mountedObserverTimer = setTimeout(() => {
     setupLegendResizeObserver()
-    nextTick(() => repositionIfBottomSticky())
+    nextTick(() => repositionAfterSizeChange())
   }, 300)
   window.addEventListener('resize', handleWindowResize)
 })
@@ -519,9 +616,15 @@ onUnmounted(() => {
   document.removeEventListener('click', handleGlobalClick)
   window.removeEventListener('resize', handleWindowResize)
   if (attributionObserver) { attributionObserver.disconnect(); attributionObserver = null }
+  if (controlsResizeObserver) { controlsResizeObserver.disconnect(); controlsResizeObserver = null }
   if (containerResizeObserver) { containerResizeObserver.disconnect(); containerResizeObserver = null }
   if (resizeTimeout) clearTimeout(resizeTimeout)
+  if (attributionRetryTimer) clearTimeout(attributionRetryTimer)
+  if (mountedPositionTimer) clearTimeout(mountedPositionTimer)
+  if (mountedObserverTimer) clearTimeout(mountedObserverTimer)
+  if (previewRestoreFrame) cancelAnimationFrame(previewRestoreFrame)
   cleanupPosition()
+  cleanupResize()
   cleanupMeasurement()
 })
 </script>
@@ -531,17 +634,25 @@ onUnmounted(() => {
     v-if="legendStore.showLegend && Object.keys(colorMap).length > 0"
     ref="legendRef"
     class="legend-container"
+    tabindex="0"
+    role="group"
+    aria-label="Map legend. Arrow keys move it between corners; Home resets to bottom left."
     :class="{
       'is-hovered': isHovered,
       'is-dragging': isDragging,
       'is-resizing': isResizing,
+      'is-scaling': isScaling,
       'is-export': isExportMode,
+      'toolbar-below': toolbarBelow,
+      'toolbar-right': toolbarRight,
+      'toolbar-inside': toolbarInside,
     }"
     :style="positionStyle"
     @mouseenter="handleMouseEnter"
     @mouseleave="handleMouseLeave"
     @mousedown="startDrag"
     @touchstart.prevent="startDrag"
+    @keydown="handleLegendKeydown"
   >
     <!-- Toolbar (hidden by default, shown on hover) -->
     <LegendToolbar
@@ -600,8 +711,20 @@ onUnmounted(() => {
         </span>
       </div>
 
+      <!-- Individuals mode: marker size and colour both encode individuals per site. -->
+      <div v-if="colorPlan.mode === 'individuals'" class="legend-individuals" :style="{ fontSize: fontSize + 'px' }">
+        <div class="individuals-ramp" :style="{ background: individualsGradient }" :data-colors="individualsRamp.join(',')"></div>
+        <div class="individuals-scale"><span>1</span><span>{{ maxSiteIndividuals.toLocaleString() }}</span></div>
+        <p v-if="colorPlan.overflow" class="individuals-note">
+          {{ colorPlan.groups.length.toLocaleString() }} {{ groupNoun }}: too many to colour
+          <button v-if="!isExportMode" type="button" class="legend-link" @click.stop="legendStore.setColorOverride('categories')">
+            Colour top {{ MAX_CATEGORY_COLORS }}
+          </button>
+        </p>
+      </div>
+
       <!-- Items (Flat view) -->
-      <div v-if="groupedLegendData.type === 'flat'" class="legend-items">
+      <div v-else-if="groupedLegendData.type === 'flat'" class="legend-items">
         <LegendItem
           v-for="item in groupedLegendData.items"
           v-show="item.visible !== false || showEditUI"
@@ -635,6 +758,7 @@ onUnmounted(() => {
           v-for="group in groupedLegendData.groups"
           :key="group.name"
           class="legend-group"
+          :class="{ 'is-collapsed': group.collapsed }"
         >
           <!-- Group header -->
           <LegendGroupHeader
@@ -644,6 +768,9 @@ onUnmounted(() => {
             :custom-label="group.customLabel"
             :border-color="group.borderColor"
             :count="group.items.length"
+            :collapsible="group.collapsible"
+            :collapsed="group.collapsed"
+            :species-color="group.speciesColor"
             :dot-size="dotSize"
             :is-export-mode="isExportMode"
             :headers-hidden="!legendStore.groupingSettings.showHeaders && !legendStore.isNonTaxonomyGroupBy"
@@ -661,10 +788,11 @@ onUnmounted(() => {
             @apply-prefix-format-to-all="handleApplyPrefixFormatToAll"
             @dropdown-open="hasOpenPopup = true"
             @dropdown-close="hasOpenPopup = false"
+            @toggle-collapse="legendStore.setSpeciesCollapsed(group.name, !group.collapsed)"
           />
 
-          <!-- Group items (always shown) -->
-          <div class="legend-group-items">
+          <!-- Expanded groups show individual subspecies colors. -->
+          <div v-if="!group.collapsed" class="legend-group-items">
             <LegendItem
               v-for="item in group.items"
               v-show="item.visible !== false || showEditUI"
@@ -696,10 +824,28 @@ onUnmounted(() => {
         </div>
       </div>
 
-      <!-- More indicator: tap to expand the full list (it scrolls). Overflow
-           items appear grey on the map until expanded. -->
+      <!-- Groups beyond the coloured ones are grey on the map. -->
+      <div
+        v-if="colorPlan.mode === 'categories' && colorPlan.otherGroupCount > 0"
+        class="legend-more legend-other"
+        :style="{ fontSize: fontSize + 'px' }"
+        :title="`Top ${colorPlan.colored.length} ${groupNoun} cover ${Math.round(colorPlan.coverage * 100)}% of records`"
+      >
+        <span class="more-dot" />
+        Other · {{ colorPlan.otherGroupCount.toLocaleString() }} {{ groupNoun }}
+        <span v-if="legendStore.showCounts" class="more-count">{{ colorPlan.otherRecordCount.toLocaleString() }}</span>
+      </div>
       <button
-        v-if="moreCount > 0 && !legendExpanded"
+        v-if="colorPlan.mode === 'categories' && colorPlan.overflow && !isExportMode"
+        type="button"
+        class="legend-link legend-mode-switch"
+        :style="{ fontSize: fontSize * 0.85 + 'px' }"
+        @click.stop="legendStore.setColorOverride('individuals')"
+      >Colour by individuals per site</button>
+
+      <!-- More indicator: coloured rows that do not fit; tap to scroll them. -->
+      <button
+        v-if="colorPlan.mode === 'categories' && moreCount > 0 && !legendExpanded"
         type="button"
         class="legend-more legend-more--button"
         :style="{ fontSize: fontSize + 'px' }"
@@ -724,11 +870,13 @@ onUnmounted(() => {
     </div>
 
     <!-- Multi-directional resize zones (shown on hover) -->
-    <template v-if="showEditUI && !isExportMode">
+    <template v-if="showEditUI">
       <div v-for="dir in resizeDirections" :key="dir"
            :class="['resize-zone', `resize-${dir}`]"
+           :title="dir.length === 2 ? 'Drag to resize; Ctrl+drag to scale legend' : 'Drag to resize legend'"
            @mousedown.stop.prevent="startResize($event, dir)"
            @touchstart.stop.prevent="startResizeTouch($event, dir)">
+        <span v-if="dir.length === 2" class="resize-scale-hint">Ctrl+drag to scale legend</span>
         <!-- Visual affordance for SE corner -->
         <svg v-if="dir === 'se'" viewBox="0 0 10 10" class="resize-icon">
           <path d="M 8 2 L 2 8 M 8 5 L 5 8 M 8 8 L 8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none" />

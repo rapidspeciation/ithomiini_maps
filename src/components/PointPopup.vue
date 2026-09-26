@@ -1,11 +1,20 @@
+<script>
+import { ref as moduleRef } from 'vue'
+// Shared by every popup instance: whether the genome line starts expanded.
+const genomeExpandedPreference = moduleRef(false)
+</script>
+
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import { useDataStore } from '../stores/data'
 import { getThumbnailUrl } from '../utils/imageProxy'
 import { STATUS_COLORS } from '../utils/constants'
-import { getGoatUrl } from '../utils/goatHelpers'
+import { getGoatUrl, parseBioprojectIds } from '../utils/goatHelpers'
 import { usePopupSelection } from '../composables/usePopupSelection'
-import { countUniqueIndividuals } from '../utils/clusterStats'
+import { computeClusterStats, countUniqueIndividuals } from '../utils/clusterStats'
+import { groupCollectionSites, recordedPointsForFeatures } from '../utils/collectionSites'
+import LocalityMapLink from './LocalityMapLink.vue'
 
 const props = defineProps({
   coordinates: {
@@ -35,9 +44,14 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['close', 'open-gallery', 'toggle-dock'])
+const emit = defineEmits(['close', 'open-gallery', 'toggle-dock', 'focus-site', 'layout-change'])
 
 const store = useDataStore()
+const showAllClusterSites = ref(false)
+const summaryStats = computed(() => props.clusterStats || computeClusterStats(props.points, props.coordinates.lat, props.coordinates.lng))
+const clusterSites = computed(() => props.isCluster ? groupCollectionSites(props.points).filter(site => site.named) : [])
+const visibleClusterSites = computed(() => showAllClusterSites.value ? clusterSites.value : clusterSites.value.slice(0, 4))
+const locationSite = computed(() => ({ recordedPoints: recordedPointsForFeatures(props.points) }))
 
 // Group points by species
 const groupedBySpecies = computed(() => {
@@ -86,14 +100,14 @@ const selectIndividual = (index) => {
 
 // Total counts
 const totalSpecies = computed(() => Object.keys(groupedBySpecies.value).length)
-const totalRecords = computed(() => props.clusterStats?.recordCount ?? props.points.length)
+const totalRecords = computed(() => props.isCluster ? summaryStats.value?.recordCount ?? props.points.length : props.points.length)
 const totalIndividuals = computed(() => props.clusterStats?.individualCount ?? countUniqueIndividuals(props.points))
 const hasDuplicateRecords = computed(() => totalRecords.value !== totalIndividuals.value)
 
 // Format radius similar to scale bar (round to nice numbers)
 const formattedRadius = computed(() => {
-  if (!props.clusterStats?.radiusKm) return null
-  const km = props.clusterStats.radiusKm
+  if (!summaryStats.value?.radiusKm) return null
+  const km = summaryStats.value.radiusKm
 
   if (km < 0.1) {
     // Less than 100m - show in meters
@@ -164,15 +178,75 @@ const goatTaxonUrl = computed(() => {
   return getGoatUrl(selectedSpecies.value, store.getGoatForSpecies)
 })
 
-const bioprojectUrl = computed(() => {
+// ── Site / cluster summary ───────────────────────────────────────────────
+// Sites with several species (and every cluster) open on a species overview;
+// choosing a species shows the specimen view below.
+const view = ref(null)
+watch(() => props.points, () => { view.value = null })
+const hasSummary = computed(() => props.isCluster || totalSpecies.value > 1)
+const showSummary = computed(() =>
+  hasSummary.value && (view.value ?? (props.initialSpecies ? 'detail' : 'summary')) === 'summary')
+const openSpecies = (species) => {
+  selectSpecies(species)
+  view.value = 'detail'
+}
+// The specimen view is taller; let the map keep the card on screen.
+watch(showSummary, () => emit('layout-change'), { flush: 'post' })
+
+const mostCommon = (values) => {
+  const counts = new Map()
+  for (const value of values) {
+    if (!value || value === 'Unknown') continue
+    counts.set(value, (counts.get(value) || 0) + 1)
+  }
+  return [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || null
+}
+const siteName = computed(() => mostCommon(props.points.map(point => point.collection_location)))
+const siteCountry = computed(() => mostCommon(props.points.map(point => point.country)))
+
+const speciesRows = computed(() => {
+  const plan = store.colorPlan
+  const rows = Object.entries(groupedBySpecies.value).map(([species, group]) => {
+    const records = Object.values(group.subspecies).flatMap(subspecies => subspecies.individuals)
+    const colors = plan.mode === 'categories'
+      ? [...new Set(records.map(record => plan.colorForRecord(record)))].slice(0, 4)
+      : []
+    return { species, count: group.count, colors }
+  })
+  return rows.sort((a, b) => b.count - a.count || a.species.localeCompare(b.species))
+})
+const maxSpeciesCount = computed(() => Math.max(1, ...speciesRows.value.map(row => row.count)))
+
+// Collapsed by default; the choice holds for later popups in this session.
+const genomeExpanded = ref(genomeExpandedPreference.value)
+watch(genomeExpanded, value => {
+  genomeExpandedPreference.value = value
+  emit('layout-change')
+}, { flush: 'post' })
+
+// "≈" marks values GoaT estimates from related taxa rather than this species.
+const genomeFacts = computed(() => {
+  const info = goatInfo.value
+  if (!info) return []
+  const mark = field => (isEstimated(field) ? '≈' : '')
+  return [
+    info.genome_size && `${mark(info.genome_size)}${store.formatGenomeSize(info.genome_size.value)}`,
+    info.chromosome_number && `2n = ${mark(info.chromosome_number)}${info.chromosome_number.value}`,
+    info.assembly_level && `${mark(info.assembly_level)}${String(info.assembly_level.value).toLowerCase()}`,
+  ].filter(Boolean)
+})
+const genomeBrief = computed(() => genomeFacts.value.join(' · ') || 'Details')
+const genomeBriefTitle = computed(() =>
+  genomeFacts.value.some(fact => fact.includes('≈')) ? '≈ estimated from related taxa' : '')
+
+const bioprojects = computed(() => {
   const bp = goatInfo.value?.bioproject
-  if (!bp?.value) return null
-  return `https://www.ncbi.nlm.nih.gov/bioproject/${bp.value}`
+  return bp?.source === 'direct' ? parseBioprojectIds(bp.value) : []
 })
 </script>
 
 <template>
-  <div class="point-popup">
+  <div class="point-popup" :class="{ 'cluster-popup': isCluster }">
     <div class="popup-actions">
       <button class="popup-action-btn" @click="emit('toggle-dock')" title="Dock to right panel">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -188,7 +262,91 @@ const bioprojectUrl = computed(() => {
       </button>
     </div>
 
-    <div class="popup-layout">
+    <!-- Summary: who is here, before any single specimen -->
+    <div v-if="showSummary" class="site-summary">
+      <header class="summary-header">
+        <div class="summary-place">
+          <span class="summary-name">{{ isCluster ? `${clusterSites.length || 'Several'} sites` : (siteName || 'Unnamed site') }}</span>
+          <LocalityMapLink v-if="!isCluster" :site="locationSite" />
+        </div>
+        <div class="summary-meta">
+          <template v-if="isCluster">
+            {{ summaryStats?.countriesFormatted }}<template v-if="formattedRadius"> · {{ formattedRadius }} radius</template>
+          </template>
+          <template v-else>
+            <template v-if="siteCountry">{{ siteCountry }} · </template>
+            <span class="coords">{{ coordinates.lat.toFixed(4) }}, {{ coordinates.lng.toFixed(4) }}</span>
+          </template>
+        </div>
+      </header>
+
+      <div class="location-stats summary-stats">
+        <div class="stat">
+          <span class="stat-value">{{ totalIndividuals }}</span>
+          <span class="stat-label">individuals</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value">{{ totalSpecies }}</span>
+          <span class="stat-label">species</span>
+        </div>
+        <div v-if="hasDuplicateRecords" class="stat">
+          <span class="stat-value">{{ totalRecords }}</span>
+          <span class="stat-label">records</span>
+        </div>
+        <div v-if="!isCluster && (maleCount > 0 || femaleCount > 0)" class="sex-stats">
+          <span v-if="maleCount > 0" class="sex-count male">♂ {{ maleCount }}</span>
+          <span v-if="femaleCount > 0" class="sex-count female">♀ {{ femaleCount }}</span>
+        </div>
+      </div>
+
+      <div v-if="isCluster && clusterSites.length" class="cluster-sites summary-block">
+        <div class="section-header">
+          <span class="count-badge">{{ clusterSites.length }}</span>
+          <span class="section-label">Sites</span>
+        </div>
+        <div v-for="site in visibleClusterSites" :key="site.id" class="cluster-site">
+          <span class="cluster-site-label"><button type="button" :title="site.name" :aria-label="`Focus ${site.name} on map`" @click="emit('focus-site', site)">{{ site.name }}</button><small>{{ site.recordCount }}</small></span>
+          <LocalityMapLink :site="site" />
+        </div>
+        <button v-if="clusterSites.length > 4" type="button" class="cluster-sites-toggle" :aria-expanded="showAllClusterSites" @click="showAllClusterSites = !showAllClusterSites">
+          {{ showAllClusterSites ? 'Show fewer sites' : `Show ${clusterSites.length - 4} more sites` }}
+        </button>
+      </div>
+
+      <div class="summary-block">
+        <div class="section-header">
+          <span class="count-badge">{{ totalSpecies }}</span>
+          <span class="section-label">Species</span>
+        </div>
+        <ul class="species-summary" :class="{ 'no-dots': !speciesRows.some(row => row.colors.length) }">
+          <li v-for="row in speciesRows" :key="row.species">
+            <button type="button" class="species-row" :title="`Show ${row.species} specimens`" @click="openSpecies(row.species)">
+              <span v-if="row.colors.length || speciesRows.some(other => other.colors.length)" class="species-dots" aria-hidden="true">
+                <span v-for="color in row.colors" :key="color" class="species-dot" :style="{ background: color }" />
+              </span>
+              <span class="species-row-name">{{ row.species }}</span>
+              <span class="species-row-bar" aria-hidden="true"><span :style="{ width: `${100 * row.count / maxSpeciesCount}%` }" /></span>
+              <span class="species-row-count">{{ row.count }}</span>
+              <ChevronRight :size="14" aria-hidden="true" class="species-row-chevron" />
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- The overview holds the site details; the specimen view keeps one line of context. -->
+    <div v-if="!showSummary && hasSummary" class="popup-crumbs">
+      <button type="button" class="popup-back" @click="view = 'summary'">
+        <ChevronLeft :size="14" aria-hidden="true" /> All species
+      </button>
+      <span class="crumb-place">
+        <template v-if="isCluster">{{ clusterSites.length || 'Several' }} sites</template>
+        <template v-else>{{ siteName || 'Unnamed site' }}<template v-if="siteCountry"> · {{ siteCountry }}</template></template>
+      </span>
+      <LocalityMapLink v-if="!isCluster" :site="locationSite" />
+    </div>
+
+    <div v-if="!showSummary" class="popup-layout">
       <!-- Left Column: Photo & Individual Details -->
       <div class="popup-left-section">
         <!-- Photo -->
@@ -353,6 +511,7 @@ const bioprojectUrl = computed(() => {
           </select>
         </div>
 
+        <template v-if="!hasSummary">
         <div class="divider"></div>
 
         <!-- Location/Cluster Summary -->
@@ -360,12 +519,12 @@ const bioprojectUrl = computed(() => {
           <div class="summary-title">{{ isCluster ? 'Cluster Summary' : 'Location Summary' }}</div>
 
           <!-- Cluster-specific: Location count -->
-          <div v-if="isCluster && clusterStats" class="detail-row">
+          <div v-if="isCluster && summaryStats" class="detail-row">
             <span
               class="detail-label"
-              title="Unique coordinate sites rounded to four decimal places"
+              title="Named collection sites in this cluster"
             >Sites:</span>
-            <span class="detail-value">{{ clusterStats.locationCount }}</span>
+            <span class="detail-value">{{ clusterSites.length }}</span>
           </div>
 
           <div v-if="isCluster && clusterStats?.individualCount" class="detail-row">
@@ -377,15 +536,25 @@ const bioprojectUrl = computed(() => {
           </div>
 
           <!-- Regular location: Location name -->
-          <div v-else-if="locationName" class="detail-row">
+          <div v-if="!isCluster && locationName" class="detail-row">
             <span class="detail-label">Location:</span>
             <span class="detail-value location-name">{{ locationName }}</span>
+            <LocalityMapLink :site="locationSite" />
           </div>
 
+          <div v-if="isCluster && clusterSites.length" class="cluster-sites">
+            <div v-for="site in visibleClusterSites" :key="site.id" class="cluster-site">
+              <span class="cluster-site-label"><button type="button" :title="site.name" :aria-label="`Focus ${site.name} on map`" @click="emit('focus-site', site)">{{ site.name }}</button><small>{{ site.recordCount }}</small></span>
+              <LocalityMapLink :site="site" />
+            </div>
+            <button v-if="clusterSites.length > 4" type="button" class="cluster-sites-toggle" :aria-expanded="showAllClusterSites" @click="showAllClusterSites = !showAllClusterSites">
+              {{ showAllClusterSites ? 'Show fewer sites' : `Show ${clusterSites.length - 4} more sites` }}
+            </button>
+          </div>
           <!-- Cluster: Countries with codes -->
-          <div v-if="isCluster && clusterStats?.countriesFormatted" class="detail-row">
+          <div v-if="isCluster && summaryStats?.countriesFormatted" class="detail-row">
             <span class="detail-label">Countries:</span>
-            <span class="detail-value">{{ clusterStats.countriesFormatted }}</span>
+            <span class="detail-value">{{ summaryStats.countriesFormatted }}</span>
           </div>
 
           <!-- Regular location: Single country -->
@@ -394,11 +563,12 @@ const bioprojectUrl = computed(() => {
             <span class="detail-value">{{ currentIndividual.country }}</span>
           </div>
 
-          <div class="detail-row">
-            <span class="detail-label">{{ isCluster ? 'Center:' : 'Coordinates:' }}</span>
+          <div v-if="!isCluster" class="detail-row">
+            <span class="detail-label">Coordinates:</span>
             <span class="detail-value coords">
               {{ coordinates.lat.toFixed(4) }}, {{ coordinates.lng.toFixed(4) }}
             </span>
+            <LocalityMapLink v-if="!locationName" :site="locationSite" />
           </div>
 
           <!-- Cluster: Geographic radius -->
@@ -423,7 +593,7 @@ const bioprojectUrl = computed(() => {
           </div>
 
           <!-- Sex counts (only show if we have sex data) -->
-          <div v-if="maleCount > 0 || femaleCount > 0" class="sex-stats">
+          <div v-if="!isCluster && (maleCount > 0 || femaleCount > 0)" class="sex-stats">
             <span v-if="maleCount > 0" class="sex-count male">♂ {{ maleCount }}</span>
             <span v-if="femaleCount > 0" class="sex-count female">♀ {{ femaleCount }}</span>
             <span v-if="totalRecords - maleCount - femaleCount > 0" class="sex-count unknown">
@@ -431,17 +601,22 @@ const bioprojectUrl = computed(() => {
             </span>
           </div>
         </div>
+        </template>
       </div>
     </div>
 
-    <div v-if="goatInfo && !store.goatLoading" class="goat-section">
-      <div class="goat-header">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="goat-icon">
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
-          <path d="M8 12h.01M12 12h.01M16 12h.01M8 8h.01M12 8h.01M16 8h.01M8 16h.01M12 16h.01M16 16h.01"/>
-        </svg>
-        <span class="goat-title">Genomic Data</span>
-        <a v-if="goatTaxonUrl" :href="goatTaxonUrl" target="_blank" rel="noopener noreferrer" class="goat-header-link" title="View on GoaT">
+    <!-- Species-level genome facts: one line, details on demand. -->
+    <details
+      v-if="!showSummary && !isCluster && goatInfo && !store.goatLoading"
+      class="goat-section"
+      :open="genomeExpanded"
+      @toggle="genomeExpanded = $event.target.open"
+    >
+      <summary class="goat-header">
+        <ChevronRight :size="13" aria-hidden="true" class="goat-chevron" />
+        <span class="goat-title">Genome</span>
+        <span class="goat-brief" :title="genomeBriefTitle">{{ genomeBrief }}</span>
+        <a v-if="goatTaxonUrl" :href="goatTaxonUrl" target="_blank" rel="noopener noreferrer" class="goat-header-link" title="View on GoaT" @click.stop>
           GoaT
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="10" height="10">
             <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
@@ -449,7 +624,7 @@ const bioprojectUrl = computed(() => {
             <line x1="10" y1="14" x2="21" y2="3"/>
           </svg>
         </a>
-      </div>
+      </summary>
 
       <div class="goat-grid">
         <div v-if="goatInfo.genome_size" class="goat-field">
@@ -500,24 +675,25 @@ const bioprojectUrl = computed(() => {
           </span>
         </div>
 
-        <div v-if="goatInfo.bioproject && goatInfo.bioproject.source === 'direct'" class="goat-field goat-field-wide">
-          <span class="goat-label">BioProject</span>
-          <a v-if="bioprojectUrl" :href="bioprojectUrl" target="_blank" rel="noopener noreferrer" class="goat-bioproject-link">
-            {{ goatInfo.bioproject.value }}
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="10" height="10">
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-              <polyline points="15 3 21 3 21 9"/>
-              <line x1="10" y1="14" x2="21" y2="3"/>
-            </svg>
-          </a>
-          <span v-else class="goat-value">{{ goatInfo.bioproject.value }}</span>
+        <div v-if="bioprojects.length" class="goat-field goat-field-wide">
+          <span class="goat-label">BioProject{{ bioprojects.length > 1 ? 's' : '' }}</span>
+          <span class="goat-bioprojects">
+            <a
+              v-for="id in bioprojects"
+              :key="id"
+              :href="`https://www.ncbi.nlm.nih.gov/bioproject/${id}`"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="goat-bioproject-link"
+            >{{ id }}</a>
+          </span>
         </div>
       </div>
 
       <div class="goat-citation">
         Challis et al. 2023, Wellcome Open Research, 8:24
       </div>
-    </div>
+    </details>
   </div>
 </template>
 
@@ -533,6 +709,9 @@ const bioprojectUrl = computed(() => {
   box-shadow: 0 4px 20px var(--color-shadow-color, rgba(0, 0, 0, 0.5));
   border: 1px solid var(--color-border, #3d3d5c);
 }
+.point-popup.cluster-popup { box-sizing: border-box; width: 480px; max-width: min(480px, calc(100vw - 24px)); }
+
+:global(.enhanced-popup .point-popup.cluster-popup) { max-height: min(75vh, 650px); overflow-y: auto; overscroll-behavior: contain; scrollbar-color: var(--color-border-light, #5d5d7c) transparent; }
 
 .popup-actions {
   position: absolute;
@@ -830,10 +1009,46 @@ const bioprojectUrl = computed(() => {
   font-style: italic;
 }
 
+.cluster-sites { margin: 7px 0; border-top: 1px solid var(--color-accent-subtle, rgba(74, 222, 128, 0.15)); }
+.cluster-site { display: flex; align-items: center; gap: 6px; padding: 3px 0; border-bottom: 1px solid var(--color-accent-subtle, rgba(74, 222, 128, 0.15)); }
+.cluster-site-label { display: flex; align-items: baseline; gap: 5px; flex: 1; min-width: 0; color: var(--color-text-primary, #e0e0e0); font-size: .72rem; line-height: 1.2; }
+.cluster-site-label > button { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 3px 0; border: 0; background: transparent; color: var(--color-text-primary, #e0e0e0); font: inherit; text-align: left; cursor: pointer; }
+.cluster-site-label small { flex: none; color: var(--color-text-secondary, #aaa); font-size: .68rem; font-variant-numeric: tabular-nums; }
+.cluster-site-label > button:hover { color: var(--color-accent, #4ade80); text-decoration: underline; }
+.cluster-site-label > button:focus-visible, .cluster-sites-toggle:focus-visible { outline: 2px solid var(--color-accent, #4ade80); outline-offset: 2px; }
+.cluster-sites-toggle { margin-top: 6px; padding: 2px 0; border: 0; background: transparent; color: var(--color-accent, #4ade80); font: inherit; font-size: .7rem; cursor: pointer; }
+
 .coords {
   font-family: monospace;
   font-size: 0.7rem;
 }
+
+/* Site / cluster summary */
+.site-summary { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+/* Leave room for the dock and close buttons in the top-right corner. */
+.summary-header { display: flex; flex-direction: column; gap: 2px; min-width: 0; padding-right: 60px; }
+.summary-place { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.summary-name { font-size: 0.95rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.summary-meta { font-size: 0.72rem; color: var(--color-text-secondary, #aaa); }
+.summary-stats { margin-top: 0; padding-top: 0; border-top: 0; align-items: baseline; flex-wrap: wrap; }
+.summary-stats .sex-stats { margin: 0 0 0 auto; padding: 0; border: 0; }
+.species-summary { list-style: none; margin: 0; padding: 0; max-height: 260px; overflow-y: auto; }
+.species-row { display: grid; grid-template-columns: 34px minmax(0, 1fr) 64px 28px 14px; align-items: center; gap: 8px; width: 100%; padding: 5px 4px; border: 0; border-radius: 4px; background: transparent; color: var(--color-text-primary, #e0e0e0); font: inherit; text-align: left; cursor: pointer; }
+.no-dots .species-row { grid-template-columns: minmax(0, 1fr) 64px 28px 14px; }
+.species-row:hover, .species-row:focus-visible { background: var(--color-bg-tertiary, #2d2d4a); outline: none; }
+.species-row:hover .species-row-chevron { color: var(--color-accent, #4ade80); }
+.species-dots { display: flex; gap: 2px; }
+.species-dot { width: 7px; height: 7px; border-radius: 50%; }
+.species-row-name { font-size: 0.78rem; font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.species-row-bar { height: 4px; border-radius: 2px; background: var(--color-bg-tertiary, #2d2d4a); overflow: hidden; }
+.species-row-bar > span { display: block; height: 100%; background: var(--color-accent, #4ade80); opacity: 0.7; }
+.species-row-count { font-size: 0.75rem; text-align: right; font-variant-numeric: tabular-nums; color: var(--color-text-secondary, #aaa); }
+.species-row-chevron { color: var(--color-text-muted, #666); }
+.popup-crumbs { display: flex; align-items: center; gap: 6px; min-width: 0; margin: -2px 60px 8px 0; font-size: 0.72rem; }
+.crumb-place { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--color-text-secondary, #aaa); }
+.crumb-place::before { content: '·'; margin-right: 6px; color: var(--color-text-muted, #666); }
+.popup-back { display: inline-flex; flex-shrink: 0; align-items: center; gap: 2px; padding: 2px 4px 2px 0; border: 0; background: transparent; color: var(--color-accent, #4ade80); font: inherit; cursor: pointer; }
+.popup-back:hover { text-decoration: underline; }
 
 .location-stats {
   display: flex;
@@ -918,28 +1133,62 @@ const bioprojectUrl = computed(() => {
   color: var(--color-text-muted, #9ca3af); /* Gray for unknown */
 }
 
-/* GoaT Genomic Data Section */
+/* GoaT genome line (expands to details) */
 .goat-section {
   margin-top: 8px;
   background: rgba(59, 130, 246, 0.06);
   border: 1px solid rgba(59, 130, 246, 0.2);
   border-radius: 8px;
-  padding: 10px 12px;
+  padding: 6px 10px;
+}
+
+.goat-section[open] {
+  padding-bottom: 10px;
 }
 
 .goat-header {
   display: flex;
   align-items: center;
   gap: 6px;
+  list-style: none;
+  cursor: pointer;
+  min-width: 0;
+}
+
+.goat-header::-webkit-details-marker {
+  display: none;
+}
+
+.goat-section[open] .goat-header {
   margin-bottom: 8px;
 }
 
-.goat-icon {
-  width: 14px;
-  height: 14px;
-  color: #60a5fa;
+.goat-chevron {
   flex-shrink: 0;
+  color: #60a5fa;
+  transition: transform 0.15s;
 }
+
+.goat-section[open] .goat-chevron {
+  transform: rotate(90deg);
+}
+
+.goat-brief {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary, #aaa);
+  font-variant-numeric: tabular-nums;
+}
+
+.goat-bioprojects {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+}
+
 
 .goat-title {
   font-size: 0.7rem;
@@ -1034,5 +1283,9 @@ const bioprojectUrl = computed(() => {
   font-size: 0.55rem;
   color: var(--color-text-muted, #666);
   font-style: italic;
+}
+
+@media (max-width: 600px) {
+  .point-popup { box-sizing: border-box; min-width: 0; width: min(480px, calc(100vw - 24px)); }
 }
 </style>

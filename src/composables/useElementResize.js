@@ -18,19 +18,25 @@ function clamp(val, min, max) {
  */
 export function useElementResize(elementRef, options) {
   const isResizing = ref(false)
+  const isScaling = ref(false)
   const resizeOverride = ref(null)
+  const scaleOverride = ref(null)
 
   // Internal state (not exposed)
   const direction = ref(null)
   const startMouse = ref({ x: 0, y: 0 })
   const startSize = ref({ width: 0, height: 0 })
   const startPos = ref({ x: 0, y: 0 })
+  const startUniformScale = ref(1)
+  const startRenderScale = ref(1)
 
   function startResize(e, dir) {
     e.preventDefault()
     e.stopPropagation()
 
-    isResizing.value = true
+    const scaleGesture = e.ctrlKey && dir.length === 2 && options.getUniformScale
+    isScaling.value = Boolean(scaleGesture)
+    isResizing.value = !scaleGesture
     direction.value = dir
     startMouse.value = { x: e.clientX, y: e.clientY }
 
@@ -39,17 +45,40 @@ export function useElementResize(elementRef, options) {
       startSize.value = { width: el.offsetWidth, height: el.offsetHeight }
     }
     startPos.value = options.getPosition()
-    options.onStart?.()
+    startUniformScale.value = options.getUniformScale?.() || 1
+    startRenderScale.value = options.getScale?.() || 1
+    if (scaleGesture) options.onScaleStart?.(startSize.value)
+    else options.onStart?.()
 
     document.addEventListener('mousemove', onDrag)
     document.addEventListener('mouseup', endDrag)
   }
 
   function onDrag(e) {
-    if (!isResizing.value || !direction.value) return
+    if ((!isResizing.value && !isScaling.value) || !direction.value) return
 
-    const dx = e.clientX - startMouse.value.x
-    const dy = e.clientY - startMouse.value.y
+    if (isScaling.value) {
+      const dx = e.clientX - startMouse.value.x
+      const dy = e.clientY - startMouse.value.y
+      const width = startSize.value.width * startRenderScale.value
+      const height = startSize.value.height * startRenderScale.value
+      const horizontal = direction.value.includes('e') ? 1 : -1
+      const vertical = direction.value.includes('s') ? 1 : -1
+      const change = (horizontal * dx * width + vertical * dy * height) / (width * width + height * height)
+      const { min = 0.5, max = 2 } = options.getScaleLimits?.() || {}
+      const scale = clamp(startUniformScale.value * (1 + change), min, max)
+      const factor = scale / startUniformScale.value
+      scaleOverride.value = {
+        scale,
+        x: startPos.value.x + (horizontal < 0 ? width * (1 - factor) : 0),
+        y: startPos.value.y + (vertical < 0 ? height * (1 - factor) : 0)
+      }
+      return
+    }
+
+    const scale = options.getScale?.() || 1
+    const dx = (e.clientX - startMouse.value.x) / scale
+    const dy = (e.clientY - startMouse.value.y) / scale
     const dir = direction.value
     const { minW, maxW, minH, maxH } = options.getLimits()
 
@@ -63,7 +92,7 @@ export function useElementResize(elementRef, options) {
       w = clamp(w + dx, minW, maxW)
     } else if (dir.includes('w')) {
       const pw = clamp(w - dx, minW, maxW)
-      x += w - pw
+      x += (w - pw) * scale
       w = pw
     }
 
@@ -72,7 +101,7 @@ export function useElementResize(elementRef, options) {
       h = clamp(h + dy, minH, maxH)
     } else if (dir.includes('n')) {
       const ph = clamp(h - dy, minH, maxH)
-      y += h - ph
+      y += (h - ph) * scale
       h = ph
     }
 
@@ -80,16 +109,39 @@ export function useElementResize(elementRef, options) {
   }
 
   function endDrag() {
-    if (isResizing.value && resizeOverride.value) {
+    if (isScaling.value && scaleOverride.value) {
+      options.onScaleEnd?.(scaleOverride.value)
+    } else if (isScaling.value) {
+      options.onScaleCancel?.()
+    } else if (isResizing.value && resizeOverride.value) {
       options.onEnd(resizeOverride.value)
     }
 
     isResizing.value = false
+    isScaling.value = false
     direction.value = null
     resizeOverride.value = null
+    scaleOverride.value = null
 
+    removeListeners()
+  }
+
+  function removeListeners() {
     document.removeEventListener('mousemove', onDrag)
     document.removeEventListener('mouseup', endDrag)
+    document.removeEventListener('touchmove', onTouchMove)
+    document.removeEventListener('touchend', onTouchEnd)
+    document.removeEventListener('touchcancel', cancelResize)
+  }
+
+  function cancelResize() {
+    if (isScaling.value) options.onScaleCancel?.()
+    isResizing.value = false
+    isScaling.value = false
+    direction.value = null
+    resizeOverride.value = null
+    scaleOverride.value = null
+    removeListeners()
   }
 
   // Touch support
@@ -100,16 +152,18 @@ export function useElementResize(elementRef, options) {
         clientX: t.clientX,
         clientY: t.clientY,
         preventDefault: () => e.preventDefault(),
-        stopPropagation: () => e.stopPropagation()
+        stopPropagation: () => e.stopPropagation(),
+        ctrlKey: false
       }, dir)
 
       document.addEventListener('touchmove', onTouchMove, { passive: false })
       document.addEventListener('touchend', onTouchEnd)
+      document.addEventListener('touchcancel', cancelResize)
     }
   }
 
   function onTouchMove(e) {
-    if (e.touches.length === 1 && isResizing.value) {
+    if (e.touches.length === 1 && (isResizing.value || isScaling.value)) {
       onDrag({ clientX: e.touches[0].clientX, clientY: e.touches[0].clientY })
       e.preventDefault()
     }
@@ -117,9 +171,7 @@ export function useElementResize(elementRef, options) {
 
   function onTouchEnd() {
     endDrag()
-    document.removeEventListener('touchmove', onTouchMove)
-    document.removeEventListener('touchend', onTouchEnd)
   }
 
-  return { isResizing, resizeOverride, startResize, startResizeTouch }
+  return { isResizing, isScaling, resizeOverride, scaleOverride, startResize, startResizeTouch, cleanup: cancelResize }
 }

@@ -12,6 +12,18 @@ import { log } from '../utils/logger'
 
 const SDM_LAYER_PREFIX = 'sdm-layer'
 const SDM_SOURCE_PREFIX = 'sdm-source'
+const SCIENTIFIC_LAYERS = new Set([
+  'range-fill', 'range-outline', 'range-points', 'heatmap-layer',
+  'cluster-extent-dynamic', 'cluster-extent-dynamic-outline',
+  'cluster-points-layer', 'clusters', 'cluster-count',
+  'points-layer', 'points-highlight',
+])
+
+function firstScientificLayer(map) {
+  return map.getStyle()?.layers?.find(layer =>
+    SCIENTIFIC_LAYERS.has(layer.id) || layer.id.startsWith('host-plant-layer')
+  )?.id
+}
 
 // Nodata in the GeoTIFFs is -9999. Values 0..1 are suitability.
 // Minimum visible threshold: values below this are transparent.
@@ -79,47 +91,70 @@ export function useSDMLayer(map) {
   const cursorValue = ref(null)
   const cursorPos = ref({ x: 0, y: 0 })
   const loadedRasters = new Map()
+  const displayedSlots = [null, null]
+  // Up to two visible species need four split TIFFs. Keep a little room for a
+  // recent selection, but do not retain every raster a visitor has viewed.
+  const tiffCache = new Map()
+  const MAX_CACHED_TIFFS = 8
+  let renderGeneration = 0
 
   const activeSpecies = computed(() => {
     if (!sdmStore.enabled || !sdmStore.hasData) return []
     return sdmStore.selectedSpecies.filter(sp => sdmStore.hasSDMForSpecies(sp)).slice(0, 2)
   })
 
+  function hasMapStyle(targetMap) {
+    try { return !targetMap.getStyle || !!targetMap.getStyle() }
+    catch { return false }
+  }
+
   function removeAllLayers() {
     if (!map.value) return
     for (let i = 0; i < 2; i++) {
       try { removeLayerAndSource(map.value, `${SDM_LAYER_PREFIX}-${i}`, `${SDM_SOURCE_PREFIX}-${i}`) }
       catch { /* */ }
+      displayedSlots[i] = null
     }
+    loadedRasters.clear()
   }
 
   async function fetchTiffValues(url) {
-    const response = await fetch(url)
-    if (!response.ok) return null
-    const GeoTIFF = await import('geotiff')
-    const arrayBuffer = await response.arrayBuffer()
-    const tiff = await GeoTIFF.fromArrayBuffer(arrayBuffer)
-    const image = await tiff.getImage()
-    const data = await image.readRasters()
-    const width = image.getWidth()
-    const height = image.getHeight()
-    const origin = image.getOrigin()
-    const resolution = image.getResolution()
-    const bbox = [
-      origin[0],
-      origin[1] + resolution[1] * height,
-      origin[0] + resolution[0] * width,
-      origin[1],
-    ]
-    return { values: data[0], width, height, bbox }
+    if (tiffCache.has(url)) {
+      const cached = tiffCache.get(url)
+      tiffCache.delete(url)
+      tiffCache.set(url, cached)
+      return cached
+    }
+    const pending = (async () => {
+      const response = await fetch(url)
+      if (!response.ok) return null
+      const GeoTIFF = await import('geotiff')
+      const arrayBuffer = await response.arrayBuffer()
+      const tiff = await GeoTIFF.fromArrayBuffer(arrayBuffer)
+      const image = await tiff.getImage()
+      const data = await image.readRasters()
+      const width = image.getWidth()
+      const height = image.getHeight()
+      const origin = image.getOrigin()
+      const resolution = image.getResolution()
+      const bbox = [
+        origin[0],
+        origin[1] + resolution[1] * height,
+        origin[0] + resolution[0] * width,
+        origin[1],
+      ]
+      return { values: data[0], width, height, bbox }
+    })()
+    tiffCache.set(url, pending)
+    while (tiffCache.size > MAX_CACHED_TIFFS) tiffCache.delete(tiffCache.keys().next().value)
+    try { return await pending }
+    catch (error) {
+      if (tiffCache.get(url) === pending) tiffCache.delete(url)
+      throw error
+    }
   }
 
-  async function loadAndRenderGeoTIFF(speciesName, index, colorRamp) {
-    const layerId = `${SDM_LAYER_PREFIX}-${index}`
-    const sourceId = `${SDM_SOURCE_PREFIX}-${index}`
-    try { removeLayerAndSource(map.value, layerId, sourceId) } catch { /* */ }
-    if (!map.value) return
-
+  async function prepareGeoTIFF(speciesName, colorRamp, showFullExtent) {
     try {
       const basePath = import.meta.env.BASE_URL || '/'
       const safeName = speciesName.replace(/ /g, '_').toLowerCase()
@@ -131,8 +166,8 @@ export function useSDMLayer(map) {
       // single full-ensemble raster if the split files aren't available
       // (legacy data, partial deploys).
       let coreData = await fetchTiffValues(coreUrl)
-      let extData = sdmStore.showFullExtent ? await fetchTiffValues(extUrl) : null
-      let usingSplit = !!coreData
+      let extData = coreData && showFullExtent ? await fetchTiffValues(extUrl) : null
+      const usingSplit = !!coreData
 
       if (!usingSplit) {
         coreData = await fetchTiffValues(fallbackUrl)
@@ -161,9 +196,6 @@ export function useSDMLayer(map) {
       // drawn as if each row is equal-height in lat — but Mercator stretches rows
       // more toward the poles. This causes a latitude-dependent shift.
       const mercY = (lat) => Math.log(Math.tan(Math.PI / 4 + (lat * Math.PI / 180) / 2))
-      const latToRow = (lat, topMerc, bottomMerc, h) =>
-        ((topMerc - mercY(lat)) / (topMerc - bottomMerc)) * h
-
       const topMerc = mercY(bbox[3])
       const bottomMerc = mercY(bbox[1])
       const outHeight = height
@@ -183,7 +215,7 @@ export function useSDMLayer(map) {
 
         for (let x = 0; x < width; x++) {
           const srcIdx = srcY * width + x
-          const [r, g, b, a] = colorRamp(values[srcIdx], sdmStore.opacity)
+          const [r, g, b, a] = colorRamp(values[srcIdx], 1)
           const dstIdx = (outY * width + x) * 4
           imageData.data[dstIdx] = r
           imageData.data[dstIdx + 1] = g
@@ -195,37 +227,85 @@ export function useSDMLayer(map) {
       ctx.putImageData(imageData, 0, 0)
       const dataUrl = canvas.toDataURL('image/png')
 
-      loadedRasters.set(speciesName, { values, width, height, bbox })
-
-      map.value.addSource(sourceId, {
-        type: 'image', url: dataUrl,
-        coordinates: [[bbox[0], bbox[3]], [bbox[2], bbox[3]], [bbox[2], bbox[1]], [bbox[0], bbox[1]]]
-      })
-
-      const beforeLayer = map.value.getLayer('points-layer') ? 'points-layer' : undefined
-      map.value.addLayer({
-        id: layerId, type: 'raster', source: sourceId,
-        paint: { 'raster-opacity': 1, 'raster-fade-duration': 300 }
-      }, beforeLayer)
-
-      log.map.info(`SDM: Loaded ${speciesName} (${width}x${height})`)
+      return { speciesName, values, width, height, bbox, dataUrl }
     } catch (e) {
       log.map.error('SDM: Error loading GeoTIFF:', e)
     }
   }
 
   async function updateLayer() {
-    removeAllLayers()
-    const species = activeSpecies.value
-    if (species.length === 0) return
+    const generation = ++renderGeneration
+    const targetMap = map.value
+    cursorValue.value = null
+    const species = [...activeSpecies.value]
+    if (!targetMap || !hasMapStyle(targetMap)) return
 
-    if (species.length === 1) {
-      await loadAndRenderGeoTIFF(species[0], 0, COLOR_RAMPS.warm)
-    } else if (species.length === 2) {
-      await Promise.all([
-        loadAndRenderGeoTIFF(species[0], 0, COLOR_RAMPS.warm),
-        loadAndRenderGeoTIFF(species[1], 1, COLOR_RAMPS.cool),
-      ])
+    const showFullExtent = sdmStore.showFullExtent
+    const pending = []
+    for (let index = 0; index < 2; index++) {
+      const layerId = `${SDM_LAYER_PREFIX}-${index}`
+      const sourceId = `${SDM_SOURCE_PREFIX}-${index}`
+      const current = displayedSlots[index]
+      try {
+        if (species[index] && current?.speciesName === species[index] &&
+            current.showFullExtent === showFullExtent &&
+            targetMap.getLayer(layerId) && targetMap.getSource(sourceId)) continue
+      } catch { return } // A style swap can briefly remove MapLibre's style object.
+
+      try { removeLayerAndSource(targetMap, layerId, sourceId) } catch { /* */ }
+      if (current) loadedRasters.delete(current.speciesName)
+      displayedSlots[index] = null
+      if (species[index]) {
+        pending.push({
+          index,
+          raster: prepareGeoTIFF(species[index], index === 0 ? COLOR_RAMPS.warm : COLOR_RAMPS.cool, showFullExtent)
+        })
+      }
+    }
+    if (pending.length === 0) { updateOpacity(); return }
+    const rasters = await Promise.all(pending.map(item => item.raster))
+    // A style change or selection can happen while the TIFF is in flight.
+    if (generation !== renderGeneration || map.value !== targetMap || !hasMapStyle(targetMap)) return
+    rasters.forEach((raster, pendingIndex) => {
+      if (!raster) return
+      const index = pending[pendingIndex].index
+      const { speciesName, values, width, height, bbox, dataUrl } = raster
+      const sourceId = `${SDM_SOURCE_PREFIX}-${index}`
+      const layerId = `${SDM_LAYER_PREFIX}-${index}`
+      try {
+        targetMap.addSource(sourceId, {
+          type: 'image', url: dataUrl,
+          coordinates: [[bbox[0], bbox[3]], [bbox[2], bbox[3]], [bbox[2], bbox[1]], [bbox[0], bbox[1]]]
+        })
+        const beforeLayer = firstScientificLayer(targetMap)
+        targetMap.addLayer({
+          id: layerId, type: 'raster', source: sourceId,
+          paint: { 'raster-opacity': sdmStore.opacity, 'raster-fade-duration': 300 }
+        }, beforeLayer)
+        loadedRasters.set(speciesName, { values, width, height, bbox })
+        displayedSlots[index] = { speciesName, showFullExtent }
+        log.map.info(`SDM: Loaded ${speciesName} (${width}x${height})`)
+      } catch (error) {
+        log.map.error('SDM: Error adding raster layer:', error)
+      }
+    })
+  }
+
+  function invalidatePending() {
+    // The map style is about to be replaced. A pending decode must not add
+    // its image source to the new style before that style's overlays are ready.
+    renderGeneration++
+    cursorValue.value = null
+  }
+
+  function updateOpacity() {
+    if (!map.value || !hasMapStyle(map.value)) return
+    for (let index = 0; index < 2; index++) {
+      const layerId = `${SDM_LAYER_PREFIX}-${index}`
+      try {
+        if (map.value.getLayer(layerId))
+          map.value.setPaintProperty(layerId, 'raster-opacity', sdmStore.opacity)
+      } catch { return } // The style will be reconciled by onStyleIdle.
     }
   }
 
@@ -264,21 +344,13 @@ export function useSDMLayer(map) {
       map.value.off('mousemove', onMouseMove)
       if (species.length > 0) map.value.on('mousemove', onMouseMove)
     }
+    if (species.length === 0) cursorValue.value = null
   }, { deep: true })
 
-  watch(() => sdmStore.enabled, (en) => {
-    if (en) { updateLayer() }
-    else {
-      removeAllLayers()
-      loadedRasters.clear()
-      cursorValue.value = null
-      if (map.value) map.value.off('mousemove', onMouseMove)
-    }
-  })
-  watch(() => sdmStore.opacity, () => { if (activeSpecies.value.length > 0) updateLayer() })
+  watch(() => sdmStore.opacity, updateOpacity)
   watch(() => sdmStore.showFullExtent, () => { if (activeSpecies.value.length > 0) updateLayer() })
 
   sdmStore.loadMetadata()
 
-  return { removeAllLayers, updateLayer, cursorValue, cursorPos }
+  return { removeAllLayers, updateLayer, invalidatePending, cursorValue, cursorPos }
 }

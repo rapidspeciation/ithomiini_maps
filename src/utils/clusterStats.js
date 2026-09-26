@@ -84,14 +84,20 @@ const INDIVIDUAL_ID_FIELDS = [
   'recordNumber'
 ]
 
+// Sheet rows still awaiting a specimen number carry a placeholder ID. Each of
+// those rows is its own specimen, so a placeholder must not merge them.
+const PLACEHOLDER_IDS = new Set(['unknown', 'not given', 'na', 'n/a', 'none', 'nan', 'null', '-'])
+
 export const getIndividualKey = (point) => {
   const props = point?.properties || point
   if (!props) return null
 
   for (const field of INDIVIDUAL_ID_FIELDS) {
     const value = props[field]
-    if (value !== undefined && value !== null && String(value).trim() !== '') {
-      return `${field}:${String(value).trim()}`
+    if (value === undefined || value === null) continue
+    const id = String(value).trim()
+    if (id !== '' && !PLACEHOLDER_IDS.has(id.toLowerCase())) {
+      return `${field}:${id}`
     }
   }
 

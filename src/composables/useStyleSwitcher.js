@@ -3,7 +3,7 @@ import { MAP_STYLES } from '../utils/mapStyles'
 
 export function useStyleSwitcher(map, addDataLayer, callbacks = {}) {
   const currentStyle = ref('dark')
-  const { recreateClusterExtentCircle, setStyleChanging, onStyleReady } = callbacks
+  const { recreateClusterExtentCircle, setStyleChanging, onStyleStart, onStyleReady, onStyleIdle } = callbacks
 
   // Generation counter prevents stale style.load callbacks from running
   // when the user switches styles rapidly (e.g. streets → terrain before
@@ -45,12 +45,13 @@ export function useStyleSwitcher(map, addDataLayer, callbacks = {}) {
     const styleConfig = MAP_STYLES[styleName]
     const gen = ++switchGeneration
 
+    onStyleStart?.()
     map.value.setStyle(styleConfig.style)
 
     let handled = false
     const rebuildOverlays = () => {
       // Guard: skip if already handled or a newer switch has occurred
-      if (handled || gen !== switchGeneration) return
+      if (handled || gen !== switchGeneration || !map.value) return
       handled = true
 
       map.value.jumpTo({ center, zoom, bearing, pitch })
@@ -62,13 +63,14 @@ export function useStyleSwitcher(map, addDataLayer, callbacks = {}) {
       }
 
       map.value.once('idle', () => {
-        if (gen !== switchGeneration) return
+        if (gen !== switchGeneration || !map.value) return
+        onStyleIdle?.()
         if (recreateClusterExtentCircle) {
           recreateClusterExtentCircle()
         }
 
         setTimeout(() => {
-          if (setStyleChanging) {
+          if (gen === switchGeneration && map.value && setStyleChanging) {
             setStyleChanging(false)
           }
         }, 100)

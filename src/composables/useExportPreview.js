@@ -5,15 +5,6 @@ import { ASPECT_RATIOS } from '../utils/constants'
 export function useExportPreview(containerSize) {
   const store = useDataStore()
 
-  const legendTransformOrigin = computed(() => {
-    const pos = store.legendSettings.position
-    if (pos === 'top-left') return 'top left'
-    if (pos === 'top-right') return 'top right'
-    if (pos === 'bottom-left') return 'bottom left'
-    if (pos === 'bottom-right') return 'bottom right'
-    return 'bottom left'
-  })
-
   const exportHolePosition = computed(() => {
     if (!store.exportSettings.enabled) {
       return { x: 10, y: 10, width: 80, height: 80 }
@@ -60,7 +51,6 @@ export function useExportPreview(containerSize) {
   })
 
   return {
-    legendTransformOrigin,
     exportHolePosition
   }
 }

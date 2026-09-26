@@ -200,6 +200,7 @@ const OTHER_FILTERS = [
   { key: 'camid', label: 'CAMID' },
   { key: 'status', label: 'Sequencing Status' },
   { key: 'country', label: 'Country' },
+  { key: 'collectionLocation', label: 'Collection location' },
   { key: 'timerange', label: 'Time Range' },
   { key: 'goat', label: 'GoaT' },
 ]
@@ -215,6 +216,11 @@ const availableOtherFilters = computed(() =>
 )
 
 const enabledOtherFilters = ref(new Set(['camid', 'sdm', 'hostplants']))
+watch(() => store.filters.collectionLocation, locations => {
+  if (locations.length > 0) {
+    enabledOtherFilters.value = new Set([...enabledOtherFilters.value, 'collectionLocation'])
+  }
+}, { immediate: true, deep: true })
 const syncStandaloneFilterStores = () => {
   if (enabledOtherFilters.value.has('sdm') && !sdmStore.enabled) sdmStore.toggle()
   if (enabledOtherFilters.value.has('hostplants') && !hostPlantStore.enabled) hostPlantStore.toggleEnabled()
@@ -234,6 +240,10 @@ const toggleOtherFilter = (key) => {
   if (next.has(key)) next.delete(key)
   else next.add(key)
   enabledOtherFilters.value = next
+
+  if (key === 'collectionLocation' && !next.has(key)) {
+    store.filters.collectionLocation = []
+  }
 
   // SDM tile drives sdmStore.enabled (which controls the map overlay + metadata load)
   if (key === 'sdm') {
@@ -269,6 +279,7 @@ const otherFilterActiveCount = (key) => {
   if (key === 'camid') return (camidInput.value || '').split(/[,\s]+/).filter(Boolean).length
   if (key === 'status') return store.filters.status.length
   if (key === 'country') return store.filters.country.length
+  if (key === 'collectionLocation') return store.filters.collectionLocation.length
   if (key === 'timerange') {
     return (store.filters.dateStart ? 1 : 0) + (store.filters.dateEnd ? 1 : 0)
   }
@@ -631,8 +642,25 @@ const updateExportHeight = (value) => {
           Export Settings
         </label>
 
+        <button class="btn-export-now" @click="emit('open-map-export')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
+          Export Image
+        </button>
+
+        <button class="btn-export-r" @click="emit('export-for-r')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="16 18 22 12 16 6"/>
+            <polyline points="8 6 2 12 8 18"/>
+          </svg>
+          Export for R (Vector)
+        </button>
+
         <!-- Aspect Ratio -->
-        <div class="setting-row">
+        <div class="setting-row export-first-setting">
           <label>Aspect Ratio</label>
           <select v-model="store.exportSettings.aspectRatio" class="style-select">
             <option v-for="opt in aspectRatioOptions" :key="opt.value" :value="opt.value">
@@ -741,26 +769,6 @@ const updateExportHeight = (value) => {
             >3×</button>
           </div>
         </div>
-
-        <!-- Export Button -->
-        <button class="btn-export-now" @click="emit('open-map-export')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="7 10 12 15 17 10"/>
-            <line x1="12" y1="15" x2="12" y2="3"/>
-          </svg>
-          Export Image
-        </button>
-
-        <!-- Export for R Button -->
-        <button class="btn-export-r" @click="emit('export-for-r')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="7 10 12 15 17 10"/>
-            <line x1="12" y1="15" x2="12" y2="3"/>
-          </svg>
-          Export for R (Vector)
-        </button>
       </div>
 
       <!-- FILTERS: unified taxonomy + other filters with tile selectors -->
@@ -810,6 +818,17 @@ const updateExportHeight = (value) => {
               v-model="selectedSpeciesFilterOptions"
               :options="store.speciesFilterOptions"
               :filter-options="store.filterSpeciesOptions"
+              :placeholder="level.placeholder"
+              :multiple="true"
+              :show-count="true"
+            />
+            <FilterSelect
+              v-else-if="level.key === 'subspecies' && enabledTaxonomyLevels.has(level.key)"
+              :label="level.label"
+              v-model="store.filters.subspecies"
+              :options="store.subspeciesOptionGroups"
+              group-values="options"
+              group-label="label"
               :placeholder="level.placeholder"
               :multiple="true"
               :show-count="true"
@@ -936,6 +955,29 @@ const updateExportHeight = (value) => {
               v-model="store.filters.country"
               :options="store.uniqueCountries"
               placeholder="All Countries"
+              :multiple="true"
+              :show-count="false"
+            />
+          </div>
+
+          <!-- Collection location -->
+          <div v-if="enabledOtherFilters.has('collectionLocation')" class="filter-stack-item">
+            <button
+              type="button"
+              class="filter-section-toggle filter-tile active"
+              title="Disable collection location filter"
+              @click="toggleOtherFilter('collectionLocation')"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+              <span>{{ otherFilterLabel('collectionLocation') }}</span>
+              <span v-if="otherFilterActiveCount('collectionLocation') > 0" class="filter-tile-count">
+                {{ otherFilterActiveCount('collectionLocation') }}
+              </span>
+            </button>
+            <FilterSelect
+              v-model="store.filters.collectionLocation"
+              :options="store.uniqueCollectionLocations"
+              placeholder="Search collection locations"
               :multiple="true"
               :show-count="false"
             />

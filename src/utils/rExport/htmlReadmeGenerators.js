@@ -1,255 +1,78 @@
-// HTML map and README generators for R export package
-// Extracted from rExport.js for maintainability
+/** Human-readable provenance and a precise vector/raster contract. */
+export function generateReadme(view) {
+  const layers = view.layers
+  const rasterNotes = []
+  if (layers.rasterOverlayIds.length) {
+    rasterNotes.push(`SDM rasters stored as separate georeferenced PNGs: ${layers.rasterOverlayIds.join(', ')}`)
+  }
+  if (layers.rasterVisualizationIds.length) {
+    rasterNotes.push(`${view.mode} visualization captured as raster in background.png: ${layers.rasterVisualizationIds.join(', ')}`)
+  }
+  return `WINGS ATLAS — EDITABLE R MAP EXPORT
 
-/**
- * Generate README for the ZIP package
- * @param {string} citationText - Citation text to include
- * @param {string} shortHash - Short git commit hash
- * @returns {string} README content
- */
-const generateReadme = (citationText, shortHash) => {
-  return `═══════════════════════════════════════════════════════════════════════════
-ITHOMIINI MAPS - R EXPORT PACKAGE
-═══════════════════════════════════════════════════════════════════════════
+Run from a terminal: Rscript --vanilla generate_map.R
+Install prerequisites if needed: install.packages(c("jsonlite", "png", "svglite"))
+The script also works when called from RStudio with source("generate_map.R").
+It writes ithomiini_map.pdf, ithomiini_map.svg, ithomiini_map.png and
+ithomiini_map.session.txt (the R/package environment used) here.
+Missing packages stop with an installation command; the script never installs
+software or downloads map tiles behind your back.
+The script checks SVG device compatibility before writing map outputs. If it
+reports a graphics API mismatch after an R upgrade, rebuild svglite with
+install.packages("svglite", type = "source"), then restart R/RStudio and rerun.
 
-This ZIP contains data and scripts to recreate your map view as true
-vector graphics (SVG/PDF) for publications.
+Edit the SETTINGS list at the top of generate_map.R to change output size,
+point sizes, colors, opacity, font family, background, legend and output filename.
+Portable font families are "sans", "serif" and "mono"; a named system font
+also works if installed on the machine that renders the PDF/SVG.
+The main drawing functions remain plain R/grid code. The source data and
+rendered view are separate, so geographic and visual edits are inspectable.
 
-FILES INCLUDED:
----------------
-- data.geojson      : Filtered specimen data with pre-computed colors
-- view_config.json  : Map view bounds and settings
-- legend.json       : Legend colors and labels
-- basemap.png       : Exact basemap from web app (CartoDB Dark tiles)
-- map.html          : Standalone HTML file (EXACT reproduction of web preview)
-- generate_map.R    : R script to recreate the map
-- README.txt        : This file
+FILES
+  generate_map.R          Researcher-editable vector drawing script
+  data.geojson            Displayed markers: one per site (records in range mode),
+                          with individuals, species, colours/pie slices and sizes
+  records.geojson         Every filtered occurrence record, for analysis
+  range_polygons.geojson  Editable hull/hex geometry, when range mode is active
+  host_plants.geojson     Editable host plant triangles, when active
+  sdm_*.png              Separate georeferenced SDM rasters, when active
+  legend.json             Rendered legend rows and CSS-pixel positions
+  view_config.json        View, layer manifest, provenance and resolved sizes
+  checksums.json          SHA-256 checksums for every other ZIP input
+  basemap.png             Captured basemap without scientific map layers
+  background.png          Captured heatmap/cluster visualization, if active
 
-QUICK START:
-------------
-1. Extract all files to a folder
-2. Open R or RStudio
-3. Set working directory to the extracted folder
-4. Run: source("generate_map.R")
-5. Find your exports in the folder
+VECTOR AND RASTER
+  ${layers.editablePoints} occurrence points, ${layers.editableRanges} range polygons, and
+  ${layers.editableHostPlants} host plant symbols are separate
+  editable elements in PDF/SVG. Their browser-projected screen positions keep
+  the exact exported extent, zoom, bearing and canvas aspect ratio. The
+  geographic originals remain in the GeoJSON files.
+  Basemap imagery is always raster. The selected background is an offline
+  capture of this specific map view, not a live tile service.
+  ${rasterNotes.length ? rasterNotes.join('\n  ') : 'No scientific overlays were baked into the background.'}
+  Change SETTINGS$background to "basemap" to omit raster overlays, or to
+  "none" for a transparent background. Cluster/heatmap views use a raster
+  visualization because MapLibre's aggregation cannot be reconstructed from
+  raw points by simply drawing each record. Their raw records remain in
+  records.geojson for analysis, but the script does not substitute them visually.
 
-OUTPUT FILES:
--------------
-- ithomiini_map.pdf : Vector PDF for publications
-- ithomiini_map.png : High-resolution raster (300 DPI)
-- ithomiini_map.svg : Editable vector (Adobe Illustrator/Inkscape)
+VIEW AND PROVENANCE
+  App commit: ${view.appCommit}
+  Generated: ${view.generatedAt}
+  Page: ${view.pageUrl}
+  Dataset source: ${view.source}
+  Filtered records: ${view.filteredRecordCount}
+  Displayed records: ${view.displayedRecordCount}
+  View mode: ${view.mode}${view.rangeMethod ? ` (${view.rangeMethod})` : ''}
+  Color: ${view.colorBy} (${view.colorAttribute})
+  Basemap style: ${view.basemapStyle}
+  Canvas: ${view.canvas.width} x ${view.canvas.height} CSS pixels
+  Bounds: ${view.bounds.west}, ${view.bounds.south}, ${view.bounds.east}, ${view.bounds.north}
 
-REQUIREMENTS:
--------------
-All packages will auto-install if missing:
-- sf               : Spatial data handling
-- ggplot2          : Plotting
-- dplyr            : Data manipulation
-- tidyr            : Data tidying
-- jsonlite         : Reading config files
-- maptiles         : CartoDB Dark Matter basemap tiles
-- tidyterra        : Plot raster tiles with ggplot2
-- ggspatial        : Scale bar
-- grid             : Custom legend rendering
-- png              : Read fallback basemap image
-
-VIEWING IN BROWSER (map.html):
-------------------------------
-The map.html file is a standalone HTML file that renders identically to the
-web app preview. You can open it directly in any browser to view and interact
-with the map.
-
-WHY R?
-------
-The web map uses WebGL rendering which produces raster (pixel) output.
-R with ggplot2 renders true vectors, giving you:
-- Infinite scalability for any print size
-- Small file sizes
-- Editable in Adobe Illustrator/Inkscape
-- Publication-quality output
-
-CUSTOMIZATION:
---------------
-Edit the STYLE list in generate_map.R to easily customize:
-- Point size, color, and transparency
-- Legend position, size, and max items shown
-- Background and text colors
-- Scale bar styling
-- Output dimensions and DPI
-
-The script is well-documented and uses tidyverse conventions for
-easy modification.
-
-CITATION:
----------
-${citationText}
-
-SOURCE:
--------
-https://fr4nzz.github.io/ithomiini_maps/
-
-Generated: ${new Date().toISOString()}
-Version: ${shortHash}
-═══════════════════════════════════════════════════════════════════════════
+The exported point positions are view-specific. After changing geographic
+coordinates or the map extent, re-export to refresh projected screen positions.
+For reproducibility, keep this ZIP with the PDF/SVG and cite the data source
+and tile contributors in publication captions.
 `
 }
-
-/**
- * Generate standalone HTML file that renders exact same map as web app
- * @param {Object} geoJSON - GeoJSON data with colors
- * @param {Object} viewConfig - Map view configuration
- * @param {Object} legendConfig - Legend configuration
- * @param {string} colorBy - Color-by field name
- * @returns {string} HTML content
- */
-const generateMapHTML = (geoJSON, viewConfig, legendConfig, colorBy) => {
-  const isItalic = colorBy === 'species' || colorBy === 'subspecies' || colorBy === 'genus' || colorBy === 'scientific_name'
-  const legendItems = legendConfig.items || []
-
-  return `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>Wings Atlas</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"><\/script>
-  <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet">
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-    #map { width: 100vw; height: 100vh; }
-
-    /* Legend - matches web app exactly */
-    .legend {
-      position: absolute;
-      bottom: 40px;
-      left: 20px;
-      background: rgba(37, 37, 64, 0.95);
-      border: 1px solid #3d3d5c;
-      border-radius: 8px;
-      padding: 12px;
-      max-height: 60vh;
-      overflow-y: auto;
-      min-width: 180px;
-      z-index: 1000;
-    }
-    .legend-title {
-      color: #888888;
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 8px;
-    }
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 3px 0;
-    }
-    .legend-color {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-    .legend-label {
-      color: #e0e0e0;
-      font-size: 12px;
-      ${isItalic ? 'font-style: italic;' : ''}
-    }
-
-    /* Scale bar */
-    .maplibregl-ctrl-scale {
-      background: rgba(37, 37, 64, 0.9) !important;
-      color: #e0e0e0 !important;
-      border-color: #e0e0e0 !important;
-      font-size: 11px !important;
-    }
-
-    /* Hide attribution for cleaner export */
-    .maplibregl-ctrl-attrib { display: none !important; }
-  </style>
-</head>
-<body>
-  <div id="map"></div>
-
-  <div class="legend">
-    <div class="legend-title">${legendConfig.title || colorBy}</div>
-    ${legendItems.map(item => `
-    <div class="legend-item">
-      <div class="legend-color" style="background: ${item.color}"></div>
-      <span class="legend-label">${item.label}</span>
-    </div>
-    `).join('')}
-  </div>
-
-  <script>
-    // GeoJSON data embedded
-    const geoData = ${JSON.stringify(geoJSON)};
-
-    // View config
-    const config = ${JSON.stringify(viewConfig)};
-
-    // Initialize map
-    const map = new maplibregl.Map({
-      container: 'map',
-      style: {
-        version: 8,
-        sources: {
-          'carto-dark': {
-            type: 'raster',
-            tiles: ['https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png'],
-            tileSize: 256,
-            attribution: '© CartoDB © OpenStreetMap'
-          }
-        },
-        layers: [{
-          id: 'carto-dark-layer',
-          type: 'raster',
-          source: 'carto-dark',
-          minzoom: 0,
-          maxzoom: 22
-        }]
-      },
-      center: [config.center.lng, config.center.lat],
-      zoom: config.zoom,
-      preserveDrawingBuffer: true // Required for canvas export
-    });
-
-    // Add scale bar
-    map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }), 'bottom-right');
-
-    map.on('load', () => {
-      // Add data source
-      map.addSource('points', {
-        type: 'geojson',
-        data: geoData
-      });
-
-      // Add points layer with exact colors from web app
-      map.addLayer({
-        id: 'points-layer',
-        type: 'circle',
-        source: 'points',
-        paint: {
-          'circle-radius': 6,
-          'circle-color': ['get', 'display_color'],
-          'circle-opacity': 0.8,
-          'circle-stroke-width': 1,
-          'circle-stroke-color': 'rgba(255,255,255,0.3)'
-        }
-      });
-
-      // Fit to bounds
-      map.fitBounds([
-        [config.bounds.west, config.bounds.south],
-        [config.bounds.east, config.bounds.north]
-      ], { padding: 20, duration: 0 });
-    });
-  <\/script>
-</body>
-</html>`
-}
-
-export { generateReadme, generateMapHTML }

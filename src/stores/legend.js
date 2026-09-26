@@ -17,6 +17,9 @@ export const useLegendStore = defineStore('legend', () => {
 
   // Position (x, y coordinates for free positioning)
   const position = ref(getStorage('legend-position', { x: 40, y: null }))
+  // A corner remains anchored as the legend and viewport change size.
+  // Older saved pixel positions without this preference are treated as free.
+  const corner = ref(getStorage('legend-corner', null))
 
   // Size ('auto' means auto-fit to content)
   const size = ref(getStorage('legend-size', { width: 'auto', height: 'auto' }))
@@ -27,13 +30,14 @@ export const useLegendStore = defineStore('legend', () => {
 
   const showLegend = ref(true)
   const textScale = ref(getStorage('legend-text-scale', 1))
+  const scale = ref(getStorage('legend-scale', 1))
 
-  // Labels currently shown in the legend (updated by Legend.vue).
-  // Items in the color map but NOT in this set render as grey on the map.
-  const shownLabels = ref(new Set())
+  // Session-only choice when there are too many groups to colour:
+  // null (automatic), 'categories' (top groups + Other) or 'individuals'.
+  const colorOverride = ref(null)
 
-  function setShownLabels(labels) {
-    shownLabels.value = labels instanceof Set ? labels : new Set(labels)
+  function setColorOverride(mode) {
+    colorOverride.value = mode === 'categories' || mode === 'individuals' ? mode : null
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -41,7 +45,7 @@ export const useLegendStore = defineStore('legend', () => {
   // ═══════════════════════════════════════════════════════════════════════════
 
   const stickyEdges = ref(getStorage('legend-sticky', true))
-  const snapThreshold = ref(20) // pixels
+  const snapThreshold = ref(12) // CSS pixels from the anchored position
 
   // ═══════════════════════════════════════════════════════════════════════════
   // CUSTOMIZATIONS
@@ -68,6 +72,20 @@ export const useLegendStore = defineStore('legend', () => {
     groupBy: 'species',                // 'none' | 'species' | 'genus' | 'tribe' | 'subfamily' | 'family'
     showHeaders: true,                 // Headers visible (default shown)
   }))
+
+  // Collapsing a species changes its display color only; it never changes filters.
+  const collapsedSpecies = ref(getStorage('legend-collapsed-species', []))
+
+  function isSpeciesCollapsed(species) {
+    return collapsedSpecies.value.includes(species)
+  }
+
+  function setSpeciesCollapsed(species, collapsed) {
+    collapsedSpecies.value = collapsed
+      ? [...new Set([...collapsedSpecies.value, species])]
+      : collapsedSpecies.value.filter(name => name !== species)
+    setStorage('legend-collapsed-species', collapsedSpecies.value)
+  }
 
   // Species-level styling options
   const speciesStyling = ref(getStorage('legend-species-styling', {
@@ -121,11 +139,12 @@ export const useLegendStore = defineStore('legend', () => {
   // SORTING SETTINGS
   // ═══════════════════════════════════════════════════════════════════════════
 
-  // Sort by: 'alphabetical' (by display text) | 'abundance' (by count)
-  const sortBy = ref(getStorage('legend-sort-by', 'alphabetical'))
+  // Sort by: 'alphabetical' (by display text) | 'abundance' (by count).
+  // Most common groups first, matching the order colours are assigned.
+  const sortBy = ref(getStorage('legend-sort-by', 'abundance'))
 
   // Sort order: 'asc' | 'desc'
-  const sortOrder = ref(getStorage('legend-sort-order', 'asc'))
+  const sortOrder = ref(getStorage('legend-sort-order', 'desc'))
 
   // ═══════════════════════════════════════════════════════════════════════════
   // WRAP/OUTDENT SETTINGS
@@ -241,6 +260,7 @@ export const useLegendStore = defineStore('legend', () => {
            Object.keys(speciesAbbreviationVisible.value).length > 0 ||
            Object.keys(groupShapes.value).length > 0 ||
            Object.keys(speciesDisplayNames.value).length > 0 ||
+           collapsedSpecies.value.length > 0 ||
            // Grouping settings changed from defaults
            groupingSettings.value.showHeaders !== true ||
            // Species styling enabled
@@ -249,8 +269,8 @@ export const useLegendStore = defineStore('legend', () => {
            displayNameFormat.value !== 'full' ||
            prefixFormat.value !== 'fullSpecies' ||
            // Sorting/wrap changed from defaults
-           sortBy.value !== 'alphabetical' ||
-           sortOrder.value !== 'asc' ||
+           sortBy.value !== 'abundance' ||
+           sortOrder.value !== 'desc' ||
            wrapLabels.value !== true ||
            showCounts.value !== true ||
            maxItemsMode.value !== 'auto'
@@ -271,6 +291,11 @@ export const useLegendStore = defineStore('legend', () => {
     setStorage('legend-position', position.value)
   }
 
+  function setCorner(value) {
+    corner.value = value
+    setStorage('legend-corner', value)
+  }
+
   function updateSize(width, height) {
     size.value = { width, height }
     setStorage('legend-size', size.value)
@@ -279,6 +304,11 @@ export const useLegendStore = defineStore('legend', () => {
   function setTextScale(scale) {
     textScale.value = scale
     setStorage('legend-text-scale', scale)
+  }
+
+  function setScale(value) {
+    scale.value = Math.min(2, Math.max(0.5, Number(value) || 1))
+    setStorage('legend-scale', scale.value)
   }
 
   function setStickyEdges(enabled) {
@@ -330,6 +360,7 @@ export const useLegendStore = defineStore('legend', () => {
     resetRef(speciesAbbreviations, 'legend-species-abbreviations', {})
     resetRef(speciesAbbreviationVisible, 'legend-species-abbrev-visible', {})
     resetRef(groupShapes, 'legend-group-shapes', {})
+    resetRef(collapsedSpecies, 'legend-collapsed-species', [])
 
     // Grouping settings (preserve enabled/groupBy, reset display options)
     Object.assign(groupingSettings.value, { showHeaders: true })
@@ -344,8 +375,8 @@ export const useLegendStore = defineStore('legend', () => {
     resetRef(speciesDisplayNames, 'legend-species-display-names', {})
 
     // Sorting
-    resetRef(sortBy, 'legend-sort-by', 'alphabetical')
-    resetRef(sortOrder, 'legend-sort-order', 'asc')
+    resetRef(sortBy, 'legend-sort-by', 'abundance')
+    resetRef(sortOrder, 'legend-sort-order', 'desc')
 
     // Wrap labels & counts
     resetRef(wrapLabels, 'legend-wrap-labels', true)
@@ -586,7 +617,7 @@ export const useLegendStore = defineStore('legend', () => {
   }
 
   watch(
-    [customColors, speciesStyling, speciesBorderColors, shapeSettings, groupShapes, hiddenItems, shownLabels],
+    [customColors, speciesStyling, speciesBorderColors, shapeSettings, groupShapes, hiddenItems, collapsedSpecies, colorOverride],
     () => { styleVersion.value++ },
     { deep: true }
   )
@@ -594,12 +625,15 @@ export const useLegendStore = defineStore('legend', () => {
   return {
     // State
     position,
+    corner,
     size,
     showLegend,
     textScale,
+    scale,
     stickyEdges,
     snapThreshold,
-    shownLabels,
+    colorOverride,
+    setColorOverride,
     customLabels,
     customColors,
     styleVersion,
@@ -611,6 +645,7 @@ export const useLegendStore = defineStore('legend', () => {
     speciesBorderColors,
     speciesAbbreviations,
     speciesAbbreviationVisible,
+    collapsedSpecies,
 
     // Shape state
     shapeSettings,
@@ -646,10 +681,13 @@ export const useLegendStore = defineStore('legend', () => {
 
     // Actions
     updatePosition,
+    setCorner,
     updateSize,
     setTextScale,
+    setScale,
     setStickyEdges,
-    setShownLabels,
+    isSpeciesCollapsed,
+    setSpeciesCollapsed,
     setCustomLabel,
     setCustomColor,
     toggleItemVisibility,

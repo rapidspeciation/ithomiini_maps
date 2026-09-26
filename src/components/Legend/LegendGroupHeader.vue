@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { Eye, EyeOff } from 'lucide-vue-next'
+import { Eye, EyeOff, ChevronDown, ChevronRight } from 'lucide-vue-next'
 import { SHAPE_OPTIONS } from '../../utils/shapes'
 import { computePopupPosition } from '../../composables/usePopupPosition'
 import AbbreviationDropdown from './AbbreviationDropdown.vue'
@@ -57,6 +57,18 @@ const props = defineProps({
   isNonTaxonomy: {
     type: Boolean,
     default: false
+  },
+  collapsible: {
+    type: Boolean,
+    default: false
+  },
+  collapsed: {
+    type: Boolean,
+    default: false
+  },
+  speciesColor: {
+    type: String,
+    default: ''
   }
 })
 
@@ -70,7 +82,8 @@ const emit = defineEmits([
   'apply-display-format-to-all',
   'apply-prefix-format-to-all',
   'dropdown-open',
-  'dropdown-close'
+  'dropdown-close',
+  'toggle-collapse'
 ])
 
 // Dropdown states
@@ -229,9 +242,24 @@ function handlePrefixApplyToAll(format) {
     :class="{
       'is-export': isExportMode,
       'is-hidden': headersHidden,
+      'is-collapsed': collapsed,
       'is-hovered': isLegendHovered
     }"
   >
+    <button
+      v-if="collapsible && !isExportMode"
+      type="button"
+      class="collapse-button"
+      :aria-label="`${collapsed ? 'Expand' : 'Collapse'} ${speciesName} ${collapsed ? 'to show subspecies colors' : 'to use one species color'}`"
+      :aria-expanded="!collapsed"
+      :title="collapsed ? 'Show subspecies colors' : 'Use one species color'"
+      @click.stop="emit('toggle-collapse')"
+    >
+      <ChevronRight v-if="collapsed" :size="13" />
+      <ChevronDown v-else :size="13" />
+      <span v-if="collapsed" class="collapsed-swatch" :style="{ backgroundColor: speciesColor }" />
+    </button>
+    <span v-else-if="collapsible && collapsed" class="collapsed-swatch" :style="{ backgroundColor: speciesColor }" aria-hidden="true" />
     <!-- Clickable style indicator (visible on hover so users can customize) -->
     <button
       v-if="showClickableIndicator"
@@ -346,6 +374,10 @@ function handlePrefixApplyToAll(format) {
 </template>
 
 <style scoped>
+.collapse-button { display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0; min-width: 18px; min-height: 20px; padding: 0; border: 0; border-radius: 3px; background: transparent; color: var(--color-text-muted, #888); cursor: pointer; }
+.collapse-button:hover { color: var(--color-text-primary, #fff); background: var(--color-bg-tertiary, #333); }
+.collapse-button:focus-visible { outline: 2px solid var(--color-primary, #80aaff); outline-offset: 2px; }
+.collapsed-swatch { display: inline-block; width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 .legend-group-header {
   display: flex;
   align-items: center;
@@ -373,6 +405,8 @@ function handlePrefixApplyToAll(format) {
 .legend-group-header.is-hidden:not(.is-hovered) {
   display: none;
 }
+
+.legend-group-header.is-hidden.is-collapsed { display: flex; }
 
 .legend-group-header.is-hidden.is-hovered {
   display: flex;

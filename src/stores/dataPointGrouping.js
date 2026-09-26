@@ -1,17 +1,12 @@
-// Scatter visualization and coordinate grouping logic
-// Extracted from data.js for maintainability (~330 lines)
+// Coordinate grouping helpers for popups
 
 import { computed } from 'vue'
-import { log } from '../utils/logger'
 import { dedupePointsByIndividual } from '../utils/clusterStats'
 
 /**
- * Composable for scatter/overlap visualization logic
  * @param {import('vue').Ref} filteredGeoJSON - The filtered GeoJSON ref
- * @param {import('vue').Ref} scatterOverlappingPoints - Whether scatter is enabled
- * @param {import('vue').Ref} clusteringEnabled - Whether clustering is enabled
  */
-export function useScatterVisualization(filteredGeoJSON, scatterOverlappingPoints, clusteringEnabled) {
+export function usePointGrouping(filteredGeoJSON) {
 
   /**
    * Get all points at the same coordinates (within tolerance)
@@ -98,231 +93,14 @@ export function useScatterVisualization(filteredGeoJSON, scatterOverlappingPoint
     })
   }
 
-  /**
-   * Groups all points in filteredGeoJSON by their exact coordinates
-   */
-  const coordinateGroups = computed(() => {
-    log.perf.start('coordinateGroups')
-    const groups = new Map()
-    const geo = filteredGeoJSON.value
-    if (!geo || !geo.features) return groups
-
-    for (const feature of geo.features) {
-      const [lng, lat] = feature.geometry.coordinates
-      const key = `${lat.toFixed(4)},${lng.toFixed(4)}`
-
-      if (!groups.has(key)) {
-        groups.set(key, [])
-      }
-      groups.get(key).push(feature.properties)
-    }
-
-    const multiGroups = new Map()
-    for (const [key, points] of groups) {
-      if (points.length >= 2) {
-        multiGroups.set(key, points)
-      }
-    }
-
-    log.perf.end('coordinateGroups', `${multiGroups.size} groups with overlaps`)
-    return multiGroups
-  })
-
-  /**
-   * Calculate scattered positions using Fibonacci spiral
-   */
-  const calculateScatteredPosition = (originalLat, originalLng, index, totalPoints, radiusKm = 2) => {
-    const goldenAngle = Math.PI * (3 - Math.sqrt(5))
-    const angle = index * goldenAngle
-    const radiusFraction = Math.sqrt(index / totalPoints)
-    const pointRadius = radiusFraction * radiusKm
-
-    const kmPerDegreeLat = 111.32
-    const kmPerDegreeLng = 111.32 * Math.cos(originalLat * Math.PI / 180)
-
-    const offsetLat = (pointRadius / kmPerDegreeLat) * Math.cos(angle)
-    const offsetLng = (pointRadius / kmPerDegreeLng) * Math.sin(angle)
-
-    return {
-      lat: originalLat + offsetLat,
-      lng: originalLng + offsetLng
-    }
-  }
-
-  /**
-   * Group points by subspecies at each coordinate location
-   */
-  const subspeciesGroups = computed(() => {
-    const groups = new Map()
-    const geo = filteredGeoJSON.value
-    if (!geo || !geo.features) return groups
-
-    for (const feature of geo.features) {
-      const [lng, lat] = feature.geometry.coordinates
-      const coordKey = `${lat.toFixed(4)},${lng.toFixed(4)}`
-      const props = feature.properties
-      const species = props.scientific_name || 'Unknown'
-      const subspecies = props.subspecies || 'No subspecies'
-      const subspeciesKey = `${species}|${subspecies}`
-
-      if (!groups.has(coordKey)) {
-        groups.set(coordKey, new Map())
-      }
-
-      const locationGroup = groups.get(coordKey)
-
-      if (!locationGroup.has(subspeciesKey)) {
-        locationGroup.set(subspeciesKey, {
-          representative: props,
-          allPoints: [props],
-          species,
-          subspecies
-        })
-      } else {
-        const subspGroup = locationGroup.get(subspeciesKey)
-        subspGroup.allPoints.push(props)
-        if (props.image_url && !subspGroup.representative.image_url) {
-          subspGroup.representative = props
-        }
-      }
-    }
-
-    return groups
-  })
-
-  /**
-   * Scattered positions - one per subspecies at each location
-   */
-  const scatteredPositions = computed(() => {
-    const positions = new Map()
-    if (!scatterOverlappingPoints.value) return positions
-
-    for (const [coordKey, subspeciesMap] of subspeciesGroups.value) {
-      const [lat, lng] = coordKey.split(',').map(Number)
-      const subspeciesList = Array.from(subspeciesMap.entries())
-      const totalSubspecies = subspeciesList.length
-
-      if (totalSubspecies < 2) continue
-
-      subspeciesList.forEach(([subspeciesKey, data], index) => {
-        const scattered = calculateScatteredPosition(lat, lng, index, totalSubspecies)
-        const representative = data.representative
-
-        positions.set(representative.id, {
-          scatteredLat: scattered.lat,
-          scatteredLng: scattered.lng,
-          originalLat: lat,
-          originalLng: lng,
-          subspeciesKey,
-          species: data.species,
-          subspecies: data.subspecies,
-          isRepresentative: true
-        })
-
-        data.allPoints.forEach(point => {
-          if (point.id !== representative.id) {
-            positions.set(point.id, {
-              scatteredLat: scattered.lat,
-              scatteredLng: scattered.lng,
-              originalLat: lat,
-              originalLng: lng,
-              subspeciesKey,
-              species: data.species,
-              subspecies: data.subspecies,
-              isRepresentative: false,
-              representativeId: representative.id
-            })
-          }
-        })
-      })
-    }
-
-    return positions
-  })
-
-  /**
-   * The GeoJSON to display - handles scatter, clustering, and aggregation
-   */
-  const displayGeoJSON = computed(() => {
-    log.perf.start('displayGeoJSON')
-    const geo = filteredGeoJSON.value
-    if (!geo) return geo
-
-    // Scatter mode takes priority
-    if (scatterOverlappingPoints.value) {
-      const positions = scatteredPositions.value
-      if (positions.size === 0) return geo
-
-      const features = []
-
-      for (const feature of geo.features) {
-        const pos = positions.get(feature.properties.id)
-
-        if (pos) {
-          if (pos.isRepresentative) {
-            features.push({
-              ...feature,
-              geometry: {
-                ...feature.geometry,
-                coordinates: [pos.scatteredLng, pos.scatteredLat]
-              },
-              properties: {
-                ...feature.properties,
-                _originalLat: pos.originalLat,
-                _originalLng: pos.originalLng,
-                _isScattered: true,
-                _subspeciesKey: pos.subspeciesKey,
-                _scatteredSpecies: pos.species,
-                _scatteredSubspecies: pos.subspecies
-              }
-            })
-          }
-          // Non-representative points are hidden
-        } else {
-          features.push(feature)
-        }
-      }
-
-      return {
-        type: 'FeatureCollection',
-        features
-      }
-    }
-
-    // Clustering mode - pass all points to MapLibre
-    log.perf.end('displayGeoJSON', `${geo.features.length} features`)
-    return geo
-  })
-
-  /**
-   * Data needed to draw scatter visualization circles
-   */
-  const scatterVisualizationData = computed(() => {
-    if (!scatterOverlappingPoints.value) {
-      return { circles: [] }
-    }
-
-    const circles = []
-
-    for (const [coordKey, subspeciesMap] of subspeciesGroups.value) {
-      if (subspeciesMap.size < 2) continue
-      const [lat, lng] = coordKey.split(',').map(Number)
-      circles.push({
-        center: [lng, lat],
-        radiusKm: 2
-      })
-    }
-
-    return { circles }
-  })
+  // Occurrences render as one marker per site (see utils/sites.js), so the
+  // displayed data is the filtered data.
+  const displayGeoJSON = computed(() => filteredGeoJSON.value)
 
   return {
     getPointsAtCoordinates,
     groupPointsBySpecies,
     getSpeciesWithPhotos,
-    coordinateGroups,
-    scatteredPositions,
     displayGeoJSON,
-    scatterVisualizationData
   }
 }

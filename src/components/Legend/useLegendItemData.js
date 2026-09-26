@@ -188,8 +188,11 @@ export function useLegendBaseData(dataStore, legendStore, isExportMode) {
 
     const items = []
     const baseMap = baseColors.value
+    // Only coloured groups get rows; the rest are summarised as "Other".
+    const colored = dataStore.coloredLabels
     for (const [label, color] of entries) {
       if (!legendStore.isItemVisible(label)) continue
+      if (!colored.has(label)) continue
       items.push({
         label,
         color,
@@ -359,12 +362,19 @@ export function useLegendDisplayData(base, dataStore, legendStore, getEffectiveM
     getGroupBorderColor,
     getGroupsForItem,
     legendCounts,
-    sortedAllItems
+    sortedAllItems,
+    itemGroupMap
   } = base
 
   const legendItems = computed(() => {
     const maxItems = getEffectiveMaxItems()
-    const items = sortedAllItems.value.slice(0, maxItems)
+    // Collapsed species consume one rendered row, regardless of how many
+    // subspecies they contain. Keep all candidates until groups are built.
+    const hasCollapsedSpecies = dataStore.colorBy === 'subspecies' &&
+      legendStore.effectiveGroupBy === 'species' && legendStore.collapsedSpecies.length > 0
+    const items = hasCollapsedSpecies
+      ? sortedAllItems.value.slice()
+      : sortedAllItems.value.slice(0, maxItems)
 
     if (!isExportMode.value) {
       const baseMap = baseColors.value
@@ -408,8 +418,9 @@ export function useLegendDisplayData(base, dataStore, legendStore, getEffectiveM
       if (count > 1) multiGroupLabels.add(label)
     }
 
-    let groups = Object.keys(itemsByGroup).map(groupName =>
-      buildGroupData({
+    const canCollapse = dataStore.colorBy === 'subspecies' && legendStore.effectiveGroupBy === 'species'
+    let groups = Object.keys(itemsByGroup).map(groupName => ({
+      ...buildGroupData({
         groupName,
         items: itemsByGroup[groupName],
         sortByVal,
@@ -419,8 +430,11 @@ export function useLegendDisplayData(base, dataStore, legendStore, getEffectiveM
         legendStore,
         formatLabel,
         getGroupBorderColor
-      })
-    )
+      }),
+      collapsible: canCollapse,
+      collapsed: canCollapse && legendStore.isSpeciesCollapsed(groupName),
+      speciesColor: dataStore.speciesColorMap?.[groupName] || itemsByGroup[groupName][0]?.color,
+    }))
 
     groups = sortGroups(groups, sortByVal, sortOrderVal, counts)
 
@@ -431,8 +445,8 @@ export function useLegendDisplayData(base, dataStore, legendStore, getEffectiveM
       const remaining = maxVisible - totalRendered
       const visible = g.items.filter(item => item.visible !== false)
       const hidden = g.items.filter(item => item.visible === false)
-      const kept = visible.slice(0, remaining)
-      totalRendered += kept.length
+      const kept = g.collapsed ? visible : visible.slice(0, remaining)
+      totalRendered += g.collapsed ? (visible.length > 0 ? 1 : 0) : kept.length
       if (kept.length === 0 && hidden.length === 0) return null
       return { ...g, items: [...kept, ...hidden] }
     }).filter(Boolean)
@@ -445,6 +459,11 @@ export function useLegendDisplayData(base, dataStore, legendStore, getEffectiveM
     const shown = new Set()
     if (gld.type === 'grouped') {
       for (const g of gld.groups) {
+        if (g.collapsed) {
+          for (const label of itemGroupMap.value[g.name] || []) {
+            if (legendStore.isItemVisible(label)) shown.add(label)
+          }
+        }
         for (const item of g.items) {
           if (item.visible !== false) shown.add(item.label)
         }

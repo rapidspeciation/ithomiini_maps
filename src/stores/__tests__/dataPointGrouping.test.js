@@ -1,15 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import { ref } from 'vue'
-import { useScatterVisualization } from '../dataPointGrouping'
+import { usePointGrouping } from '../dataPointGrouping'
 
 describe('dataPointGrouping', () => {
   it('groups popup individuals by unique occurrence while preserving record counts', () => {
     const geo = ref({ type: 'FeatureCollection', features: [] })
-    const { groupPointsBySpecies, getSpeciesWithPhotos } = useScatterVisualization(
-      geo,
-      ref(false),
-      ref(false)
-    )
+    const { groupPointsBySpecies, getSpeciesWithPhotos } = usePointGrouping(geo)
 
     const points = [
       { id: 'occ-1', scientific_name: 'Mechanitis polymnia', subspecies: 'polymnia' },

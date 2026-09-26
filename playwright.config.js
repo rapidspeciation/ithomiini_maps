@@ -7,6 +7,10 @@ export default defineConfig({
   use: {
     baseURL: 'http://127.0.0.1:5175/ithomiini_maps/',
     headless: true,
+    launchOptions: {
+      executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || undefined,
+      args: ['--enable-unsafe-swiftshader'],
+    },
     screenshot: 'only-on-failure',
   },
   webServer: {

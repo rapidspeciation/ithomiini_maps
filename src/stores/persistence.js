@@ -44,6 +44,7 @@ export const usePersistenceStore = defineStore('persistence', () => {
       'legend-custom-labels',
       'legend-custom-colors',
       'legend-hidden-items',
+      'legend-collapsed-species',
       'legend-item-order',
       // Legend grouping settings
       'legend-grouping',
@@ -73,7 +74,7 @@ export const usePersistenceStore = defineStore('persistence', () => {
       // Cluster settings
       'app-clustering-enabled',
       'app-cluster-settings',
-      'app-scatter-overlapping',
+      'map-size-by-individuals',
       // Export settings
       'app-export-settings',
       // Theme
@@ -129,6 +130,7 @@ export const usePersistenceStore = defineStore('persistence', () => {
       set('legend-sticky', legendStore.stickyEdges)
       set('legend-custom-labels', legendStore.customLabels)
       set('legend-custom-colors', legendStore.customColors)
+      set('legend-collapsed-species', legendStore.collapsedSpecies)
       set('legend-hidden-items', legendStore.hiddenItems)
       set('legend-grouping', legendStore.groupingSettings)
       set('legend-species-styling', legendStore.speciesStyling)
@@ -153,7 +155,7 @@ export const usePersistenceStore = defineStore('persistence', () => {
       set('app-show-mimicry-filter', dataStore.showMimicryFilter)
       set('app-clustering-enabled', dataStore.clusteringEnabled)
       set('app-cluster-settings', dataStore.clusterSettings)
-      set('app-scatter-overlapping', dataStore.scatterOverlappingPoints)
+      set('map-size-by-individuals', dataStore.sizeByIndividuals)
       set('app-export-settings', dataStore.exportSettings)
     }
 

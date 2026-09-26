@@ -1,4 +1,7 @@
-@import "tailwindcss";
+/* Limit utility discovery to application code. Audit transcripts and generated
+   artifacts must not change the production stylesheet or trigger CSS rebuilds. */
+@import "tailwindcss" source(".");
+@source "../index.html";
 
 /* ══════════════════════════════════════════════════════════════════════════════
    ITHOMIINI MAPS - THEME SYSTEM

@@ -17,6 +17,20 @@ describe('clusterStats individual counting', () => {
     expect(dedupePointsByIndividual(points)).toHaveLength(2)
   })
 
+  it('counts rows with placeholder specimen IDs as separate individuals', () => {
+    const points = [
+      { id: 'Unknown', scientific_name: 'Mechanitis messenoides' },
+      { id: 'Unknown', scientific_name: 'Mechanitis messenoides' },
+      { id: 'NOT GIVEN', scientific_name: 'Ithomia salapia' },
+      { id: 'NOT GIVEN', scientific_name: 'Ithomia salapia' },
+      { id: 'CAM071479', scientific_name: 'Ithomia salapia' },
+      { id: 'CAM071479', scientific_name: 'Ithomia salapia' },
+    ]
+
+    expect(countUniqueIndividuals(points)).toBe(5)
+    expect(dedupePointsByIndividual(points)).toHaveLength(5)
+  })
+
   it('keeps unkeyed records separate to avoid undercounting unknown individuals', () => {
     const points = [
       { scientific_name: 'Mechanitis polymnia' },

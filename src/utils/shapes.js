@@ -14,7 +14,7 @@ export const SHAPE_OPTIONS = [
 ]
 
 // Draw a shape on a canvas context with fill and stroke baked in.
-function drawShape(ctx, shapeName, size, fillColor, strokeColor, strokeWidth) {
+function drawShape(ctx, shapeName, size, fillColor, strokeColor, strokeWidth, fillOpacity, strokeOpacity) {
   const center = size / 2
   const padding = strokeWidth + 2
   const innerSize = size - padding * 2
@@ -62,15 +62,18 @@ function drawShape(ctx, shapeName, size, fillColor, strokeColor, strokeWidth) {
       ctx.arc(center, center, innerSize / 2, 0, Math.PI * 2)
   }
 
+  ctx.globalAlpha = fillOpacity
   ctx.fill()
   if (strokeWidth > 0) {
+    ctx.globalAlpha = strokeOpacity
     ctx.stroke()
   }
+  ctx.globalAlpha = 1
 }
 
 // Generate a colored shape image with border baked in.
 // Returns data in the format MapLibre's addImage() expects.
-export function generateColoredShapeImage(shapeName, fillColor, strokeColor, strokeWidth = 3, size = 64) {
+export function generateColoredShapeImage(shapeName, fillColor, strokeColor, strokeWidth = 3, size = 64, fillOpacity = 1, strokeOpacity = 1) {
   const canvas = document.createElement('canvas')
   canvas.width = size
   canvas.height = size
@@ -78,7 +81,7 @@ export function generateColoredShapeImage(shapeName, fillColor, strokeColor, str
 
   const scaledStrokeWidth = (strokeWidth / 32) * size
 
-  drawShape(ctx, shapeName, size, fillColor, strokeColor, scaledStrokeWidth)
+  drawShape(ctx, shapeName, size, fillColor, strokeColor, scaledStrokeWidth, fillOpacity, strokeOpacity)
 
   const imageData = ctx.getImageData(0, 0, size, size)
   return {
@@ -89,11 +92,11 @@ export function generateColoredShapeImage(shapeName, fillColor, strokeColor, str
 }
 
 // Generate a unique image name for a colored shape (used as MapLibre image key).
-export function getColoredShapeImageName(shapeName, fillColor, strokeColor, strokeWidth = 3) {
+export function getColoredShapeImageName(shapeName, fillColor, strokeColor, strokeWidth = 3, fillOpacity = 1, strokeOpacity = 1) {
   const fill = fillColor.replace('#', '').toLowerCase()
   const stroke = strokeColor.replace('#', '').toLowerCase()
   const sw = Math.round(strokeWidth * 10) / 10
-  return `shape-${shapeName}-${fill}-${stroke}-w${sw}`
+  return `shape-${shapeName}-${fill}-${stroke}-w${sw}-a${fillOpacity}-${strokeOpacity}`
 }
 
 // Build a MapLibre match expression for icon-image based on colored shape images.

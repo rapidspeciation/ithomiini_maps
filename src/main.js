@@ -29,6 +29,8 @@ import { mem } from './utils/memoryMonitor'
 window.perfReport = () => perf.report()
 window.memReport = () => mem.report()
 
-import('../test/exerciseApp.js').then(mod => {
-  window.exerciseApp = mod.exerciseApp
-}).catch(() => {})
+if (import.meta.env.DEV) {
+  import('../test/exerciseApp.js').then(mod => {
+    window.exerciseApp = mod.exerciseApp
+  }).catch(() => {})
+}
