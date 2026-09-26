@@ -651,11 +651,11 @@ def load_gbif_bulk_download():
                         'mimicry_source_taxon',
                         'sequencing_status', 'source', 'image_url', 'country',
                         'collection_location', 'observation_date', 'observation_url', 'sex',
-                        'institution_code', 'coordinate_uncertainty']
+                        'institution_code', 'coordinate_uncertainty', 'subspecies_source']
 
         nullable_cols = {'subspecies', 'image_url', 'collection_location',
                          'observation_date', 'observation_url', 'sex', 'institution_code',
-                         'coordinate_uncertainty', 'mimicry_source_taxon'}
+                         'coordinate_uncertainty', 'mimicry_source_taxon', 'subspecies_source'}
         for col in required_cols:
             if col not in df.columns:
                 df[col] = None if col in nullable_cols else 'Unknown'

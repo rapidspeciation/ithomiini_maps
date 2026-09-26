@@ -104,6 +104,15 @@
         "correct_count": 18,
         "reason": "Erroneous 'n' inserted. C. hezia phagesia (Hewitson 1869). Count exceeds auto-detection threshold.",
         "reference": "Hewitson 1869; Butterflies of America (type specimen page)"
+      },
+      {
+        "species": "Ithomia salapia",
+        "wrong": "aquina",
+        "correct": "aquinia",
+        "wrong_count": 11,
+        "correct_count": 81,
+        "reason": "Missing 'i'. Published with the same author and year as aquinia (Hopffer 1874); recovered from GBIF verbatim names. Count exceeds auto-detection threshold.",
+        "reference": "Hopffer 1874; Lamas 2004 Checklist"
       }
     ]
   },

@@ -35,6 +35,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 from country_utils import standardize_country
+from verbatim_subspecies import parse_verbatim_subspecies
 
 # ═══════════════════════════════════════════════════════════════════
 # CONFIGURATION
@@ -750,6 +751,17 @@ def process_occurrence_file(occurrence_path, multimedia_lookup=None):
                 subspecies = str(subspecies).strip()
                 if subspecies.upper() in ['ACCEPTED', 'SYNONYM', 'DOUBTFUL', 'UNKNOWN', 'NA', 'NAN', '']:
                     subspecies = None
+            subspecies_source = 'gbif_interpreted' if subspecies else None
+
+            # The GBIF backbone lacks many Ithomiini subspecies, so those records
+            # are interpreted at species level. Recover the subspecies the
+            # publisher reported, anchored to the interpreted genus and species.
+            if not subspecies and genus and species_epithet:
+                for field in ('scientificName', 'verbatimScientificName'):
+                    subspecies = parse_verbatim_subspecies(row.get(field), f"{genus} {species_epithet}")
+                    if subspecies:
+                        subspecies_source = 'verbatim_name'
+                        break
 
             # Determine source and build URL
             source = get_source(row)
@@ -771,6 +783,7 @@ def process_occurrence_file(occurrence_path, multimedia_lookup=None):
                 'genus': genus or 'Unknown',
                 'species': species_epithet or 'sp.',
                 'subspecies': subspecies,
+                'subspecies_source': subspecies_source,
                 'family': row.get('family', 'Nymphalidae'),
                 'tribe': 'Ithomiini',
                 'lat': lat,
@@ -793,6 +806,8 @@ def process_occurrence_file(occurrence_path, multimedia_lookup=None):
             records.append(record)
 
     print(f"  Processed: {len(records):,} records")
+    recovered = sum(1 for record in records if record['subspecies_source'] == 'verbatim_name')
+    print(f"  Subspecies recovered from original names: {recovered:,}")
     print(f"  Skipped: {skipped:,} (missing coordinates or invalid)")
     print(f"  With images: {with_images:,}")
     print(f"  Sources: iNaturalist={source_counts['iNaturalist']:,}, GBIF={source_counts['GBIF']:,}")
@@ -1062,6 +1077,7 @@ def main():
     parser = argparse.ArgumentParser(description='Download Ithomiini occurrences from GBIF')
     parser.add_argument('--force', action='store_true', help='Force new download, ignore cache')
     parser.add_argument('--keys-only', action='store_true', help='Only get taxon keys, do not download')
+    parser.add_argument('--download-key', help='Reprocess an existing, completed GBIF download (no credentials needed)')
     args = parser.parse_args()
 
     print("=" * 70)
@@ -1080,25 +1096,34 @@ def main():
         print("\n--keys-only specified, exiting")
         return
 
-    # Load credentials only for actual occurrence downloads.
-    credentials = load_credentials()
-    print(f"Credentials loaded for: {credentials['GBIF_USERNAME']}")
+    if args.download_key:
+        # Published downloads are public: reprocess one reproducibly.
+        response = requests.get(f"https://api.gbif.org/v1/occurrence/download/{args.download_key}", timeout=60)
+        response.raise_for_status()
+        download_info = response.json()
+        if download_info.get('status') != 'SUCCEEDED':
+            print(f"ERROR: download {args.download_key} is {download_info.get('status')}")
+            sys.exit(1)
+    else:
+        # Load credentials only for actual occurrence downloads.
+        credentials = load_credentials()
+        print(f"Credentials loaded for: {credentials['GBIF_USERNAME']}")
 
-    # Check cache (needs taxon_keys to verify query hasn't changed)
-    if not args.force:
-        if should_use_cache(taxon_keys):
-            print("\nUsing cached data. Use --force to download fresh data.")
-            return
+        # Check cache (needs taxon_keys to verify query hasn't changed)
+        if not args.force:
+            if should_use_cache(taxon_keys):
+                print("\nUsing cached data. Use --force to download fresh data.")
+                return
 
-    # Check for a recent completed download on GBIF account (e.g. from a timed-out run)
-    download_info = find_recent_download(credentials, taxon_keys)
+        # Check for a recent completed download on GBIF account (e.g. from a timed-out run)
+        download_info = find_recent_download(credentials, taxon_keys)
 
-    if not download_info:
-        # Submit new download request
-        download_key = submit_download_request(credentials, taxon_keys)
+        if not download_info:
+            # Submit new download request
+            download_key = submit_download_request(credentials, taxon_keys)
 
-        # Wait for completion
-        download_info = wait_for_download(download_key, credentials)
+            # Wait for completion
+            download_info = wait_for_download(download_key, credentials)
 
     # Download and extract
     extract_dir = download_and_extract(download_info)
