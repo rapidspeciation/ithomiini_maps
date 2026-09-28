@@ -148,6 +148,13 @@ draw_pie <- function(x, y, radius, segments, fill_opacity, stroke, line_width) {
     gp = grid::gpar(fill = NA, col = stroke, lwd = line_width * SETTINGS$output_scale))
 }
 
+# Several nearby sites drawn as one marker have a second, inner border.
+draw_merged_ring <- function(x, y, radius, stroke, line_width) {
+  grid::grid.circle(x = grid::unit(x, "native"), y = grid::unit(y, "native"),
+    r = grid::unit((radius - line_width * 1.6) * SETTINGS$output_scale * 72 / 96, "pt"),
+    gp = grid::gpar(fill = NA, col = stroke, lwd = line_width * 0.6 * SETTINGS$output_scale))
+}
+
 # Polygon rings retain their holes using grid.path's even/odd fill rule.
 draw_polygon <- function(geometry, fill, stroke, line_width) {
   polygons <- if (geometry$type == "Polygon") list(geometry$coordinates) else geometry$coordinates
@@ -204,9 +211,11 @@ paint_points <- function() {
     radius <- style$radius * size * SETTINGS$point_radius_multiplier + style$strokeWidth / 2
     stroke <- p$display_stroke_color
     if (is.null(stroke)) stroke <- style$strokeColor
+    merged <- !is.null(p$display_site_count) && p$display_site_count > 1
     if (length(p$display_segments) > 1) {
       draw_pie(p$screen_x, p$screen_y, radius, p$display_segments, fill_opacity,
         color(stroke, style$strokeOpacity), style$strokeWidth)
+      if (merged) draw_merged_ring(p$screen_x, p$screen_y, radius, color(stroke, style$strokeOpacity), style$strokeWidth)
       next
     }
     fill <- p$display_color
@@ -217,6 +226,7 @@ paint_points <- function() {
     draw_shape(p$screen_x, p$screen_y, radius,
       if (style$useShapes && !is.null(p$display_shape)) p$display_shape else "circle",
       color(fill, fill_opacity), color(stroke, style$strokeOpacity), style$strokeWidth)
+    if (merged) draw_merged_ring(p$screen_x, p$screen_y, radius, color(stroke, style$strokeOpacity), style$strokeWidth)
   }
 }
 

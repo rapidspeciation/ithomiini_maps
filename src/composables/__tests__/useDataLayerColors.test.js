@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   buildClusterOutlineExpression, buildPointColorExpression, buildRangePointCirclePaint,
-  buildSiteIconSize, siteFeatureCollection, visibleSiteRadius,
+  buildSiteIconSize, mergedPieNameExpression, mergedSizeFactorExpression, siteFeatureCollection, visibleSiteRadius,
 } from '../useDataLayer'
 import { getColoredShapeImageName } from '../../utils/shapes'
 
@@ -57,7 +57,7 @@ describe('site markers', () => {
     expect(expression).toEqual(['/', ['+', ['*', 9, ['get', 'size_factor']], 1], 16])
     expect(visibleSiteRadius(style, 10)).toBeCloseTo(10)
     expect(visibleSiteRadius(style, 10, 2)).toBeCloseTo(19)
-    expect(visibleSiteRadius(style, 3)).toBeCloseTo(3.705)
+    expect(visibleSiteRadius(style, 3)).toBeCloseTo(5.28)
   })
 
   it('uses distinct image signatures for independent opacity changes', () => {
@@ -72,5 +72,15 @@ describe('site markers', () => {
       20, 'cluster-outline-16', 50, 'cluster-outline-20',
       100, 'cluster-outline-25', 500, 'cluster-outline-32',
     ])
+  })
+
+  it('names merged pies from quantized group counts and sizes them from summed individuals', () => {
+    const name = mergedPieNameExpression('merged-pie:3:', 3)
+    expect(name.slice(0, 2)).toEqual(['concat', 'merged-pie:3:'])
+    // One count expression per group, separated by commas.
+    expect(name.filter(part => part === ',')).toHaveLength(2)
+    expect(JSON.stringify(name)).toContain('["get","g2"]')
+    expect(mergedSizeFactorExpression(false)).toBe(1)
+    expect(mergedSizeFactorExpression(true)[1]).toBe(2.2)
   })
 })

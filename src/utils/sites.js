@@ -18,13 +18,17 @@ export function groupRecordsBySite(features) {
   return sites
 }
 
+export const SITE_SIZE_CAP = 1.8
+/** Merged markers stand for several sites, so they may grow a little larger. */
+export const MERGED_SIZE_CAP = 2.2
+
 /**
  * Radius grows gently with the logarithm of individuals (1 → 1×, 10 → 1.35×,
- * 100 → 1.7×, capped at 1.8×). Colour also encodes individuals, so size only
- * needs to make busy sites stand out without merging neighbouring markers.
+ * 100 → 1.7×, capped at 1.8×, or 2.2× for merged markers), so busy sites
+ * stand out; sites that would overlap are merged rather than enlarged.
  */
-export function markerSizeFactor(individuals) {
-  return Math.min(1.8, 1 + 0.35 * Math.log10(Math.max(1, individuals)))
+export function markerSizeFactor(individuals, cap = SITE_SIZE_CAP) {
+  return Math.min(cap, 1 + 0.35 * Math.log10(Math.max(1, individuals)))
 }
 
 function mostCommon(values) {
@@ -79,6 +83,59 @@ export function summarizeSites(siteIndex, { plan, sizeByIndividuals = true }) {
   return { sites: summaries }
 }
 
+/**
+ * Keep a pie readable at marker size: coloured slices under `minFraction`, and
+ * any beyond the `maxColored` largest, join the grey "Other" slice (last).
+ */
+export function foldMinorSegments(segments, { minFraction = 0.1, maxColored = 4 } = {}) {
+  const total = segments.reduce((sum, segment) => sum + segment.count, 0)
+  if (!total) return segments
+  const kept = new Set(segments
+    .filter(segment => segment.color !== OTHER_COLOR && segment.count / total >= minFraction)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, maxColored))
+  const folded = segments.filter(segment => kept.has(segment))
+  const otherCount = total - folded.reduce((sum, segment) => sum + segment.count, 0)
+  if (otherCount > 0) folded.push({ key: 'other', label: 'Other', color: OTHER_COLOR, count: otherCount })
+  return folded.map(segment => ({ ...segment, fraction: segment.count / total }))
+}
+
+/**
+ * One marker for several nearby sites, as drawn merged in point view: summed
+ * individuals and colour segments (in `order`, "Other" last).
+ */
+export function mergeSiteSummaries(members, coordinates, { order = new Map(), sizeByIndividuals = true } = {}) {
+  const counts = new Map()
+  for (const site of members) {
+    for (const segment of site.segments) {
+      const entry = counts.get(segment.key)
+      if (entry) entry.count += segment.count
+      else counts.set(segment.key, { key: segment.key, label: segment.label, color: segment.color, count: segment.count })
+    }
+  }
+  const recordCount = members.reduce((sum, site) => sum + site.recordCount, 0)
+  const segments = [...counts.values()]
+    .sort((a, b) => (order.get(a.key) ?? Infinity) - (order.get(b.key) ?? Infinity))
+    .map(segment => ({ ...segment, fraction: segment.count / recordCount }))
+  const busiest = [...members].sort((a, b) => b.individuals - a.individuals)[0]
+  const records = members.flatMap(site => site.records)
+  const individuals = members.reduce((sum, site) => sum + site.individuals, 0)
+  return {
+    key: `merged:${members.map(site => site.key).sort().join('|')}`,
+    coordinates,
+    records,
+    individuals,
+    recordCount,
+    speciesCount: new Set(records.map(record => record.properties.scientific_name).filter(Boolean)).size,
+    locality: busiest.locality,
+    country: busiest.country,
+    segments,
+    siteCount: members.length,
+    sizeFactor: sizeByIndividuals ? markerSizeFactor(individuals, MERGED_SIZE_CAP) : 1,
+    fill: segments.length === 1 ? segments[0].color : segments.length ? null : OTHER_COLOR,
+  }
+}
+
 /** Pie images are cached by quantized composition so similar sites share one image. */
 export function pieSignature(segments, resolution = 24) {
   return segments.map(segment => `${segment.color}:${Math.max(1, Math.round(segment.fraction * resolution))}`).join('|')
@@ -87,8 +144,9 @@ export function pieSignature(segments, resolution = 24) {
 /**
  * Draw a filled pie with an outer border into ImageData. The icon is 32 CSS
  * pixels square at pixelRatio 2, so icon-size 1 renders a 16 px radius.
+ * `merged` markers (several nearby sites) get a second, inner border.
  */
-export function drawSitePie(segments, { stroke = '#ffffff', strokeWidth = 2, fillOpacity = 1, strokeOpacity = 1 } = {}) {
+export function drawSitePie(segments, { stroke = '#ffffff', strokeWidth = 2, fillOpacity = 1, strokeOpacity = 1, merged = false } = {}) {
   const pixelRatio = 2
   const size = 32 * pixelRatio
   const canvas = document.createElement('canvas')
@@ -116,6 +174,15 @@ export function drawSitePie(segments, { stroke = '#ffffff', strokeWidth = 2, fil
     context.arc(center, center, radius, 0, Math.PI * 2)
     context.strokeStyle = stroke
     context.lineWidth = lineWidth
+    context.stroke()
+  }
+  if (merged) {
+    const innerWidth = Math.max(1, strokeWidth * 0.6) * pixelRatio
+    context.globalAlpha = strokeOpacity
+    context.beginPath()
+    context.arc(center, center, radius - lineWidth / 2 - innerWidth * 1.8, 0, Math.PI * 2)
+    context.strokeStyle = stroke
+    context.lineWidth = innerWidth
     context.stroke()
   }
   return context.getImageData(0, 0, size, size)

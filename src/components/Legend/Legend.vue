@@ -56,6 +56,12 @@ const bottomControlsWidth = ref(0)
 
 // Is export mode active?
 const isExportMode = computed(() => dataStore.exportSettings.enabled)
+// Species ↔ subspecies is one click on the title; exports keep the plain title.
+const COLOR_LEVELS = [
+  { value: 'species', label: 'Species', title: 'Colour by species' },
+  { value: 'subspecies', label: 'Subsp.', title: 'Colour by subspecies' },
+]
+const showLevelSwitch = computed(() => !isExportMode.value && COLOR_LEVELS.some(level => level.value === dataStore.colorBy))
 
 const bottomAttributionMargin = computed(() => bottomControlsHeight.value)
 const uiScale = computed(() => dataStore.exportSettings.uiScale)
@@ -665,7 +671,20 @@ onUnmounted(() => {
     >
       <!-- Title with hover controls (sort dropdown + counts toggle) -->
       <div class="legend-title" @click.stop>
-        <span>{{ dataStore.legendTitle }}</span>
+        <span v-if="showLevelSwitch" class="level-switch" role="radiogroup" aria-label="Colour by">
+          <button
+            v-for="level in COLOR_LEVELS"
+            :key="level.value"
+            type="button"
+            role="radio"
+            class="level-option"
+            :class="{ active: dataStore.colorBy === level.value }"
+            :aria-checked="dataStore.colorBy === level.value"
+            :title="level.title"
+            @click.stop="dataStore.setColorBy(level.value)"
+          >{{ level.label }}</button>
+        </span>
+        <span v-else class="legend-title-text">{{ dataStore.legendTitle }}</span>
         <span v-if="showEditUI || sortDropdownOpen" class="title-hover-controls">
           <!-- Counts toggle -->
           <button

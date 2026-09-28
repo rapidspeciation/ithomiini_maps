@@ -86,7 +86,7 @@ const groupByGroups = computed(() => {
 // Current colorBy
 const colorBy = computed({
   get: () => dataStore.colorBy,
-  set: (value) => { dataStore.colorBy = value }
+  set: (value) => { dataStore.setColorBy(value) }
 })
 
 // Current groupBy
@@ -128,7 +128,7 @@ function swapColorAndGroup() {
   if (!canSwapColorGroup.value) return
   const newColor = groupBy.value
   const newGroup = colorBy.value
-  dataStore.colorBy = newColor
+  dataStore.setColorBy(newColor)
   legendStore.setGroupBy(newGroup)
 }
 

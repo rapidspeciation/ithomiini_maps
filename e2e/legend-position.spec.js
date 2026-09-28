@@ -29,7 +29,7 @@ test.beforeEach(async ({ page }) => {
     const app = document.querySelector('#app').__vue_app__
     window.legendTestApp = app._instance.setupState
     window.legendTestStores = Object.fromEntries(app.config.globalProperties.$pinia._s)
-    window.legendTestStores.data.colorBy = 'species'
+    window.legendTestStores.data.setColorBy('species')
     window.legendTestStores.data.filters.species = ['Mechanitis polymnia']
   })
   await page.waitForFunction(() => {

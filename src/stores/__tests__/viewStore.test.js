@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { nextTick } from 'vue'
 import { createPinia, setActivePinia } from 'pinia'
 import { useViewStore } from '../viewStore'
+import { useFilterStore } from '../filterStore'
 
 describe('useViewStore', () => {
   beforeEach(() => {
@@ -57,5 +58,33 @@ describe('useViewStore', () => {
     const store = useViewStore()
 
     expect(store.colorBy).toBe('species')
+  })
+
+  it('colours by subspecies for one species or a subspecies filter until a level is chosen', async () => {
+    const store = useViewStore()
+    const filters = useFilterStore()
+    filters.filters.species = ['Ithomia salapia']
+    await nextTick()
+    expect(store.colorBy).toBe('subspecies')
+    filters.filters.species = ['Ithomia salapia', 'Mechanitis polymnia']
+    await nextTick()
+    expect(store.colorBy).toBe('species')
+    filters.filters.subspecies = ['derasa']
+    await nextTick()
+    expect(store.colorBy).toBe('subspecies')
+
+    store.setColorBy('species')
+    filters.filters.species = ['Ithomia salapia']
+    await nextTick()
+    expect(store.colorBy).toBe('species')
+
+    filters.filters.species = []
+    filters.filters.subspecies = []
+    await nextTick()
+    store.resetVisualizationState()
+    expect(store.colorByChosen).toBe(false)
+    filters.filters.species = ['Ithomia salapia']
+    await nextTick()
+    expect(store.colorBy).toBe('subspecies')
   })
 })

@@ -4,7 +4,9 @@ import { useLegendStore } from '../stores/legend'
 import { generateRScript } from './rExport/rScriptGenerator'
 import { generateReadme } from './rExport/htmlReadmeGenerators'
 import { resolvePointFeatures, resolveRangeFeatures, resolveSiteFeatures, snapshotLegend, snapshotControls } from './rExport/snapshot'
-import { groupRecordsBySite, summarizeSites } from './sites'
+import { groupRecordsBySite, mergeSiteSummaries, summarizeSites } from './sites'
+import { readClusterLeaves } from './clusterLeaves'
+import { POINT_CIRCLE_SCALE_STOPS } from '../composables/useDataLayer'
 import { withMapExport } from './mapExportQueue'
 import { generateSpeciesBorderColors } from './colors'
 import { useHostPlantStore } from '../stores/hostPlants'
@@ -13,7 +15,7 @@ import { useSDMStore } from '../stores/sdm'
 const commitHash = typeof __COMMIT_HASH__ !== 'undefined' ? __COMMIT_HASH__ : 'dev'
 const shortHash = commitHash.substring(0, 7)
 const SCIENTIFIC_LAYERS = [
-  'points-layer', 'points-glow', 'points-highlight', 'clusters', 'cluster-count',
+  'points-layer', 'points-hover', 'points-glow', 'points-highlight', 'clusters', 'cluster-count',
   'cluster-points-layer', 'cluster-extent-dynamic', 'cluster-extent-dynamic-outline',
   'heatmap-layer', 'range-fill', 'range-outline', 'range-points'
 ]
@@ -49,6 +51,30 @@ async function captureWithoutLayers(map, hiddenIds) {
 }
 
 const pngBytes = dataUrl => Uint8Array.from(atob(dataUrl.split(',')[1]), c => c.charCodeAt(0))
+/**
+ * Point view draws overlapping sites as one merged marker (source clustering);
+ * export the markers as drawn, replacing each rendered merge by its sites.
+ */
+async function mergeRenderedSites(map, sites, options) {
+  const source = map.getSource('points-source')
+  if (!map.getLayer('points-layer')) return sites
+  const clusters = new Map(map.queryRenderedFeatures({ layers: ['points-layer'] })
+    .filter(feature => feature.properties.cluster)
+    .map(feature => [feature.properties.cluster_id, feature]))
+  if (!clusters.size) return sites
+  const byKey = new Map(sites.map(site => [site.key, site]))
+  const absorbed = new Set()
+  const merged = []
+  for (const cluster of clusters.values()) {
+    const leaves = await readClusterLeaves(source, cluster.properties.cluster_id, cluster.properties.point_count)
+    const members = leaves.map(leaf => byKey.get(leaf.properties.site_key)).filter(Boolean)
+    if (members.length < 2) continue
+    members.forEach(site => absorbed.add(site.key))
+    merged.push(mergeSiteSummaries(members, cluster.geometry.coordinates, options))
+  }
+  return [...sites.filter(site => !absorbed.has(site.key)), ...merged]
+}
+
 async function sha256(bytes) {
   const digest = await crypto.subtle.digest('SHA-256', bytes)
   return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('')
@@ -79,7 +105,7 @@ function pointStyle(store, legendStore, zoom, mode) {
   // Site markers share one radius rule; each site multiplies it by its size factor.
   const base = style.pointSize * 0.9
   return {
-    radius: interpolate(zoom, [[3, base * 0.375], [6, base * 0.625], [10, base], [14, base * 1.5]]),
+    radius: interpolate(zoom, POINT_CIRCLE_SCALE_STOPS.map(([stop, scale]) => [stop, base * scale])),
     fillOpacity: style.fillOpacity,
     strokeWidth: interpolate(zoom, [[3, style.borderWidth * 0.33], [10, style.borderWidth]]),
     strokeColor: style.borderColor,
@@ -202,6 +228,20 @@ async function exportForRLocked(map) {
   const visibleRecords = (displayedGeo?.features || geo.features)
     .filter(feature => !hidden.has(feature.properties[store.colorByAttribute]))
   const shapesEnabled = legendStore.shapeSettings.enabled
+  let siteMarkers = []
+  if (mode !== 'ranges') {
+    siteMarkers = summarizeSites(groupRecordsBySite(visibleRecords), {
+      plan: store.colorPlan,
+      sizeByIndividuals: store.sizeByIndividuals,
+    }).sites
+    if (mode === 'points') {
+      siteMarkers = await mergeRenderedSites(map, siteMarkers, {
+        order: new Map(store.colorPlan.groups.map((group, index) => [group.key, index])),
+        sizeByIndividuals: store.sizeByIndividuals,
+      })
+      assertStable()
+    }
+  }
   const singleSpecies = site => site.speciesCount === 1 ? site.records[0].properties.scientific_name : null
   const features = mode === 'ranges'
     // Range mode draws small record points beneath the polygons.
@@ -211,10 +251,7 @@ async function exportForRLocked(map) {
         hiddenItems: legendStore.hiddenItems,
         project
       }).map(feature => ({ ...feature, properties: { ...feature.properties, display_shape: 'circle' } }))
-    : resolveSiteFeatures(summarizeSites(groupRecordsBySite(visibleRecords), {
-        plan: store.colorPlan,
-        sizeByIndividuals: store.sizeByIndividuals,
-      }).sites, {
+    : resolveSiteFeatures(siteMarkers, {
         project,
         shapeFor: site => shapesEnabled && singleSpecies(site)
           ? legendStore.getGroupShape(singleSpecies(site)) || 'circle' : 'circle',

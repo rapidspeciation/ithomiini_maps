@@ -4,7 +4,7 @@ import { groupCollectionSites } from '../utils/collectionSites'
 import { readClusterLeaves } from '../utils/clusterLeaves'
 import { clusterCircleRadius } from '../utils/clusterComposition'
 import { visibleSiteRadius } from './useDataLayer'
-import { siteKeyFor } from '../utils/sites'
+import { MERGED_SIZE_CAP, markerSizeFactor, siteKeyFor } from '../utils/sites'
 import { drawLocalityLeader, groupLocalityAnchors, leaderImageSpec, LOCALITY_PALETTES } from '../utils/localityArrows'
 import { labelBudget, layoutLocalityLabels } from '../utils/localityLayout'
 
@@ -232,7 +232,7 @@ export function useLocalityLayer(map, { isDarkBasemap = () => false } = {}) {
         seen.add(key)
         const point = m.project(coordinates)
         const radius = feature.properties?.cluster
-          ? clusterCircleRadius(clusterIndividuals(feature)) + 4 : pointRadius(feature.properties?.size_factor)
+          ? clusterMarkerRadius(feature) : pointRadius(feature.properties?.size_factor)
         if (point.x < -radius || point.x > width + radius ||
           point.y < -radius || point.y > height + radius) continue
         obstacles.push({ x: point.x, y: point.y, radius })
@@ -294,6 +294,12 @@ export function useLocalityLayer(map, { isDarkBasemap = () => false } = {}) {
     return Number(feature.properties.individuals ?? feature.properties.point_count)
   }
 
+  /** Clusters are dark count circles; merged sites in point view are pies sized like sites. */
+  function clusterMarkerRadius(feature) {
+    if (!sites?.merged) return clusterCircleRadius(clusterIndividuals(feature)) + 4
+    return pointRadius(store.sizeByIndividuals === false ? 1 : markerSizeFactor(clusterIndividuals(feature), MERGED_SIZE_CAP))
+  }
+
   function pointRadius(sizeFactor = 1) {
     const zoom = map.value.getZoom()
     if (store.visualizationMode === 'ranges') {
@@ -328,11 +334,11 @@ export function useLocalityLayer(map, { isDarkBasemap = () => false } = {}) {
 
   function clusterFeature(feature, summary) {
     const count = clusterIndividuals(feature)
-    const radius = clusterCircleRadius(count) + 4
+    const radius = clusterMarkerRadius(feature)
     return { type: 'Feature', geometry: feature.geometry, properties: {
       clusterId: String(feature.properties.cluster_id), pointCount: count,
       ...summary,
-      priority: -count, radius, leaderRadius: radius - 4,
+      priority: -count, radius, leaderRadius: radius - (sites?.merged ? 5 : 4),
     } }
   }
 
@@ -367,7 +373,9 @@ export function useLocalityLayer(map, { isDarkBasemap = () => false } = {}) {
     const byRecords = settings.mode === 'records'
     const minimum = byRecords ? Math.max(1, Number(settings.minRecords) || 1) : 1
     const hidden = planning.hiddenLabelSet
-    const clustered = store.visualizationMode === 'clusters' && m.getLayer('clusters')
+    // Merged sites in point view are clusters of the same source.
+    const clustered = (store.visualizationMode === 'clusters' && m.getLayer('clusters')) ||
+      (sites?.merged && m.getLayer('points-layer'))
     const baseKey = JSON.stringify([generation, settings.enabled, settings.mode, minimum, planning.shortlistIds,
       planning.hiddenLabelIds, planning.selectedSiteId, selectedAnchorKey, selectedClusterId, store.visualizationMode, cameraKey(m)])
     const layersReady = m.getLayer(LABELS) && m.getLayer(CALLOUTS)
@@ -381,7 +389,8 @@ export function useLocalityLayer(map, { isDarkBasemap = () => false } = {}) {
       return
     }
     if (!clustered && baseKey === lastKey && layersReady) return
-    const rendered = clustered ? m.queryRenderedFeatures({ layers: ['clusters', 'points-layer'] }) : []
+    const rendered = clustered
+      ? m.queryRenderedFeatures({ layers: ['clusters', 'points-layer'].filter(id => m.getLayer(id)) }) : []
     const clusters = [...new Map(rendered.filter(f => f.properties.cluster).map(f => [f.properties.cluster_id, f])).values()]
     const key = clustered ? JSON.stringify([baseKey, clusters.map(f => f.properties.cluster_id).sort(),
       rendered.filter(f => !f.properties.cluster).map(f => f.properties.site_key).sort()]) : baseKey

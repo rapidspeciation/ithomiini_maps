@@ -1,5 +1,6 @@
 import { DYNAMIC_COLORS } from '../constants'
 import { generateHexBins, generateRangePolygons } from '../rangePolygons'
+import { foldMinorSegments } from '../sites'
 
 const GROUP_ATTRIBUTES = {
   species: 'scientific_name', subspecies: 'subspecies',
@@ -46,12 +47,15 @@ export function resolvePointFeatures(features, { attribute, palette, hiddenItems
 
 /**
  * One marker per site, as drawn in the browser: a single colour or pie
- * segments, and a size factor from individuals.
+ * segments, and a size factor from individuals. Merged markers (several
+ * nearby sites) carry display_site_count > 1.
  * Large sites come first so small ones are painted on top.
  */
 export function resolveSiteFeatures(sites, { project, shapeFor = () => 'circle', strokeFor = () => null }) {
   return sites.map(site => {
     const { x, y } = project(site.coordinates)
+    // Minor slices join "Other", as on the browser markers.
+    const segments = foldMinorSegments(site.segments)
     const species = [...new Set(site.records.map(record => record.properties.scientific_name).filter(Boolean))].sort()
     return {
       type: 'Feature',
@@ -63,13 +67,14 @@ export function resolveSiteFeatures(sites, { project, shapeFor = () => 'circle',
         record_count: site.recordCount,
         species_count: site.speciesCount,
         species: species.join('; '),
-        display_color: site.fill,
-        display_segments: site.segments.length > 1
-          ? site.segments.map(({ label, color, fraction }) => ({ label, color, fraction }))
+        display_color: segments.length === 1 ? segments[0].color : site.fill,
+        display_segments: segments.length > 1
+          ? segments.map(({ label, color, fraction }) => ({ label, color, fraction }))
           : null,
-        display_label: site.segments.length === 1 ? site.segments[0].label : null,
+        display_label: segments.length === 1 ? segments[0].label : null,
         display_size_factor: site.sizeFactor,
-        display_shape: site.segments.length > 1 ? 'circle' : shapeFor(site),
+        display_site_count: site.siteCount || 1,
+        display_shape: segments.length > 1 || site.siteCount > 1 ? 'circle' : shapeFor(site),
         display_stroke_color: strokeFor(site),
         display_sort_key: -site.individuals,
         screen_x: x,
@@ -148,7 +153,8 @@ export function snapshotLegend(container) {
     let textEl = el.querySelector('.legend-label') || el
     if (el.classList.contains('legend-title')) {
       type = 'title'
-      textEl = el.querySelector('span') || el
+      // The live title may be the species/subspecies switch; draw its active level.
+      textEl = el.querySelector('.legend-title-text, .level-option.active') || el.querySelector('span') || el
     } else if (el.classList.contains('legend-group-header')) {
       type = 'header'
       textEl = el.querySelector('.species-name') || el

@@ -40,7 +40,7 @@ test('draws one marker per site as pie or shape icons', async ({ page }) => {
   // Two species with shapes: triangles for single-species sites, pies for mixed ones.
   await page.evaluate(() => {
     shapeStores.data.filters.species = ['Mechanitis polymnia', 'Ithomia salapia']
-    shapeStores.data.colorBy = 'species'
+    shapeStores.data.setColorBy('species')
     shapeStores.legend.shapeSettings.enabled = true
     shapeStores.legend.setGroupShape('Mechanitis polymnia', 'triangle')
     shapeStores.legend.setCustomColor('Mechanitis polymnia', '#cc00ff')

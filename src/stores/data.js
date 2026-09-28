@@ -30,6 +30,7 @@ export const useDataStore = defineStore('data', () => {
 
     loadMapData,
     resetAllFilters,
+    setColorBy: view.setColorBy,
     getPhotoForItem: dataset.getPhotoForItem,
     getGoatForSpecies: dataset.getGoatForSpecies,
     hasGoatData: dataset.hasGoatData,

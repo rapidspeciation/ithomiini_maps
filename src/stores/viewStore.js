@@ -36,7 +36,20 @@ export const useViewStore = defineStore('view', () => {
   const rangeSettings = ref({ ...DEFAULT_RANGE_SETTINGS, ...getStorage('app-range-settings', DEFAULT_RANGE_SETTINGS) })
   // Site markers scale with individuals unless the user prefers equal sizes.
   const sizeByIndividuals = ref(getStorage('map-size-by-individuals', true))
-  const colorBy = ref(getStorage('map-color-by', 'species'))
+  const storedColorBy = getStorage('map-color-by', null)
+  const colorBy = ref(storedColorBy || 'species')
+  // Species or subspecies follows the filters until the user picks a level;
+  // that choice holds until Reset.
+  const colorByChosen = ref(!!storedColorBy)
+  const automaticColorBy = computed(() => {
+    const { species = [], subspecies = [] } = filterStore.filters
+    return species.length === 1 || subspecies.length > 0 ? 'subspecies' : 'species'
+  })
+  function setColorBy(value) {
+    colorByChosen.value = true
+    colorBy.value = value
+  }
+  watch(automaticColorBy, level => { if (!colorByChosen.value) colorBy.value = level }, { immediate: true })
 
   // Site markers overlap at regional zooms; a translucent fill keeps stacked
   // sites readable while the border stays crisp.
@@ -171,6 +184,8 @@ export const useViewStore = defineStore('view', () => {
   const resetVisualizationState = () => {
     visualizationMode.value = 'points'
     rangeSettings.value = { ...DEFAULT_RANGE_SETTINGS }
+    colorByChosen.value = false
+    colorBy.value = automaticColorBy.value
   }
 
   watch(() => filterStore.filters, syncURLState, { deep: true })
@@ -185,7 +200,7 @@ export const useViewStore = defineStore('view', () => {
   watch(visualizationMode, value => setStorage('app-visualization-mode', value))
   watch(heatmapSettings, value => setStorage('app-heatmap-settings', value), { deep: true })
   watch(rangeSettings, value => setStorage('app-range-settings', value), { deep: true })
-  watch(colorBy, value => setStorage('map-color-by', value))
+  watch(colorBy, value => { if (colorByChosen.value) setStorage('map-color-by', value) })
   watch(mapStyle, value => setStorage('map-style', value), { deep: true })
   watch([colorBy, mapStyle, sizeByIndividuals], () => { styleVersion.value++ }, { deep: true })
   watch(mapView, value => setStorage('map-view', value), { deep: true })
@@ -205,6 +220,8 @@ export const useViewStore = defineStore('view', () => {
     rangeSettings,
     sizeByIndividuals,
     colorBy,
+    colorByChosen,
+    setColorBy,
     mapStyle,
     styleVersion,
     legendSettings,
