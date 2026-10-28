@@ -47,9 +47,11 @@
 .logo-text {
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .logo-text .title {
+  white-space: nowrap;
   font-size: 1.25rem;
   font-weight: 600;
   color: var(--color-text-primary, #e0e0e0);
@@ -448,21 +450,9 @@
 .smart-search-label {
   white-space: nowrap;
 }
-.smart-search-tile kbd {
-  padding: 1px 5px;
-  border-radius: 3px;
-  background: rgba(74, 222, 128, 0.12);
-  border: 1px solid rgba(74, 222, 128, 0.25);
-  color: var(--color-accent, #4ade80);
-  font-size: 0.62rem;
-  font-family: inherit;
-}
 .smart-search-tile:hover {
   background: rgba(74, 222, 128, 0.15);
   border-color: rgba(74, 222, 128, 0.5);
-}
-.smart-search-tile:hover kbd {
-  background: rgba(74, 222, 128, 0.2);
 }
 
 /* Filter tile groups */
