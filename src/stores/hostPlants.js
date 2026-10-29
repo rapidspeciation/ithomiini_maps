@@ -50,6 +50,7 @@ export const useHostPlantStore = defineStore('hostPlants', () => {
   const autoSlugsByButterfly = ref(new Map())
   // Plants named by a shared link, kept until the metadata can resolve them.
   const pendingURLTaxa = ref(null)
+  let urlRead = false
   const countryBoundaries = shallowRef(null)
 
   const hostIdLevels = [
@@ -438,6 +439,8 @@ export const useHostPlantStore = defineStore('hostPlants', () => {
   }
 
   function appendURLParams(params) {
+    // A layer switched off (its plants kept) is left out of the link.
+    if (!enabled.value && !pendingURLTaxa.value && selectedTaxonSlugs.value.length) return
     if (filterButterflies.value.length) params.set('hp_bf', filterButterflies.value.join(','))
     if (!sameList(filterHostIdLevels.value, DEFAULT_HOST_ID_LEVELS)) params.set('hp_level', filterHostIdLevels.value.join(','))
     if (!sameList(filterEvidenceLevels.value, DEFAULT_EVIDENCE_LEVELS)) params.set('hp_evidence', filterEvidenceLevels.value.join(','))
@@ -449,6 +452,8 @@ export const useHostPlantStore = defineStore('hostPlants', () => {
       const selected = selectedTaxonSlugs.value
       const onlyAuto = filterButterflies.value.length > 0 && selected.length === auto.size && selected.every(slug => auto.has(slug))
       if (selected.length && !onlyAuto) params.set('hp_taxa', selected.join(','))
+      // Every plant of the butterflies unticked: an empty list keeps that.
+      else if (!selected.length && filterButterflies.value.length) params.set('hp_taxa', '')
     }
     if (Math.abs(opacity.value - 0.85) > 0.001 && (selectedTaxonSlugs.value.length || pendingURLTaxa.value)) {
       params.set('hp_opacity', String(Math.round(opacity.value * 100)))
@@ -461,11 +466,12 @@ export const useHostPlantStore = defineStore('hostPlants', () => {
    * `hp_opacity` in percent. The layer is on when the link names plants or butterflies.
    */
   function restoreFromURL(params) {
+    urlRead = true
     const butterflies = parseURLList(params.get('hp_bf'))
     const named = params.has('hp_taxa') ? parseURLList(params.get('hp_taxa')) : null
     const levels = parseURLList(params.get('hp_level')).filter(level => HOST_ID_KEYS.includes(level))
     let evidence = parseURLList(params.get('hp_evidence')).filter(level => EVIDENCE_KEYS.includes(level))
-    if (!evidence.length && EVIDENCE_FOR_CONFIDENCE[params.get('hp_conf')]) evidence = EVIDENCE_FOR_CONFIDENCE[params.get('hp_conf')]
+    if (!evidence.length && Object.hasOwn(EVIDENCE_FOR_CONFIDENCE, params.get('hp_conf') ?? '')) evidence = EVIDENCE_FOR_CONFIDENCE[params.get('hp_conf')]
     const shownOpacity = Number(params.get('hp_opacity'))
     if (params.has('hp_opacity') && shownOpacity >= 15 && shownOpacity <= 100) opacity.value = shownOpacity / 100
     if (levels.length) filterHostIdLevels.value = HOST_ID_KEYS.filter(key => levels.includes(key))
@@ -991,6 +997,9 @@ export const useHostPlantStore = defineStore('hostPlants', () => {
     () => useViewStore().syncURLState(),
     { deep: true },
   )
+  // The sidebar switches the layer on when it mounts, before the link is read: syncing then would
+  // write the URL without the link's filters. Switching it later updates the link.
+  watch(enabled, () => { if (urlRead) useViewStore().syncURLState() })
 
   return {
     manifest,

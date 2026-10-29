@@ -153,6 +153,13 @@ export function useHostPlantLayer(map, options = {}) {
       if (!outlines) countries = []
     }
     if (!map.value || run !== updateRun) return
+    // An older update that finished loading meanwhile may have rebuilt the shared records for its own plants.
+    const slugs = taxa.map(taxon => taxon.slug)
+    const dataset = hostPlantStore.occurrenceDataset
+    if (dataset?.metadata?.occurrence_store_version === 2 && !slugs.every(slug => dataset.metadata.loaded_slugs?.includes(slug))) {
+      await hostPlantStore.loadOccurrences(slugs)
+      if (!map.value || run !== updateRun) return
+    }
     const region = countries.length > 0 || bbox ? { countries, bbox } : null
     const collection = hostPlantStore.getOccurrenceCollectionForTaxa(taxa.map(taxon => taxon.slug), region)
     if (collection.features.length === 0) return

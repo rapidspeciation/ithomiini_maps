@@ -43,6 +43,8 @@ const bboxOf = polygons => {
   }
   return [w, s, e, n]
 }
+// Parts east of 0° (the Aleutians past the antimeridian) would stretch a country's box around the world.
+const western = polygon => polygon[0].some(([lng]) => lng < 0)
 
 const source = JSON.parse(readFileSync(input, 'utf8'))
 const countries = []
@@ -60,10 +62,12 @@ for (const feature of source.features) {
     continue
   }
   const kept = polygons
+    .filter(western)
     .map(polygon => polygon.map(ringOf).filter(Boolean))
     .filter(polygon => polygon.length > 0)
   if (kept.length === 0) continue
-  countries.push({ name, iso_a2: iso, bbox: bboxOf(kept), polygons: kept })
+  // `boxes`: each polygon's box, so a point is tested only against the polygons around it.
+  countries.push({ name, iso_a2: iso, bbox: bboxOf(kept), boxes: kept.map(polygon => bboxOf([polygon])), polygons: kept })
 }
 countries.sort((a, b) => a.name.localeCompare(b.name))
 

@@ -9,11 +9,29 @@
 // and in no country, is counted in it: 1:50m outlines cut off coastal records.
 export const COAST_TOLERANCE_DEG = 0.05
 
+// Each ring's edges by latitude band (BAND degrees), built once: a point is tested
+// only against the edges that cross its latitude.
+const BAND = 0.25
+const bandIndex = new WeakMap()
+function bandsOf(ring) {
+  let bands = bandIndex.get(ring)
+  if (bands) return bands
+  bands = new Map()
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const low = Math.floor(Math.min(ring[i][1], ring[j][1]) / BAND)
+    const high = Math.floor(Math.max(ring[i][1], ring[j][1]) / BAND)
+    for (let b = low; b <= high; b++) (bands.get(b) ?? bands.set(b, []).get(b)).push(j, i)
+  }
+  bandIndex.set(ring, bands)
+  return bands
+}
+
 function inRing(lng, lat, ring) {
   let inside = false
-  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
-    const [xi, yi] = ring[i]
-    const [xj, yj] = ring[j]
+  const edges = bandsOf(ring).get(Math.floor(lat / BAND)) || []
+  for (let k = 0; k < edges.length; k += 2) {
+    const [xj, yj] = ring[edges[k]]
+    const [xi, yi] = ring[edges[k + 1]]
     if ((yi > lat) !== (yj > lat) && lng < ((xj - xi) * (lat - yi)) / (yj - yi) + xi) inside = !inside
   }
   return inside
@@ -25,13 +43,20 @@ function inPolygon(lng, lat, polygon) {
   return true
 }
 
-const inBox = (lng, lat, [w, s, e, n], pad = 0) => lng >= w - pad && lng <= e + pad && lat >= s - pad && lat <= n + pad
+// `lngPad`: the margin in longitude (wider towards the poles for the same distance).
+const inBox = (lng, lat, [w, s, e, n], pad = 0, lngPad = pad) => lng >= w - lngPad && lng <= e + lngPad && lat >= s - pad && lat <= n + pad
 
 /** Squared distance (degrees, longitude scaled by latitude) from a point to a ring's edges. */
 function ringDistance2(lng, lat, ring) {
   const k = Math.cos((lat * Math.PI) / 180)
   let best = Infinity
-  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+  // Only edges in the bands within the coast margin can be that close.
+  const bands = bandsOf(ring)
+  const edges = []
+  for (let b = Math.floor((lat - COAST_TOLERANCE_DEG) / BAND); b <= Math.floor((lat + COAST_TOLERANCE_DEG) / BAND); b++) edges.push(...(bands.get(b) || []))
+  for (let e = 0; e < edges.length; e += 2) {
+    const j = edges[e]
+    const i = edges[e + 1]
     const ax = ring[j][0] * k
     const ay = ring[j][1]
     const bx = ring[i][0] * k
@@ -53,13 +78,15 @@ export function countryOfPoint(lng, lat, boundaries) {
   const countries = boundaries?.countries || []
   for (const country of countries) {
     if (!inBox(lng, lat, country.bbox)) continue
-    if (country.polygons.some(polygon => inPolygon(lng, lat, polygon))) return country.name
+    if (country.polygons.some((polygon, i) => (!country.boxes || inBox(lng, lat, country.boxes[i])) && inPolygon(lng, lat, polygon))) return country.name
   }
   let nearest = null
   let best = COAST_TOLERANCE_DEG ** 2
+  const lngPad = COAST_TOLERANCE_DEG / Math.max(0.05, Math.cos((lat * Math.PI) / 180))
   for (const country of countries) {
-    if (!inBox(lng, lat, country.bbox, COAST_TOLERANCE_DEG)) continue
-    for (const polygon of country.polygons) {
+    if (!inBox(lng, lat, country.bbox, COAST_TOLERANCE_DEG, lngPad)) continue
+    for (const [i, polygon] of country.polygons.entries()) {
+      if (country.boxes && !inBox(lng, lat, country.boxes[i], COAST_TOLERANCE_DEG, lngPad)) continue
       const d = ringDistance2(lng, lat, polygon[0])
       if (d <= best) {
         best = d
@@ -90,7 +117,8 @@ export function makeRegionTest({ countries = [], bbox = null } = {}, boundaries 
     if (box && !inBox(lng, lat, box)) return false
     if (asked.size === 0) return true
     // Cheap reject: outside every asked country's box (with the coast margin).
-    if (!outlines.some(country => inBox(lng, lat, country.bbox, COAST_TOLERANCE_DEG))) return false
+    const lngPad = COAST_TOLERANCE_DEG / Math.max(0.05, Math.cos((lat * Math.PI) / 180))
+    if (!outlines.some(country => inBox(lng, lat, country.bbox, COAST_TOLERANCE_DEG, lngPad))) return false
     return asked.has(fold(countryOfPoint(lng, lat, boundaries)))
   }
   test.unknownCountries = [...asked].filter(name => !known.has(name))

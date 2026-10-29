@@ -165,6 +165,52 @@ describe('host plant layer in the URL', () => {
     expect(reopened.selectedTaxonSlugs).toEqual(['species_mesechites_trifida', 'genus_prestonia'])
   })
 
+  it('leaves a switched-off layer out of the link, and keeps every plant unticked', async () => {
+    stubFetch()
+    useViewStore()
+    const store = useHostPlantStore()
+    await store.loadMetadata()
+    store.restoreFromURL(new URLSearchParams())
+    store.setFilterButterflies(['Tithorea harmonia'])
+    store.toggleEnabled()
+    await nextTick()
+    expect(store.enabled).toBe(false)
+    expect(urlParams().has('hp_bf')).toBe(false)
+    store.toggleEnabled()
+    store.setSelectedTaxa([])
+    await nextTick()
+    expect(urlParams().get('hp_bf')).toBe('Tithorea harmonia')
+    expect(urlParams().get('hp_taxa')).toBe('')
+    const shared = window.location.search
+    setActivePinia(createPinia())
+    window.history.replaceState({}, '', `/${shared}`)
+    const reopened = useHostPlantStore()
+    await reopened.restoreFromURL(urlParams())
+    expect(reopened.filterButterflies).toEqual(['Tithorea harmonia'])
+    expect(reopened.selectedTaxonSlugs).toEqual([])
+  })
+
+  it('does not rewrite the link when the sidebar switches the layer on before the link is read', async () => {
+    stubFetch()
+    window.history.replaceState({}, '', '/?sp=Tithorea%20harmonia&country=Ecuador&hp_bf=Tithorea%20harmonia')
+    useViewStore()
+    const store = useHostPlantStore()
+    store.toggleEnabled()
+    await nextTick()
+    expect(urlParams().get('hp_bf')).toBe('Tithorea harmonia')
+    expect(urlParams().get('country')).toBe('Ecuador')
+    useFilterStore().restoreFiltersFromURL()
+    await store.restoreFromURL(urlParams())
+    expect(store.selectedTaxonSlugs.length).toBe(2)
+  })
+
+  it('ignores an hp_conf that is not a confidence', async () => {
+    stubFetch()
+    const store = useHostPlantStore()
+    await store.restoreFromURL(new URLSearchParams('hp_bf=Tithorea%20harmonia&hp_conf=constructor'))
+    expect(store.filterEvidenceLevels).toEqual(['direct', 'literature'])
+  })
+
   it('keeps the link\'s plants in the URL while the metadata loads', async () => {
     let release
     const gate = new Promise(resolve => { release = resolve })
