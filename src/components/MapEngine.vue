@@ -53,6 +53,10 @@ let mapContainerResizeObserver = null
 
 // Enhanced popup state for multi-point locations
 const showEnhancedPopup = ref(false)
+const showNoRecords = computed(() =>
+  !store.loading && store.sourceLoading.size === 0 && !store.exportSettings.enabled &&
+  store.filteredGeoJSON?.features?.length === 0
+)
 const popupDocked = ref(false)
 const activeDock = computed(() => {
   if (store.exportSettings.enabled) return null
@@ -713,6 +717,11 @@ watch(() => planning.focusRequestId, () => {
 
     <SiteComparison v-if="!store.exportSettings.enabled" />
 
+    <div v-if="showNoRecords" class="map-empty-notice" role="status">
+      <span>No records match these filters.</span>
+      <button type="button" @click="store.resetAllFilters">Reset filters</button>
+    </div>
+
     <!-- Export info badge (shown when in export mode) -->
     <div v-if="store.exportSettings.enabled" class="export-info-badge">
       <span class="export-ratio">{{ store.exportSettings.aspectRatio }}</span>
@@ -1040,4 +1049,7 @@ watch(() => planning.focusRequestId, () => {
 .density-ramp { height: 9px; border-radius: 3px; background: linear-gradient(90deg, #3171a1, #428fac, #65b9ac, #b8dd9b, #f6e8a5); }
 .density-scale { display: flex; justify-content: space-between; margin-top: 4px; }
 @media (max-width: 600px) { .density-legend { right: 8px; width: 144px; } }
+.map-empty-notice { position: absolute; z-index: 3; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; align-items: center; gap: 12px; width: max-content; max-width: calc(100% - 32px); padding: 10px 12px 10px 16px; border-radius: 8px; color: var(--color-text-primary, #ecf0f3); background: var(--color-bg-secondary, #202234); border: 1px solid var(--color-border, #41445d); box-shadow: 0 4px 16px rgba(0,0,0,.25); font-size: 13px; }
+.map-empty-notice button { flex: none; padding: 6px 10px; border-radius: 6px; color: var(--color-accent, #4ade80); background: transparent; border: 1px solid var(--color-accent, #4ade80); font: inherit; cursor: pointer; }
+.map-empty-notice button:hover { background: rgba(74, 222, 128, 0.12); }
 </style>

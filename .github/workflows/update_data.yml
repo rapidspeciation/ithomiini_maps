@@ -28,6 +28,7 @@ jobs:
 
     permissions:
       contents: write  # Needed to commit changes
+      actions: write  # Needed to start the site's publishing once the data is committed
 
     steps:
       - name: Checkout repository
@@ -114,6 +115,14 @@ jobs:
           Workflow run: ${{ github.run_id }}"
 
           git push
+
+      # A push made with the workflow's own token starts no other workflow: the site is published here.
+      - name: Publish the site
+        if: steps.check_changes.outputs.changes == 'true'
+        run: gh workflow run deploy.yml --ref main
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
 
       - name: Report no changes
         if: steps.check_changes.outputs.changes == 'false'

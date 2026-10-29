@@ -519,7 +519,7 @@ const updateExportHeight = (value) => {
       <button
         type="button"
         class="smart-search-tile"
-        title="Search across all taxa, countries, mimicry rings, and more"
+        title="Search across all taxa, countries, mimicry rings, and more (Ctrl+K or ⌘K)"
         @click="$emit('open-global-search')"
       >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -527,7 +527,6 @@ const updateExportHeight = (value) => {
           <path d="m21 21-4.3-4.3"/>
         </svg>
         <span class="smart-search-label">Smart Search</span>
-        <kbd>⌘K</kbd>
       </button>
     </header>
 
@@ -585,7 +584,7 @@ const updateExportHeight = (value) => {
             <polyline points="21 15 16 10 5 21"/>
           </svg>
           <span>Gallery</span>
-          <span class="badge" v-if="imageCount > 0">{{ imageCount }}</span>
+          <span class="badge" v-if="imageCount > 0">{{ imageCount.toLocaleString() }}</span>
         </button>
         <button v-if="config.features.mimicrySelector" class="action-btn" @click="emit('open-mimicry')">
           <img src="../assets/Mimicry_bttn.svg" alt="Mimicry" class="mimicry-icon" />

@@ -133,6 +133,7 @@ function focus(site) {
 <style scoped>
 .site-comparison { position: absolute; top: 0; right: 0; z-index: 25; display: flex; flex-direction: column; box-sizing: border-box; width: 380px; height: 100%; color: var(--color-text-primary, #e0e0e0); background: var(--color-bg-primary, #1a1a2e); border-left: 1px solid var(--color-border, #3d3d5c); box-shadow: -4px 0 20px rgba(0,0,0,.3); overflow: hidden; font-size: .82rem; }
 .field-sites-tab { position: absolute; right: 0; top: 210px; z-index: 24; display: flex; align-items: center; justify-content: center; gap: 2px; width: 48px; height: 48px; padding: 0 6px 0 2px; border: 1px solid var(--color-border); border-right: 0; border-radius: 10px 0 0 10px; color: var(--color-text-primary); background: var(--color-bg-primary); box-shadow: -3px 3px 10px rgba(0,0,0,.15); }
+@media (max-width: 768px) { .field-sites-tab { top: 270px; } }
 .field-sites-tab:hover { color: var(--color-accent); background: var(--color-bg-secondary); }
 .field-sites-slide-enter-active, .field-sites-slide-leave-active { transition: transform 200ms cubic-bezier(.22, 1, .36, 1); }
 .field-sites-slide-enter-from, .field-sites-slide-leave-to { transform: translateX(100%); }

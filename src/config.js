@@ -13,8 +13,9 @@ export default {
   dataDir: '/data/',
   manifestFile: 'data_manifest.json',
 
-  // Database update (set via environment variables for security)
-  workerUrl: import.meta.env.VITE_WORKER_URL || '',
+  // Database update
+  // The Cloudflare Worker that starts the «Update Database» workflow (scripts/cloudflare-worker.js).
+  workerUrl: import.meta.env.VITE_WORKER_URL || 'https://ithomiini-maps-db-updater.franz-chandi.workers.dev/',
   githubOwner: import.meta.env.VITE_GITHUB_OWNER || 'rapidspeciation',
   githubRepo: import.meta.env.VITE_GITHUB_REPO || 'ithomiini_maps',
 

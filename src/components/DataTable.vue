@@ -1902,8 +1902,10 @@ const exportTableCsv = () => {
 /* Header Bar */
 .table-header {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
+  gap: 8px 16px;
   padding: 12px 16px;
   background: var(--color-bg-primary, #1a1a2e);
   border-bottom: 1px solid var(--color-border, #3d3d5c);
@@ -1931,8 +1933,10 @@ const exportTableCsv = () => {
 
 .header-right {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   align-items: center;
-  gap: 12px;
+  gap: 8px 12px;
   position: relative;
 }
 
@@ -2401,6 +2405,17 @@ const exportTableCsv = () => {
 }
 
 /* Cell Types */
+/* Keep short labels and dates on one line instead of breaking them. */
+.record-count,
+.page-info,
+.table-theme-trigger,
+.view-mode-toggle button,
+.column-filter-toggle,
+.btn-columns,
+.cell-date {
+  white-space: nowrap;
+}
+
 .cell-id {
   font-family: monospace;
   font-size: 0.8rem;
