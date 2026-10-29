@@ -6,6 +6,7 @@ import { useColorMapping } from './dataColorPalette'
 import { useLegendStore } from './legend'
 import { useFilterStore } from './filterStore'
 import { usePlanningStore } from './planning'
+import { useHostPlantStore } from './hostPlants'
 
 export const useViewStore = defineStore('view', () => {
   const filterStore = useFilterStore()
@@ -155,6 +156,7 @@ export const useViewStore = defineStore('view', () => {
     appendVisualizationURLParams(params)
     // Resolve the planning store only when syncing, after both stores finish setup.
     usePlanningStore().appendURLParams(params)
+    useHostPlantStore().appendURLParams(params)
 
     const newURL = params.toString()
       ? `${window.location.pathname}?${params}`
@@ -165,6 +167,7 @@ export const useViewStore = defineStore('view', () => {
   const restoreVisualizationFromURL = () => {
     const params = new URLSearchParams(window.location.search)
     usePlanningStore().restoreFromURL(params)
+    useHostPlantStore().restoreFromURL(params)
     if (params.get('cluster_style') === 'plain') clusterSettings.value.compositionRings = false
     else if (params.get('cluster_style') === 'composition') clusterSettings.value.compositionRings = true
 

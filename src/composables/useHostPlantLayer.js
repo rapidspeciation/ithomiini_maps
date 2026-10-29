@@ -1,5 +1,6 @@
 import { watch } from 'vue'
 import { useHostPlantStore } from '../stores/hostPlants'
+import { useFilterStore } from '../stores/filterStore'
 import { removeLayerAndSource } from '../utils/mapHelpers'
 import { log } from '../utils/logger'
 import { generateColoredShapeImage, getColoredShapeImageName } from '../utils/shapes'
@@ -16,8 +17,11 @@ export function getHostPlantActiveTaxa(hostPlantStore) {
 
 export function useHostPlantLayer(map, options = {}) {
   const hostPlantStore = useHostPlantStore()
+  const filterStore = useFilterStore()
   const { onShowPopup } = options
   const layerHandlers = new Map()
+  // Each update's number: an update overtaken by a newer one while loading draws nothing.
+  let updateRun = 0
 
   function layerId(slug) {
     return `${LAYER_PREFIX}-${slug}`
@@ -134,12 +138,23 @@ export function useHostPlantLayer(map, options = {}) {
     layerHandlers.set(lid, handlers)
   }
 
-  async function addUnifiedLayer() {
+  async function addUnifiedLayer(run) {
     await hostPlantStore.loadMetadata()
     const taxa = getHostPlantActiveTaxa(hostPlantStore)
     await hostPlantStore.loadOccurrences(taxa.map(taxon => taxon.slug))
-    if (!map.value) return
-    const collection = hostPlantStore.getOccurrenceCollectionForTaxa(taxa.map(taxon => taxon.slug))
+    // The country filter and the drawn box limit the plant records too.
+    const bbox = filterStore.boundingBox
+    let countries = filterStore.filters.country || []
+    if (countries.length > 0) {
+      const outlines = await hostPlantStore.loadCountryBoundaries().catch(error => {
+        log.map.error('Host plants: country outlines unavailable; plant records not limited by country', error)
+        return null
+      })
+      if (!outlines) countries = []
+    }
+    if (!map.value || run !== updateRun) return
+    const region = countries.length > 0 || bbox ? { countries, bbox } : null
+    const collection = hostPlantStore.getOccurrenceCollectionForTaxa(taxa.map(taxon => taxon.slug), region)
     if (collection.features.length === 0) return
 
     try { removeLayerAndSource(map.value, LAYER_ID, SOURCE_ID) } catch { /* */ }
@@ -175,9 +190,10 @@ export function useHostPlantLayer(map, options = {}) {
 
   async function updateLayer() {
     if (!map.value) return
+    const run = ++updateRun
     removeAllLayers()
     if (!hostPlantStore.enabled) return
-    await addUnifiedLayer()
+    await addUnifiedLayer(run)
   }
 
   watch(
@@ -185,6 +201,8 @@ export function useHostPlantLayer(map, options = {}) {
       hostPlantStore.enabled,
       hostPlantStore.selectedTaxonSlugs.slice().join('|'),
       hostPlantStore.taxa.length,
+      (filterStore.filters.country || []).join('|'),
+      JSON.stringify(filterStore.boundingBox),
     ],
     () => { updateLayer().catch(error => log.map.error('Host plants: layer update failed', error)) }
   )

@@ -221,6 +221,12 @@ watch(() => store.filters.collectionLocation, locations => {
     enabledOtherFilters.value = new Set([...enabledOtherFilters.value, 'collectionLocation'])
   }
 }, { immediate: true, deep: true })
+// A country from a shared link shows its filter, which also limits the host plant layer.
+watch(() => store.filters.country, countries => {
+  if (countries.length > 0 && !enabledOtherFilters.value.has('country')) {
+    enabledOtherFilters.value = new Set([...enabledOtherFilters.value, 'country'])
+  }
+}, { immediate: true, deep: true })
 const syncStandaloneFilterStores = () => {
   if (enabledOtherFilters.value.has('sdm') && !sdmStore.enabled) sdmStore.toggle()
   if (enabledOtherFilters.value.has('hostplants') && !hostPlantStore.enabled) hostPlantStore.toggleEnabled()
@@ -308,12 +314,11 @@ const HOST_BUTTERFLY_COLORS = [
   '#84cc16',
 ]
 
-const selectedHostIdLevels = ref(['species'])
-const selectedHostEvidenceLevels = ref(['direct', 'literature'])
-const selectedHostButterflyValues = ref([])
-const autoHostPlantSlugsByButterfly = ref(new Map())
+// The choices live in the host plant store, which keeps them in the URL.
+const selectedHostIdLevels = computed(() => hostPlantStore.filterHostIdLevels)
+const selectedHostEvidenceLevels = computed(() => hostPlantStore.filterEvidenceLevels)
 const selectedButterfliesForHostPlants = computed(() =>
-  selectedHostButterflyValues.value.filter(Boolean)
+  hostPlantStore.filterButterflies.filter(Boolean)
 )
 
 const selectedHostButterflyColorMap = computed(() => {
@@ -349,13 +354,13 @@ const hostPlantButterflyOptions = computed(() =>
 )
 const selectedHostButterflyOptions = computed({
   get() {
-    return selectedHostButterflyValues.value.map(value => (
+    return selectedButterfliesForHostPlants.value.map(value => (
       hostPlantButterflyOptions.value.find(option => option.value === value)
       || { label: value, value, color: selectedHostButterflyColorMap.value.get(value) }
     ))
   },
   set(options) {
-    selectedHostButterflyValues.value = (options || []).map(option => option.value || option).filter(Boolean)
+    hostPlantStore.setFilterButterflies((options || []).map(option => option.value || option).filter(Boolean))
   }
 })
 const hostPlantTaxaForSelection = computed(() => {
@@ -427,7 +432,7 @@ const toggleHostPlantIdLevel = (level) => {
   } else {
     selected.add(level)
   }
-  selectedHostIdLevels.value = hostPlantStore.hostIdLevels.map(item => item.key).filter(key => selected.has(key))
+  hostPlantStore.setFilterHostIdLevels([...selected])
 }
 
 const toggleHostEvidenceLevel = (level) => {
@@ -438,38 +443,9 @@ const toggleHostEvidenceLevel = (level) => {
   } else {
     selected.add(level)
   }
-  selectedHostEvidenceLevels.value = hostPlantStore.evidenceLevels.map(item => item.key).filter(key => selected.has(key))
+  hostPlantStore.setFilterEvidenceLevels([...selected])
 }
 
-watch([selectedButterfliesForHostPlants, selectedHostIdLevels, selectedHostEvidenceLevels], () => {
-  const previousAutoSlugs = new Set()
-  for (const slugs of autoHostPlantSlugsByButterfly.value.values()) {
-    for (const slug of slugs) previousAutoSlugs.add(slug)
-  }
-
-  const nextByButterfly = new Map()
-  for (const butterfly of selectedButterfliesForHostPlants.value) {
-    const taxa = hostPlantStore.getTaxaForButterflies([butterfly], {
-      hostIdLevels: selectedHostIdLevels.value,
-      evidenceLevels: selectedHostEvidenceLevels.value,
-    })
-    const slugs = new Set(
-      taxa
-        .filter(taxon => taxon.occurrence_count > 0 && ['species', 'genus'].includes(taxon.rank))
-        .map(taxon => taxon.slug)
-    )
-    nextByButterfly.set(butterfly, slugs)
-  }
-
-  const nextAutoSlugs = new Set()
-  for (const slugs of nextByButterfly.values()) {
-    for (const slug of slugs) nextAutoSlugs.add(slug)
-  }
-
-  const manual = hostPlantStore.selectedTaxonSlugs.filter(slug => !previousAutoSlugs.has(slug))
-  hostPlantStore.setSelectedTaxa([...manual, ...nextAutoSlugs])
-  autoHostPlantSlugsByButterfly.value = nextByButterfly
-}, { deep: true })
 
 hostPlantStore.loadMetadata().catch(() => {})
 
@@ -1339,6 +1315,10 @@ const updateExportHeight = (value) => {
 
             <p v-if="currentView !== 'map'" class="filter-hint">
               Host plant selections are used by the map overlay; the Host Plants table summarizes all associations.
+            </p>
+
+            <p v-if="hostPlantStore.selectedTaxonSlugs.length > 0 && store.filters.country.length > 0" class="filter-hint">
+              Plant records shown only in {{ store.filters.country.join(', ') }} (placed by coordinates).
             </p>
 
             <p class="filter-hint">

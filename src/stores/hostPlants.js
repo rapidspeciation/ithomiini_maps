@@ -1,6 +1,22 @@
 import { defineStore } from 'pinia'
-import { computed, ref, shallowRef } from 'vue'
+import { computed, ref, shallowRef, watch } from 'vue'
 import { getHostPlantImage, hostPlantRecordToFeature } from '../utils/hostPlantGallery'
+import { makeRegionTest } from '../utils/countryLookup'
+import { useViewStore } from './viewStore'
+
+const HOST_ID_KEYS = ['species', 'genus', 'family']
+const EVIDENCE_KEYS = ['direct', 'literature', 'needs_check']
+const DEFAULT_HOST_ID_LEVELS = ['species']
+const DEFAULT_EVIDENCE_LEVELS = ['direct', 'literature']
+// Shared links can name a confidence instead of evidence levels (`hp_conf`).
+const EVIDENCE_FOR_CONFIDENCE = {
+  high: ['direct'],
+  medium: ['direct', 'literature'],
+  low: ['direct', 'literature', 'needs_check'],
+}
+const URL_LIST_MAX = 60
+const sameList = (a, b) => a.length === b.length && a.every((value, index) => value === b[index])
+const parseURLList = value => (value ? value.split(',').map(item => item.trim()).filter(Boolean).slice(0, URL_LIST_MAX) : [])
 
 export const useHostPlantStore = defineStore('hostPlants', () => {
   const manifest = ref(null)
@@ -25,6 +41,16 @@ export const useHostPlantStore = defineStore('hostPlants', () => {
   const galleryVisibleLimitBySlug = ref({})
   const galleryPhotoContextOrder = ref(['field', 'ambiguous', 'preserved'])
   const galleryDateOrder = ref('desc')
+  // The Host Plant Filters' choices: the butterflies whose host plants are shown,
+  // and the host ID levels and evidence those plants are chosen at.
+  const filterButterflies = ref([])
+  const filterHostIdLevels = ref([...DEFAULT_HOST_ID_LEVELS])
+  const filterEvidenceLevels = ref([...DEFAULT_EVIDENCE_LEVELS])
+  // Plants chosen through each butterfly (the rest of the selection was picked by hand).
+  const autoSlugsByButterfly = ref(new Map())
+  // Plants named by a shared link, kept until the metadata can resolve them.
+  const pendingURLTaxa = ref(null)
+  const countryBoundaries = shallowRef(null)
 
   const hostIdLevels = [
     { key: 'species', label: 'Species', description: 'Exact host plant species reported.' },
@@ -346,6 +372,121 @@ export const useHostPlantStore = defineStore('hostPlants', () => {
           matchMeta: `Butterfly: ${matchedButterflies.slice(0, 3).join(', ')}${matchedButterflies.length > 3 ? ` +${matchedButterflies.length - 3} more` : ''}`,
         }
       })
+  }
+
+  function autoSlugsForButterflies() {
+    const byButterfly = new Map()
+    for (const butterfly of filterButterflies.value) {
+      const taxaForButterfly = getTaxaForButterflies([butterfly], {
+        hostIdLevels: filterHostIdLevels.value,
+        evidenceLevels: filterEvidenceLevels.value,
+      })
+      byButterfly.set(butterfly, new Set(
+        taxaForButterfly
+          .filter(taxon => taxon.occurrence_count > 0 && ['species', 'genus'].includes(taxon.rank))
+          .map(taxon => taxon.slug)
+      ))
+    }
+    return byButterfly
+  }
+
+  /** Swap the plants chosen through butterflies for the current choice; plants picked by hand stay. */
+  function refreshButterflySelection() {
+    const previousAuto = new Set([...autoSlugsByButterfly.value.values()].flatMap(slugs => [...slugs]))
+    const nextByButterfly = autoSlugsForButterflies()
+    const nextAuto = new Set([...nextByButterfly.values()].flatMap(slugs => [...slugs]))
+    const manual = selectedTaxonSlugs.value.filter(slug => !previousAuto.has(slug))
+    setSelectedTaxa([...manual, ...nextAuto])
+    autoSlugsByButterfly.value = nextByButterfly
+  }
+
+  function setFilterButterflies(names) {
+    filterButterflies.value = [...new Set((names || []).filter(Boolean))]
+    refreshButterflySelection()
+  }
+
+  function setFilterHostIdLevels(levels) {
+    const selected = new Set(levels || [])
+    const next = HOST_ID_KEYS.filter(key => selected.has(key))
+    filterHostIdLevels.value = next.length ? next : [...DEFAULT_HOST_ID_LEVELS]
+    refreshButterflySelection()
+  }
+
+  function setFilterEvidenceLevels(levels) {
+    const selected = new Set(levels || [])
+    const next = EVIDENCE_KEYS.filter(key => selected.has(key))
+    filterEvidenceLevels.value = next.length ? next : [...DEFAULT_EVIDENCE_LEVELS]
+    refreshButterflySelection()
+  }
+
+  /** A plant named in a link, by slug or by name ("Mesechites trifida"), as its slug. */
+  function slugForURLTaxon(value) {
+    if (taxaBySlug.value.has(value)) return value
+    const wanted = String(value).trim().toLowerCase()
+    return taxa.value.find(taxon => taxon.canonical_name?.toLowerCase() === wanted)?.slug || null
+  }
+
+  /** The shared link's plants and butterflies, once the metadata is loaded. */
+  function applyURLSelection() {
+    const byButterfly = autoSlugsForButterflies()
+    const auto = [...new Set([...byButterfly.values()].flatMap(slugs => [...slugs]))]
+    const named = pendingURLTaxa.value
+    const slugs = named ? named.map(slugForURLTaxon).filter(Boolean) : auto
+    autoSlugsByButterfly.value = byButterfly
+    pendingURLTaxa.value = null
+    setSelectedTaxa(slugs)
+  }
+
+  function appendURLParams(params) {
+    if (filterButterflies.value.length) params.set('hp_bf', filterButterflies.value.join(','))
+    if (!sameList(filterHostIdLevels.value, DEFAULT_HOST_ID_LEVELS)) params.set('hp_level', filterHostIdLevels.value.join(','))
+    if (!sameList(filterEvidenceLevels.value, DEFAULT_EVIDENCE_LEVELS)) params.set('hp_evidence', filterEvidenceLevels.value.join(','))
+    if (pendingURLTaxa.value) {
+      if (pendingURLTaxa.value.length) params.set('hp_taxa', pendingURLTaxa.value.join(','))
+    } else {
+      // The plants are written only when they are not just the chosen butterflies' plants.
+      const auto = new Set([...autoSlugsByButterfly.value.values()].flatMap(slugs => [...slugs]))
+      const selected = selectedTaxonSlugs.value
+      const onlyAuto = filterButterflies.value.length > 0 && selected.length === auto.size && selected.every(slug => auto.has(slug))
+      if (selected.length && !onlyAuto) params.set('hp_taxa', selected.join(','))
+    }
+    if (Math.abs(opacity.value - 0.85) > 0.001 && (selectedTaxonSlugs.value.length || pendingURLTaxa.value)) {
+      params.set('hp_opacity', String(Math.round(opacity.value * 100)))
+    }
+  }
+
+  /**
+   * A shared link's host-plant layer: `hp_bf` butterflies, `hp_taxa` plant slugs or names,
+   * `hp_level` host ID levels, `hp_evidence` evidence levels (or `hp_conf` high, medium or low),
+   * `hp_opacity` in percent. The layer is on when the link names plants or butterflies.
+   */
+  function restoreFromURL(params) {
+    const butterflies = parseURLList(params.get('hp_bf'))
+    const named = params.has('hp_taxa') ? parseURLList(params.get('hp_taxa')) : null
+    const levels = parseURLList(params.get('hp_level')).filter(level => HOST_ID_KEYS.includes(level))
+    let evidence = parseURLList(params.get('hp_evidence')).filter(level => EVIDENCE_KEYS.includes(level))
+    if (!evidence.length && EVIDENCE_FOR_CONFIDENCE[params.get('hp_conf')]) evidence = EVIDENCE_FOR_CONFIDENCE[params.get('hp_conf')]
+    const shownOpacity = Number(params.get('hp_opacity'))
+    if (params.has('hp_opacity') && shownOpacity >= 15 && shownOpacity <= 100) opacity.value = shownOpacity / 100
+    if (levels.length) filterHostIdLevels.value = HOST_ID_KEYS.filter(key => levels.includes(key))
+    if (evidence.length) filterEvidenceLevels.value = EVIDENCE_KEYS.filter(key => evidence.includes(key))
+    if (!butterflies.length && !named) return false
+    filterButterflies.value = [...new Set(butterflies)]
+    pendingURLTaxa.value = named
+    enabled.value = true
+    return loadMetadata()
+      .then(() => { applyURLSelection(); return true })
+      .catch(() => false)
+  }
+
+  /** The country outlines the country filter places plant records with (loaded once, when needed). */
+  async function loadCountryBoundaries() {
+    if (countryBoundaries.value) return countryBoundaries.value
+    const basePath = import.meta.env.BASE_URL || '/'
+    const response = await fetch(`${basePath}data/country_boundaries.json`)
+    if (!response.ok) throw new Error('Unable to load country outlines')
+    countryBoundaries.value = await response.json()
+    return countryBoundaries.value
   }
 
   function toggleEnabled() {
@@ -821,10 +962,16 @@ export const useHostPlantStore = defineStore('hostPlants', () => {
     galleryDateOrder.value = order === 'asc' ? 'asc' : 'desc'
   }
 
-  function getOccurrenceCollectionForTaxa(slugs = selectedTaxonSlugs.value) {
+  /**
+   * The selected taxa's records as GeoJSON. `region` ({ countries, bbox }) keeps the records
+   * inside those countries (placed with the country outlines) and that box.
+   */
+  function getOccurrenceCollectionForTaxa(slugs = selectedTaxonSlugs.value, region = null) {
     const selected = new Set((slugs || []).filter(Boolean))
+    const inRegion = region ? makeRegionTest(region, countryBoundaries.value) : null
     const features = (occurrenceDataset.value?.records || [])
       .filter(record => selected.has(record?.host_taxon_slug))
+      .filter(record => !inRegion || inRegion(Number(record.lng), Number(record.lat)))
       .map(record => hostPlantRecordToFeature(record))
     return {
       type: 'FeatureCollection',
@@ -838,6 +985,12 @@ export const useHostPlantStore = defineStore('hostPlants', () => {
       .filter(record => record?.host_taxon_slug === slug)
       .length
   }
+
+  watch(
+    [selectedTaxonSlugs, filterButterflies, filterHostIdLevels, filterEvidenceLevels, pendingURLTaxa, opacity],
+    () => useViewStore().syncURLState(),
+    { deep: true },
+  )
 
   return {
     manifest,
@@ -896,5 +1049,18 @@ export const useHostPlantStore = defineStore('hostPlants', () => {
     setGalleryDateOrder,
     getOccurrenceCollectionForTaxa,
     occurrenceCountForSlug,
+    filterButterflies,
+    filterHostIdLevels,
+    filterEvidenceLevels,
+    autoSlugsByButterfly,
+    pendingURLTaxa,
+    countryBoundaries,
+    setFilterButterflies,
+    setFilterHostIdLevels,
+    setFilterEvidenceLevels,
+    refreshButterflySelection,
+    appendURLParams,
+    restoreFromURL,
+    loadCountryBoundaries,
   }
 })
