@@ -14,6 +14,8 @@ import LegendItem from './LegendItem.vue'
 import LegendToolbar from './LegendToolbar.vue'
 import LegendGroupHeader from './LegendGroupHeader.vue'
 import LegendGroupStylePopup from './LegendGroupStylePopup.vue'
+import { unknownLegendLabel } from '../../utils/exportMetadata'
+import { OTHER_COLOR } from '../../utils/colorPlan'
 
 const props = defineProps({
   containerRef: {
@@ -868,6 +870,18 @@ onUnmounted(() => {
         <span class="more-dot" />
         Other · {{ colorPlan.otherGroupCount.toLocaleString() }} {{ groupNoun }}
         <span v-if="legendStore.showCounts" class="more-count">{{ colorPlan.otherRecordCount.toLocaleString() }}</span>
+      </div>
+
+      <!-- ?export=1: records with no usable value (e.g. subspecies = species name) get their own row,
+           so the legend counts add up to the records on the map. -->
+      <div
+        v-if="dataStore.exportMode && colorPlan.missing > 0"
+        class="legend-more legend-other legend-unknown"
+        :style="{ fontSize: fontSize + 'px' }"
+      >
+        <span class="more-dot" :style="{ background: OTHER_COLOR }" />
+        {{ unknownLegendLabel(dataStore.colorBy) }}
+        <span class="more-count">{{ colorPlan.missing.toLocaleString() }}</span>
       </div>
 
       <!-- More indicator: coloured rows that do not fit; tap to scroll them. -->

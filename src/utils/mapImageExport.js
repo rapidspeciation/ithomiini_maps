@@ -57,7 +57,9 @@ export function captureMapImage(map, settings, options) {
   return withMapExport(map, () => captureImage(map, settings, options))
 }
 
-async function captureImage(map, settings, { capture = toPng, settle = settleLayout } = {}) {
+// `onSettled(map)` runs once the map is idle at the export pixel ratio, right
+// before the capture, so anything it reads describes the captured picture.
+async function captureImage(map, settings, { capture = toPng, settle = settleLayout, onSettled } = {}) {
   const { width, height } = imageExportDimensions(settings)
   const container = map.getContainer()
   if (!container.clientWidth || !container.clientHeight) throw new Error('Open the map view before exporting an image.')
@@ -66,8 +68,16 @@ async function captureImage(map, settings, { capture = toPng, settle = settleLay
   const attribution = container.querySelector('.maplibregl-ctrl-attrib')
   const attributionWasOpen = attribution?.hasAttribute('open')
   const backgroundColor = getComputedStyle(container).getPropertyValue('--color-bg-primary').trim() || '#1a1a2e'
+  // The preview frame (dashed accent border and shadow) must not reach the
+  // picture. html-to-image copies computed styles, so a clone-only style does
+  // not remove it; change the live element (border width stays, so the map
+  // keeps its size) and restore it below.
+  const liveBorderColor = container.style.borderColor
+  const liveBoxShadow = container.style.boxShadow
   let dataUrl
   try {
+    container.style.borderColor = 'transparent'
+    container.style.boxShadow = 'none'
     // The Include Attribution option means readable credits in the figure,
     // including when the user keeps the interactive control collapsed.
     if (settings.includeAttribution) attribution?.setAttribute('open', '')
@@ -76,13 +86,14 @@ async function captureImage(map, settings, { capture = toPng, settle = settleLay
     map.setPixelRatio(pixelRatio)
     map.triggerRepaint()
     await waitForMapIdle(map)
+    if (onSettled) await onSettled(map)
     dataUrl = await capture(container, {
       pixelRatio, backgroundColor,
-      // Hide the frame only on the clone, preserving the live map dimensions.
-      style: { borderColor: 'transparent', boxShadow: 'none' },
       filter: node => includeExportNode(node, settings),
     })
   } finally {
+    container.style.borderColor = liveBorderColor
+    container.style.boxShadow = liveBoxShadow
     if (attribution && !attributionWasOpen) attribution.removeAttribute('open')
     map.setPixelRatio(originalPixelRatio)
     map.triggerRepaint()

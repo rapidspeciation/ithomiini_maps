@@ -23,3 +23,37 @@ Sites with several colour groups are pies in legend order. To stay readable at m
 **R export.** `data.geojson` holds the displayed site markers (individuals, species, colour or pie slices, size factor, projected position) and `records.geojson` every filtered record. Merged markers are exported as drawn (`display_site_count` > 1, with an inner border). `generate_map.R` draws pies with `draw_pie()` and scales each marker by `display_size_factor`; `palette_overrides` also applies to pie slices.
 
 Run `node scripts/benchmark-locality-labels.mjs` against a running preview to measure label placement cost.
+
+## Link parameters for the picture, and export mode
+
+`style=<basemap key>` (for example `light`, `terrain`), `color_by=<subspecies|species|genus|status|mimicry|source>` and
+`bbox=w,s,e,n` (degrees) are read from the link and kept in it when the app rewrites the address. `bbox` only frames
+the map (MapLibre `fitBounds`, padding 32 px, maximum zoom 12, no animation, and no automatic fit to the data
+afterwards); it never filters. Moving the map by hand removes `bbox`. Unknown values are ignored.
+
+`export=1` turns on a fixed export mode (never stored): export preview at 4:3, a 760 x 570 CSS px frame, a 1600 x 1200
+PNG, legend, scale bar and credits on, a title strip composed from the active filters (taxon · sex · country; no text
+from the link), and a legend row "Unknown subspecies · N" for records whose subspecies is the species name or
+undecided. The viewport must be large enough for the 760 x 570 frame beside the sidebar (for example 1280 x 720).
+
+In export mode `window.ithomiiniMapsExport()` (no arguments) waits for the data, style, framing and site labels,
+then runs the same capture as the Export Image button and returns, instead of downloading:
+
+```
+{ version: 1, png_base64, width: 1600, height: 1200,
+  params: { applied: {name: value}, ignored: [names] },
+  basemap, color_by, title,
+  view: { bbox: [w, s, e, n], center: [lng, lat], zoom, frame: {width, height}, fit: {padding: 32, max_zoom: 12},
+          bbox_requested },
+  records: [{ source, id, sex, country, year, date, subspecies, lng, lat }],   // whole filtered set, map fields
+  legend: { unit: 'records', rows: [{ label, records, unknown }], truncated },
+  sites: [{ marker: 'site'|'merged'|'cluster', lng, lat, center_in_view, records, merged_sites,
+            label, labels, members: [{ key, locality, record_ids: ['source|id'] }] }],
+  unmatched_labels }
+```
+
+`records` is the whole filtered set (also outside the frame); `view` is the camera actually drawn; `sites` are the
+markers MapLibre drew, read when the map was settled for the capture, with the labels drawn for them (`label` is null
+when none is drawn) and the localities merged into each marker. `year` follows the app's date rule (two-digit years
+above 25 are left undated). Use a fresh browser profile: stored legend settings (hidden items, counts off) would
+change the picture.

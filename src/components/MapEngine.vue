@@ -22,6 +22,9 @@ import { useSDMLayer } from '../composables/useSDMLayer'
 import { useHostPlantLayer } from '../composables/useHostPlantLayer'
 import { usePlanningStore } from '../stores/planning'
 import { parseSharedMapView } from '../utils/sharedMapView'
+import { EXPORT_BBOX_MAX_ZOOM, EXPORT_BBOX_PADDING, EXPORT_FRAME, exportTitle, parseBbox } from '../utils/exportMetadata'
+import { waitForMapIdle } from '../utils/mapImageExport'
+import { readClusterLeaves } from '../utils/clusterLeaves'
 import { useLocalityLayer } from '../composables/useLocalityLayer'
 import { useClusterComposition } from '../composables/useClusterComposition'
 import { HEATMAP_RAMPS } from '../composables/useDataLayer'
@@ -48,6 +51,14 @@ const isDarkBasemap = () => MAP_STYLES[currentStyle.value]?.theme === 'night' ||
 const localityLayer = useLocalityLayer(map, { isDarkBasemap })
 const clusterComposition = useClusterComposition(map)
 const sharedView = parseSharedMapView(new URLSearchParams(window.location.search).get('map_view'))
+// `bbox=w,s,e,n` frames the map once (it never filters); it wins over map_view.
+const linkedBbox = parseBbox(new URLSearchParams(window.location.search).get('bbox'))
+const frameFromLink = Boolean(sharedView || linkedBbox)
+let mapLoaded = false
+// The linked bbox keeps framing the map (e.g. once the hidden map gets its size) until the visitor moves it.
+let bboxActive = Boolean(linkedBbox)
+let siteRegistry = null
+let layerUpdates = 0
 
 // Wrapper size (the available space) for accurate export preview calculations
 const wrapperSize = ref({ width: 1600, height: 900 })
@@ -220,12 +231,14 @@ const toggleDock = () => {
 }
 
 const { addDataLayer, fitBoundsToData, clearClusterExtentCircle, recreateClusterExtentCircle, updateClusterExtentColors, setStyleChanging } = useDataLayer(map, { onShowPopup: handleShowPopup, isDarkBasemap, onDataChanged: (data, sites) => {
+  siteRegistry = sites
+  layerUpdates++
   localityLayer.invalidate(data, sites)
   clusterComposition.invalidate(data, sites)
 } })
 const { currentStyle, switchStyle } = useStyleSwitcher(map, addDataLayer, {
   // Carto Positron or Dark Matter, as the page
-  initialStyle: themeStore.isDarkMode ? 'dark' : 'light',
+  initialStyle: store.basemap || (themeStore.isDarkMode ? 'dark' : 'light'),
   recreateClusterExtentCircle,
   setStyleChanging,
   onStyleStart: () => invalidatePendingSDM(),
@@ -289,11 +302,12 @@ const themeDropdownRef = ref(null)
 const themeOptions = getThemeOptions()
 
 // The basemap follows light/dark until the visitor picks one in the layers menu.
-const basemapChosen = ref(false)
+const basemapChosen = ref(Boolean(store.basemap))
 
 // Select a map style from dropdown
 const selectMapStyle = (styleKey) => {
   basemapChosen.value = true
+  store.basemap = styleKey
   switchStyle(styleKey)
   showMapLayerDropdown.value = false
 }
@@ -344,6 +358,9 @@ const mapContainerStyle = computed(() => {
   if (!store.exportSettings.enabled) {
     return {} // Full size when not in export mode
   }
+  // ?export=1 always uses one frame, so text has one size in every picture.
+  // content-box: the map itself is 760 x 570; the preview border sits outside it.
+  if (store.exportMode) return { width: `${EXPORT_FRAME.width}px`, height: `${EXPORT_FRAME.height}px`, boxSizing: 'content-box' }
 
   const ratio = store.exportSettings.aspectRatio
   let targetWidth, targetHeight
@@ -447,8 +464,12 @@ const initMap = () => {
   map.value = new maplibregl.Map({
     container: mapContainer.value,
     style: styleConfig.style,
-    center: sharedView?.center || [-60, -5],
-    zoom: sharedView?.zoom || 4,
+    center: (!linkedBbox && sharedView?.center) || [-60, -5],
+    zoom: (!linkedBbox && sharedView?.zoom) || 4,
+    // A linked bbox is the starting camera, so tiles load once at that zoom
+    // (jumping there right after the first data load broke symbol queries).
+    ...(linkedBbox ? { bounds: [[linkedBbox[0], linkedBbox[1]], [linkedBbox[2], linkedBbox[3]]],
+      fitBoundsOptions: linkedBboxFit() } : {}),
     attributionControl: false,
     maxZoom: 18,
     minZoom: 2,
@@ -466,15 +487,23 @@ const initMap = () => {
     // Shape images are generated on-demand in addDataLayer
     localityLayer.attach()
     clusterComposition.attach()
-    addDataLayer({ skipZoom: Boolean(sharedView) })
+    addDataLayer({ skipZoom: frameFromLink })
+    mapLoaded = true
     updateHostPlantLayer()
     updateSDMLayer()
     emit('map-ready', map.value)
   })
 
-  map.value.on('moveend', () => {
+  map.value.on('resize', () => { if (bboxActive) fitLinkedBbox({ resize: false }) })
+
+  map.value.on('moveend', (event) => {
     const center = map.value.getCenter()
     const params = new URLSearchParams(window.location.search)
+    // The visitor moved away from the linked frame: share where they are now.
+    if (event.originalEvent) {
+      params.delete('bbox')
+      bboxActive = false
+    }
     params.set('map_view', [center.lng.toFixed(5), center.lat.toFixed(5), map.value.getZoom().toFixed(2)].join(','))
     window.history.replaceState({}, '', `${window.location.pathname}?${params}`)
   })
@@ -550,7 +579,7 @@ watch(
     const dataLengthChanged = newLength !== previousDataLength
     previousDataLength = newLength
 
-    const shouldSkipZoom = Boolean(sharedView) || !dataLengthChanged || clusteringJustToggled
+    const shouldSkipZoom = frameFromLink || !dataLengthChanged || clusteringJustToggled
 
     // Reset the clustering flag after we've used it
     if (clusteringJustToggled) {
@@ -700,6 +729,121 @@ watch(() => planning.focusRequestId, () => {
   closeEnhancedPopup()
   map.value.flyTo({ center: site.coordinates, zoom: Math.max(map.value.getZoom(), 11), duration: 600 })
 })
+
+// Title strip of ?export=1, composed from the active filters only.
+const exportTitleText = computed(() => exportTitle(store.filters))
+
+function linkedBboxFit() {
+  return { padding: EXPORT_BBOX_PADDING, maxZoom: EXPORT_BBOX_MAX_ZOOM }
+}
+
+/** Re-frame the linked bbox for the measured container, without animation, only if the camera differs. */
+function fitLinkedBbox({ resize = true } = {}) {
+  if (!linkedBbox || !map.value) return
+  const m = map.value
+  if (resize) m.resize()
+  const [w, s, e, n] = linkedBbox
+  const camera = m.cameraForBounds([[w, s], [e, n]], linkedBboxFit())
+  if (!camera) return
+  const target = maplibregl.LngLat.convert(camera.center)
+  const center = m.getCenter()
+  if (Math.abs(center.lng - target.lng) < 1e-7 && Math.abs(center.lat - target.lat) < 1e-7 &&
+    Math.abs(m.getZoom() - camera.zoom) < 1e-4 && !m.getBearing()) return
+  m.jumpTo({ center: target, zoom: camera.zoom, bearing: 0 })
+}
+
+const nextFrame = () => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+async function waitUntil(condition, deadline, message) {
+  while (!condition()) {
+    if (performance.now() > deadline) throw new Error(message)
+    await new Promise(resolve => setTimeout(resolve, 50))
+  }
+}
+
+/**
+ * Before a scripted export: style and data layer in place, linked bbox framed in
+ * the current frame size, the map idle and site labels laid out for this view.
+ */
+async function prepareExport({ timeoutMs = 30000 } = {}) {
+  const deadline = performance.now() + timeoutMs
+  await waitUntil(() => mapLoaded && isMapReady() && map.value.isStyleLoaded() && layerUpdates > 0 &&
+    !addDataLayerTimer, deadline, 'The map layers did not finish loading for export.')
+  fitLinkedBbox()
+  await waitUntil(() => !map.value.isMoving(), deadline, 'The map did not stop moving for export.')
+  // Two clean label passes; MapLibre can throw from a symbol query while a
+  // source update is still being placed, so a failed pass waits and retries.
+  let clean = 0
+  let lastError = null
+  while (clean < 2) {
+    if (performance.now() > deadline) throw new Error(`The site labels did not settle for export: ${lastError?.message || 'unknown error'}`)
+    await waitForMapIdle(map.value, Math.max(1000, deadline - performance.now()))
+    await nextFrame()
+    try {
+      await localityLayer.refresh()
+      clean++
+    } catch (error) {
+      lastError = error
+      clean = 0
+      await new Promise(resolve => setTimeout(resolve, 250))
+    }
+  }
+  await nextFrame()
+  await waitForMapIdle(map.value, Math.max(1000, deadline - performance.now()))
+}
+
+/** Rows hidden behind "+ N more" or the legend's scrollbar are not in the picture. */
+function legendTruncated(container) {
+  if (container.querySelector('.legend-container .legend-more--button')) return true
+  const content = container.querySelector('.legend-container .legend-content')
+  return Boolean(content && content.scrollHeight > content.clientHeight + 1)
+}
+
+/** The drawn camera, markers and labels; called by the capture once the map is settled. */
+async function collectExportState() {
+  const m = map.value
+  const bounds = m.getBounds()
+  const center = m.getCenter()
+  const container = m.getContainer()
+  const view = {
+    bbox: [bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()],
+    center: [center.lng, center.lat],
+    zoom: m.getZoom(),
+    frame: { width: container.clientWidth, height: container.clientHeight },
+    fit: { padding: EXPORT_BBOX_PADDING, max_zoom: EXPORT_BBOX_MAX_ZOOM },
+    bbox_requested: linkedBbox,
+  }
+  const layers = ['points-layer', 'clusters'].filter(id => m.getLayer(id))
+  const rendered = layers.length ? m.queryRenderedFeatures({ layers }) : []
+  const source = m.getSource('points-source')
+  const seen = new Set()
+  const markers = []
+  for (const feature of rendered) {
+    const props = feature.properties || {}
+    const isCluster = Boolean(props.cluster)
+    const key = isCluster ? `c:${props.cluster_id}` : `s:${props.site_key}`
+    if (seen.has(key)) continue
+    seen.add(key)
+    if (isCluster) {
+      const leaves = await readClusterLeaves(source, props.cluster_id, props.point_count)
+      const [lng, lat] = feature.geometry.coordinates
+      markers.push({ kind: siteRegistry?.merged ? 'merged' : 'cluster', id: props.cluster_id, lng, lat,
+        records: siteRegistry ? siteRegistry.records(leaves) : [] })
+    } else {
+      const site = siteRegistry?.get(props.site_key)
+      if (!site) continue
+      markers.push({ kind: 'site', id: site.key, lng: site.coordinates[0], lat: site.coordinates[1], records: site.records })
+    }
+  }
+  return {
+    view,
+    basemap: currentStyle.value,
+    markers,
+    labels: localityLayer.placedLabels(),
+    legendTruncated: legendTruncated(container),
+  }
+}
+
+defineExpose({ prepareExport, collectExportState })
 </script>
 
 <template>
@@ -714,6 +858,7 @@ watch(() => planning.focusRequestId, () => {
         <strong>Record density</strong>
         <div class="density-ramp" :style="{ background: densityRamp }"></div><div class="density-scale"><span>Lower</span><span>Higher</span></div>
       </div>
+      <div v-if="store.exportMode" class="export-title-strip">{{ exportTitleText }}</div>
       <!-- Legend Component (customizable, draggable) -->
       <Legend
         v-if="store.exportSettings.includeLegend || !store.exportSettings.enabled"

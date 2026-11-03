@@ -54,6 +54,8 @@ export function useLocalityLayer(map, { isDarkBasemap = () => false } = {}) {
   let frameId
   let lastHighlightKey = null
   const sourceContents = new Map()
+  // Labels of the latest layout, as drawn (for export metadata).
+  let placed = []
 
   /** `siteRegistry` (from the data layer) sizes markers and expands cluster leaves. */
   function invalidate(data, siteRegistry) {
@@ -385,6 +387,7 @@ export function useLocalityLayer(map, { isDarkBasemap = () => false } = {}) {
       hovered = null
       selectedFeature = null
       planning.setLabeledSites([])
+      placed = []
       await render([], [], 'disabled')
       return
     }
@@ -462,6 +465,7 @@ export function useLocalityLayer(map, { isDarkBasemap = () => false } = {}) {
     ]
     const laidOut = layoutFeatures(labels, callouts, clustered ? rendered : undefined, { byRecords })
     selectedFeature = laidOut.placedCallouts.find(f => f.properties.selected) || null
+    placed = [...laidOut.placedLabels, ...laidOut.placedCallouts]
     planning.setLabeledSites([...laidOut.placedLabels, ...laidOut.placedCallouts]
       .map(f => f.properties.siteId).filter(Boolean))
     await render(laidOut.placedLabels, laidOut.placedCallouts, key)
@@ -552,5 +556,10 @@ export function useLocalityLayer(map, { isDarkBasemap = () => false } = {}) {
     m?.off('mouseleave', leave)
     m?.off('click', backgroundClick)
   }
-  return { invalidate, refresh, attach, cleanup }
+  /** Placed labels: text, and the marker they name (`clusterId`, or `anchorKey` = [siteId, lng, lat]). */
+  function placedLabels() {
+    return placed.map(feature => ({ label: feature.properties.label, clusterId: feature.properties.clusterId ?? null,
+      anchorKey: feature.properties.anchorKey ?? null, siteId: feature.properties.siteId ?? null }))
+  }
+  return { invalidate, refresh, attach, cleanup, placedLabels }
 }

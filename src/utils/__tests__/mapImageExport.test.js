@@ -48,4 +48,35 @@ describe('image export composition', () => {
     expect(container.classList.contains('map-export-preview')).toBe(true)
     expect(container.querySelector('details').open).toBe(false)
   })
+  it('hides the live preview border and shadow during capture and restores them afterwards', async () => {
+    const container = document.createElement('div')
+    container.className = 'map map-export-preview'
+    container.style.borderColor = 'rgb(1, 2, 3)'
+    container.style.boxShadow = '0 0 30px red'
+    Object.defineProperties(container, { clientWidth: { value: 800 }, clientHeight: { value: 600 } })
+    const map = { loaded: () => true, getContainer: () => container, getPixelRatio: () => 1,
+      setPixelRatio: vi.fn(), triggerRepaint: vi.fn(), on: vi.fn(), off: vi.fn() }
+    const seen = []
+    const settings = { aspectRatio: 'custom', customWidth: 800, customHeight: 600, dpi: 100 }
+    for (const fail of [true, false]) {
+      const attempt = captureMapImage(map, settings, {
+        settle: async () => {},
+        onSettled: async () => { seen.push(['settled', container.style.borderColor, container.style.boxShadow, map.setPixelRatio.mock.lastCall[0]]) },
+        capture: async (node, options) => {
+          seen.push(['capture', node.style.borderColor, node.style.boxShadow])
+          expect(options.style).toBeUndefined()
+          if (fail) throw new Error('capture failed')
+          return 'data:image/png;base64,'
+        },
+      })
+      // Decoding the stub image is outside this test; only the frame state matters.
+      await attempt.catch(() => {})
+      expect(container.style.borderColor).toBe('rgb(1, 2, 3)')
+      expect(container.style.boxShadow).toBe('0 0 30px red')
+    }
+    expect(seen).toEqual([
+      ['settled', 'transparent', 'none', 1], ['capture', 'transparent', 'none'],
+      ['settled', 'transparent', 'none', 1], ['capture', 'transparent', 'none'],
+    ])
+  })
 })

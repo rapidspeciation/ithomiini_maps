@@ -7,9 +7,16 @@ import { useLegendStore } from './legend'
 import { useFilterStore } from './filterStore'
 import { usePlanningStore } from './planning'
 import { useHostPlantStore } from './hostPlants'
+import { MAP_STYLES } from '../utils/mapStyles'
+import { parseColorByParam, parseStyleParam } from '../utils/exportMetadata'
 
 export const useViewStore = defineStore('view', () => {
   const filterStore = useFilterStore()
+  const initialParams = new URLSearchParams(window.location.search)
+  // ?export=1: fixed picture settings for scripted exports (never stored).
+  const exportMode = initialParams.get('export') === '1'
+  // Basemap named by the link (`style=`) or chosen in the layers menu; null follows the theme.
+  const basemap = ref(parseStyleParam(initialParams.get('style'), Object.keys(MAP_STYLES)) ?? (exportMode ? 'light' : null))
   const { filteredGeoJSON: filteredGeoJSONRef } = storeToRefs(filterStore)
 
   const clusteringEnabled = ref(getStorage('app-clustering-enabled', false))
@@ -88,7 +95,11 @@ export const useViewStore = defineStore('view', () => {
   }
   const storedExportSettings = getStorage('app-export-settings', defaultExportSettings)
   storedExportSettings.enabled = false
-  const exportSettings = ref(storedExportSettings)
+  // Export mode: 4:3 at 1600 x 1200, legend, scale bar and credits, no size knobs.
+  const exportSettings = ref(exportMode ? {
+    ...defaultExportSettings, enabled: true, aspectRatio: '4:3', dpi: 100, format: 'png', uiScale: 1,
+    includeLegend: true, includeScaleBar: true, includeAttribution: true,
+  } : storedExportSettings)
 
   const mapView = ref(getStorage('map-view', {
     center: [-60, -5],
@@ -147,15 +158,21 @@ export const useViewStore = defineStore('view', () => {
   const syncURLState = () => {
     const params = new URLSearchParams()
     const existing = new URLSearchParams(window.location.search)
-    for (const key of ['view', 'map_view']) {
+    // bbox frames once and is dropped when the visitor moves the map (MapEngine).
+    for (const key of ['view', 'map_view', 'bbox', 'export']) {
       if (existing.has(key)) params.set(key, existing.get(key))
     }
+    if (basemap.value) params.set('style', basemap.value)
+    if (colorByChosen.value) params.set('color_by', colorBy.value)
     const collapsed = useLegendStore().collapsedSpecies || []
     if (collapsed.length) params.set('legend_closed', JSON.stringify(collapsed))
     filterStore.appendFilterURLParams(params)
     appendVisualizationURLParams(params)
     // Resolve the planning store only when syncing, after both stores finish setup.
-    usePlanningStore().appendURLParams(params)
+    const planning = usePlanningStore()
+    planning.appendURLParams(params)
+    // The layer is on by default; an explicit sites=1 in the link stays while it is on.
+    if (existing.get('sites') === '1' && planning.localitySettings.enabled && !params.has('sites')) params.set('sites', '1')
     useHostPlantStore().appendURLParams(params)
 
     const newURL = params.toString()
@@ -166,6 +183,8 @@ export const useViewStore = defineStore('view', () => {
 
   const restoreVisualizationFromURL = () => {
     const params = new URLSearchParams(window.location.search)
+    const linkedColorBy = parseColorByParam(params.get('color_by'))
+    if (linkedColorBy) setColorBy(linkedColorBy)
     usePlanningStore().restoreFromURL(params)
     useHostPlantStore().restoreFromURL(params)
     if (params.get('cluster_style') === 'plain') clusterSettings.value.compositionRings = false
@@ -196,6 +215,7 @@ export const useViewStore = defineStore('view', () => {
   watch(visualizationMode, syncURLState)
   watch(() => clusterSettings.value.compositionRings, syncURLState)
   watch(rangeSettings, syncURLState, { deep: true })
+  watch([basemap, colorBy, colorByChosen], syncURLState)
 
   watch(clusteringEnabled, value => setStorage('app-clustering-enabled', value))
   watch(clusterSettings, value => setStorage('app-cluster-settings', value), { deep: true })
@@ -208,6 +228,7 @@ export const useViewStore = defineStore('view', () => {
   watch([colorBy, mapStyle, sizeByIndividuals], () => { styleVersion.value++ }, { deep: true })
   watch(mapView, value => setStorage('map-view', value), { deep: true })
   watch(exportSettings, value => {
+    if (exportMode) return
     const toStore = { ...value }
     toStore.enabled = false
     setStorage('app-export-settings', toStore)
@@ -229,6 +250,8 @@ export const useViewStore = defineStore('view', () => {
     styleVersion,
     legendSettings,
     exportSettings,
+    exportMode: computed(() => exportMode),
+    basemap,
     mapView,
     getPointsAtCoordinates,
     groupPointsBySpecies,

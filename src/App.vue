@@ -12,6 +12,9 @@ import ImageGallery from './components/ImageGallery.vue'
 import CommandPaletteDialog from './components/sidebar/CommandPaletteDialog.vue'
 import { exportForR } from './utils/rExport'
 import { captureMapImage } from './utils/mapImageExport'
+import { buildExportResult, describeURLParams } from './utils/exportMetadata'
+import { MAP_STYLES } from './utils/mapStyles'
+import { useLegendStore } from './stores/legend'
 import { checkAllTiers, extractGoogleDriveFileId } from './utils/imageProxy'
 import { log } from './utils/logger'
 
@@ -45,6 +48,7 @@ const exportPanelInitialTab = ref('export') // 'export' for data, 'citation' for
 
 // Map reference for export
 const mapRef = shallowRef(null)
+const mapEngineRef = ref(null)
 
 // View control
 const setView = (view) => {
@@ -80,6 +84,9 @@ const openImageGallery = (mode = 'butterflies') => {
 }
 const closeImageGallery = () => { showImageGallery.value = false }
 
+// One capture path for the Export Image button and window.ithomiiniMapsExport().
+const renderMapImage = (options) => captureMapImage(mapRef.value, { ...store.exportSettings }, options)
+
 // Capture is serialized so concurrent clicks cannot race pixel ratio restoration.
 const isExportingMap = ref(false)
 const directExportMap = async () => {
@@ -90,7 +97,7 @@ const directExportMap = async () => {
   }
   isExportingMap.value = true
   try {
-    const { blob, width, height, format } = await captureMapImage(mapRef.value, { ...store.exportSettings })
+    const { blob, width, height, format } = await renderMapImage()
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.download = `wings_atlas_map_${width}x${height}_${Date.now()}.${format}`
@@ -102,6 +109,54 @@ const directExportMap = async () => {
     alert('Export failed: ' + error.message)
   } finally {
     isExportingMap.value = false
+  }
+}
+
+const blobToBase64 = blob => new Promise((resolve, reject) => {
+  const reader = new FileReader()
+  reader.onload = () => resolve(String(reader.result).slice(String(reader.result).indexOf(',') + 1))
+  reader.onerror = () => reject(reader.error || new Error('The picture could not be read.'))
+  reader.readAsDataURL(blob)
+})
+
+/**
+ * ?export=1 only: the picture the Export Image button would download, as
+ * base64, with what it shows (docs/field-sites.md). Waits for its own readiness.
+ */
+const linkParams = describeURLParams(window.location.search, { styleKeys: Object.keys(MAP_STYLES) })
+let pendingExport = null
+const exportForScript = async () => {
+  const deadline = performance.now() + 40000
+  while (store.loading || !store.allFeatures.length || store.sourceLoading.size > 0 || !mapRef.value || !mapEngineRef.value) {
+    if (performance.now() > deadline) throw new Error('The map data did not finish loading for export.')
+    await new Promise(resolve => setTimeout(resolve, 50))
+  }
+  if (currentView.value !== 'map') setView('map')
+  await mapEngineRef.value.prepareExport({ timeoutMs: Math.max(1000, deadline - performance.now()) })
+  let state = null
+  const { blob, width, height } = await renderMapImage({
+    onSettled: async () => { state = await mapEngineRef.value.collectExportState() },
+  })
+  const hidden = new Set(useLegendStore().hiddenItems)
+  const features = (store.displayGeoJSON?.features || []).filter(f => !hidden.has(f.properties[store.colorByAttribute]))
+  return buildExportResult({
+    pngBase64: await blobToBase64(blob), width, height,
+    params: linkParams,
+    basemap: state.basemap,
+    colorBy: store.colorBy,
+    title: mapEngineRef.value.$el?.querySelector?.('.export-title-strip')?.textContent?.trim() ?? null,
+    view: state.view,
+    features,
+    plan: store.colorPlan,
+    legendTruncated: state.legendTruncated,
+    markers: state.markers,
+    labels: state.labels,
+  })
+}
+if (store.exportMode) {
+  window.ithomiiniMapsExport = () => {
+    pendingExport ??= exportForScript().finally(() => { pendingExport = null })
+    return pendingExport
   }
 }
 
@@ -211,6 +266,7 @@ onMounted(async () => {
 
       <!-- Map View -->
       <MapEngine
+        ref="mapEngineRef"
         v-show="!store.loading && currentView === 'map'"
         class="view-container"
         @map-ready="onMapReady"
