@@ -22,12 +22,14 @@ import { useSDMLayer } from '../composables/useSDMLayer'
 import { useHostPlantLayer } from '../composables/useHostPlantLayer'
 import { usePlanningStore } from '../stores/planning'
 import { parseSharedMapView } from '../utils/sharedMapView'
-import { EXPORT_BBOX_MAX_ZOOM, EXPORT_BBOX_PADDING, EXPORT_FRAME, exportTitle, parseBbox } from '../utils/exportMetadata'
+import { EXPORT_BBOX_MAX_ZOOM, EXPORT_BBOX_PADDING, EXPORT_FRAME, exportSites, exportTitle, occlusionScore, overlayRects, parseBbox } from '../utils/exportMetadata'
+import { clusterCircleRadius } from '../utils/clusterComposition'
+import { MERGED_SIZE_CAP, markerSizeFactor } from '../utils/sites'
 import { waitForMapIdle } from '../utils/mapImageExport'
 import { readClusterLeaves } from '../utils/clusterLeaves'
 import { useLocalityLayer } from '../composables/useLocalityLayer'
 import { useClusterComposition } from '../composables/useClusterComposition'
-import { HEATMAP_RAMPS } from '../composables/useDataLayer'
+import { HEATMAP_RAMPS, visibleSiteRadius } from '../composables/useDataLayer'
 import SiteComparison from './SiteComparison.vue'
 import { useThemeStore } from '../stores/theme'
 import { getThemeOptions } from '../themes/presets'
@@ -48,7 +50,8 @@ const map = shallowRef(null)
 let popup = null
 // Satellite imagery reads like a dark basemap for label contrast.
 const isDarkBasemap = () => MAP_STYLES[currentStyle.value]?.theme === 'night' || currentStyle.value === 'satellite'
-const localityLayer = useLocalityLayer(map, { isDarkBasemap })
+// ?export=1: site labels stay clear of the title strip, legend, scale bar and credits.
+const localityLayer = useLocalityLayer(map, { isDarkBasemap, obstacles: () => (store.exportMode ? exportOverlays() : []) })
 const clusterComposition = useClusterComposition(map)
 const sharedView = parseSharedMapView(new URLSearchParams(window.location.search).get('map_view'))
 // `bbox=w,s,e,n` frames the map once (it never filters); it wins over map_view.
@@ -57,6 +60,10 @@ const frameFromLink = Boolean(sharedView || linkedBbox)
 let mapLoaded = false
 // The linked bbox keeps framing the map (e.g. once the hidden map gets its size) until the visitor moves it.
 let bboxActive = Boolean(linkedBbox)
+// True while fitLinkedBbox itself moves the camera, so its own moveend keeps the bbox.
+let ownFit = false
+const legendRef = ref(null)
+let legendChoice = null
 let siteRegistry = null
 let layerUpdates = 0
 
@@ -496,11 +503,13 @@ const initMap = () => {
 
   map.value.on('resize', () => { if (bboxActive) fitLinkedBbox({ resize: false }) })
 
-  map.value.on('moveend', (event) => {
+  map.value.on('moveend', () => {
     const center = map.value.getCenter()
     const params = new URLSearchParams(window.location.search)
-    // The visitor moved away from the linked frame: share where they are now.
-    if (event.originalEvent) {
+    // Any move but the bbox fit itself (the visitor, a fly-to, a search) ends the linked
+    // frame: share where the map is now. A moveend that left the camera on the fitted
+    // frame (a resize refitted by the handler above, a style switch) keeps it.
+    if (bboxActive && !ownFit && !atLinkedFrame()) {
       params.delete('bbox')
       bboxActive = false
     }
@@ -737,19 +746,36 @@ function linkedBboxFit() {
   return { padding: EXPORT_BBOX_PADDING, maxZoom: EXPORT_BBOX_MAX_ZOOM }
 }
 
+function linkedBboxCamera() {
+  const [w, s, e, n] = linkedBbox
+  const camera = map.value.cameraForBounds([[w, s], [e, n]], linkedBboxFit())
+  return camera ? { center: maplibregl.LngLat.convert(camera.center), zoom: camera.zoom } : null
+}
+
+/** The camera is the linked bbox's fit for the current size (true when that cannot be computed yet). */
+function atLinkedFrame() {
+  if (!linkedBbox || !map.value) return false
+  const camera = linkedBboxCamera()
+  if (!camera) return true
+  const m = map.value
+  const center = m.getCenter()
+  return Math.abs(center.lng - camera.center.lng) < 1e-7 && Math.abs(center.lat - camera.center.lat) < 1e-7 &&
+    Math.abs(m.getZoom() - camera.zoom) < 1e-4 && !m.getBearing()
+}
+
 /** Re-frame the linked bbox for the measured container, without animation, only if the camera differs. */
 function fitLinkedBbox({ resize = true } = {}) {
   if (!linkedBbox || !map.value) return
   const m = map.value
-  if (resize) m.resize()
-  const [w, s, e, n] = linkedBbox
-  const camera = m.cameraForBounds([[w, s], [e, n]], linkedBboxFit())
-  if (!camera) return
-  const target = maplibregl.LngLat.convert(camera.center)
-  const center = m.getCenter()
-  if (Math.abs(center.lng - target.lng) < 1e-7 && Math.abs(center.lat - target.lat) < 1e-7 &&
-    Math.abs(m.getZoom() - camera.zoom) < 1e-4 && !m.getBearing()) return
-  m.jumpTo({ center: target, zoom: camera.zoom, bearing: 0 })
+  ownFit = true
+  try {
+    if (resize) m.resize()
+    const camera = linkedBboxCamera()
+    if (!camera || atLinkedFrame()) return
+    m.jumpTo({ center: camera.center, zoom: camera.zoom, bearing: 0 })
+  } finally {
+    ownFit = false
+  }
 }
 
 const nextFrame = () => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
@@ -760,18 +786,10 @@ async function waitUntil(condition, deadline, message) {
   }
 }
 
-/**
- * Before a scripted export: style and data layer in place, linked bbox framed in
- * the current frame size, the map idle and site labels laid out for this view.
- */
-async function prepareExport({ timeoutMs = 30000 } = {}) {
-  const deadline = performance.now() + timeoutMs
-  await waitUntil(() => mapLoaded && isMapReady() && map.value.isStyleLoaded() && layerUpdates > 0 &&
-    !addDataLayerTimer, deadline, 'The map layers did not finish loading for export.')
-  fitLinkedBbox()
-  await waitUntil(() => !map.value.isMoving(), deadline, 'The map did not stop moving for export.')
-  // Two clean label passes; MapLibre can throw from a symbol query while a
-  // source update is still being placed, so a failed pass waits and retries.
+/** Site labels laid out for the current view and overlays: two clean passes after the map is idle. */
+async function settleLabels(deadline) {
+  // MapLibre can throw from a symbol query while a source update is still being
+  // placed, so a failed pass waits and retries.
   let clean = 0
   let lastError = null
   while (clean < 2) {
@@ -787,8 +805,127 @@ async function prepareExport({ timeoutMs = 30000 } = {}) {
       await new Promise(resolve => setTimeout(resolve, 250))
     }
   }
+}
+
+/** How many drawn markers (and their records) the overlays cover at the current placement. */
+async function currentOcclusion() {
+  const state = await collectExportState()
+  const { sites } = exportSites(state.markers, state.labels, null, { frame: state.view.frame, overlays: state.overlays })
+  return occlusionScore(sites)
+}
+
+const LEGEND_CORNERS = ['bottom-right', 'bottom-left']
+const fewerHidden = (a, b) => a.records < b.records || (a.records === b.records && a.sites < b.sites)
+
+/**
+ * ?export=1: keep the legend where it is unless it covers a drawn marker or label;
+ * then try the bottom corners (the top ones would cover the title strip) and keep the
+ * placement that covers the fewest records. Labels are laid out again around it.
+ */
+async function chooseLegendPlacement(deadline) {
+  const legend = legendRef.value
+  const start = legend?.exportPlacement?.()
+  if (!start) { legendChoice = null; return }
+  let best = { placement: start, score: await currentOcclusion() }
+  let tried = 1
+  if (best.score.sites > 0) {
+    for (const corner of LEGEND_CORNERS) {
+      legend.setExportCorner(corner)
+      await nextTick()
+      localityLayer.invalidate()
+      await settleLabels(deadline)
+      const score = await currentOcclusion()
+      tried++
+      if (fewerHidden(score, best.score)) best = { placement: legend.exportPlacement(), score }
+      if (!score.sites) break
+    }
+    const now = legend.exportPlacement()
+    if (now.corner !== best.placement.corner || now.x !== best.placement.x || now.y !== best.placement.y) {
+      legend.restoreExportPlacement(best.placement)
+      await nextTick()
+      localityLayer.invalidate()
+      await settleLabels(deadline)
+    }
+  }
+  legendChoice = { corner: best.placement.corner, placements_tried: tried,
+    occluded_sites: best.score.sites, occluded_records: best.score.records }
+}
+
+/**
+ * Before a scripted export: style and data layer in place, linked bbox framed in
+ * the current frame size, the map idle, the legend placed and site labels laid
+ * out for this view.
+ */
+async function prepareExport({ timeoutMs = 30000 } = {}) {
+  const deadline = performance.now() + timeoutMs
+  await waitUntil(() => mapLoaded && isMapReady() && map.value.isStyleLoaded() && layerUpdates > 0 &&
+    !addDataLayerTimer, deadline, 'The map layers did not finish loading for export.')
+  fitLinkedBbox()
+  await waitUntil(() => !map.value.isMoving(), deadline, 'The map did not stop moving for export.')
+  // Labels avoid the overlays as they are now.
+  localityLayer.invalidate()
+  await settleLabels(deadline)
+  if (store.exportMode) await chooseLegendPlacement(deadline)
   await nextFrame()
   await waitForMapIdle(map.value, Math.max(1000, deadline - performance.now()))
+}
+
+const OVERLAY_SELECTORS = [
+  ['title', '.export-title-strip'],
+  ['legend', '.legend-container'],
+  ['legend', '.density-legend'],
+  ['scale', '.maplibregl-ctrl-scale'],
+  ['attribution', '.maplibregl-ctrl-attrib'],
+]
+
+/** Title strip, legend, scale bar and credits as boxes in CSS px of the canvas (export metadata). */
+function exportOverlays() {
+  const m = map.value
+  if (!m) return []
+  const container = m.getContainer()
+  const settings = store.exportSettings
+  const boxes = []
+  for (const [kind, selector] of OVERLAY_SELECTORS) {
+    if (kind === 'legend' && !settings.includeLegend) continue
+    if (kind === 'scale' && !settings.includeScaleBar) continue
+    if (kind === 'attribution' && !settings.includeAttribution) continue
+    for (const node of container.querySelectorAll(selector)) {
+      if (getComputedStyle(node).visibility === 'hidden') continue
+      boxes.push({ kind, rect: node.getBoundingClientRect() })
+    }
+  }
+  return overlayRects(boxes, m.getCanvas().getBoundingClientRect())
+}
+
+/** Outer radius (CSS px) of a drawn marker, as the data layer draws it, with its light halo or ring. */
+function drawnMarkerRadius(kind, { sizeFactor = 1, individuals = 1 } = {}) {
+  const zoom = map.value.getZoom()
+  const style = { pointSize: 10, borderWidth: 0, ...store.mapStyle }
+  if (kind === 'cluster') return clusterCircleRadius(individuals) + 4
+  const factor = kind === 'merged'
+    ? (store.sizeByIndividuals === false ? 1 : markerSizeFactor(individuals, MERGED_SIZE_CAP))
+    : (Number(sizeFactor) || 1)
+  return visibleSiteRadius(style, zoom, factor) + 1.5
+}
+
+/**
+ * Everything the captured picture depends on that the map owns, as one string:
+ * data layer updates, basemap, camera, frame, overlays, title and placed labels.
+ * A different value after the capture means the picture may not match its metadata.
+ */
+function exportStateVersion() {
+  const m = map.value
+  if (!m) return ''
+  const center = m.getCenter()
+  const container = m.getContainer()
+  return JSON.stringify([layerUpdates, currentStyle.value, center.lng, center.lat, m.getZoom(), m.getBearing(), m.getPitch(),
+    container.clientWidth, container.clientHeight, exportOverlays(), exportTitleState(), localityLayer.placedLabels()])
+}
+
+function exportTitleState() {
+  const strip = map.value?.getContainer().querySelector('.export-title-strip')
+  if (!strip) return { title: null, truncated: false }
+  return { title: strip.textContent.trim() || null, truncated: strip.scrollWidth > strip.clientWidth + 1 }
 }
 
 /** Rows hidden behind "+ N more" or the legend's scrollbar are not in the picture. */
@@ -826,24 +963,36 @@ async function collectExportState() {
     if (isCluster) {
       const leaves = await readClusterLeaves(source, props.cluster_id, props.point_count)
       const [lng, lat] = feature.geometry.coordinates
-      markers.push({ kind: siteRegistry?.merged ? 'merged' : 'cluster', id: props.cluster_id, lng, lat,
+      const kind = siteRegistry?.merged ? 'merged' : 'cluster'
+      const point = m.project([lng, lat])
+      markers.push({ kind, id: props.cluster_id, lng, lat, x: point.x, y: point.y,
+        radius: drawnMarkerRadius(kind, { individuals: Number(props.individuals ?? props.point_count) || 1 }),
         records: siteRegistry ? siteRegistry.records(leaves) : [] })
     } else {
       const site = siteRegistry?.get(props.site_key)
       if (!site) continue
-      markers.push({ kind: 'site', id: site.key, lng: site.coordinates[0], lat: site.coordinates[1], records: site.records })
+      const point = m.project(site.coordinates)
+      markers.push({ kind: 'site', id: site.key, lng: site.coordinates[0], lat: site.coordinates[1], x: point.x, y: point.y,
+        radius: drawnMarkerRadius('site', { sizeFactor: site.sizeFactor }), records: site.records })
     }
   }
+  const title = exportTitleState()
   return {
     view,
     basemap: currentStyle.value,
     markers,
     labels: localityLayer.placedLabels(),
     legendTruncated: legendTruncated(container),
+    overlays: exportOverlays(),
+    title: title.title,
+    titleTruncated: title.truncated,
+    legendPlacement: legendChoice,
+    // Recorded lng/lat to CSS px of the canvas, at this camera.
+    project: lngLat => m.project(lngLat),
   }
 }
 
-defineExpose({ prepareExport, collectExportState })
+defineExpose({ prepareExport, collectExportState, exportStateVersion })
 </script>
 
 <template>
@@ -862,6 +1011,7 @@ defineExpose({ prepareExport, collectExportState })
       <!-- Legend Component (customizable, draggable) -->
       <Legend
         v-if="store.exportSettings.includeLegend || !store.exportSettings.enabled"
+        ref="legendRef"
         :container-ref="mapContainer"
       />
     </div>

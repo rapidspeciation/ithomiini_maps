@@ -646,6 +646,21 @@ onUnmounted(() => {
   cleanupResize()
   cleanupMeasurement()
 })
+
+// ?export=1 (MapEngine.prepareExport): read, change and restore the legend placement
+// for one picture. Export mode never stores a placement (useLegendPosition).
+defineExpose({
+  exportPlacement: () => ({ corner: corner.value, x: posX.value, y: posY.value }),
+  setExportCorner: value => { if (dataStore.exportMode) setCorner(value) },
+  restoreExportPlacement: ({ corner: value, x, y }) => {
+    if (!dataStore.exportMode) return
+    corner.value = value
+    stickyEdge.value = { left: value.endsWith('left'), right: value.endsWith('right'),
+      top: value.startsWith('top'), bottom: value.startsWith('bottom') }
+    posX.value = x
+    posY.value = y
+  },
+})
 </script>
 
 <template>

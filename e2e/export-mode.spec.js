@@ -138,3 +138,158 @@ test('export mode returns the picture with the records, view, legend and sites i
     expect(kept.get(name)).toBe(new URLSearchParams(QUERY).get(name))
   }
 })
+
+// Picture geometry (view.overlays, records[].in_picture, sites[].occluded): what the
+// metadata says is visible must not sit under the title strip, legend, scale or credits.
+const exportQuery = (bbox, extra = {}) => new URLSearchParams({ ...Object.fromEntries(new URLSearchParams(QUERY)),
+  bbox: bbox.join(','), ...extra }).toString()
+const touches = ({ x, y, radius }, r) => {
+  const dx = x - Math.max(r.x, Math.min(x, r.x + r.width))
+  const dy = y - Math.max(r.y, Math.min(y, r.y + r.height))
+  return dx * dx + dy * dy <= radius * radius
+}
+const overlap = (a, b) => a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height
+
+async function exportAt(page, query) {
+  await page.goto(`./?${query}`)
+  await page.waitForFunction(() => typeof window.ithomiiniMapsExport === 'function')
+  const result = await page.evaluate(() => window.ithomiiniMapsExport())
+  // Overlays as the page has them now (same layout as at capture), measured independently.
+  const measured = await page.evaluate(() => {
+    const canvas = document.querySelector('.map canvas.maplibregl-canvas').getBoundingClientRect()
+    return [['title', '.export-title-strip'], ['legend', '.legend-container'], ['scale', '.maplibregl-ctrl-scale'],
+      ['attribution', '.maplibregl-ctrl-attrib']].flatMap(([kind, selector]) => [...document.querySelectorAll(`.map ${selector}`)]
+      .map(node => node.getBoundingClientRect())
+      .filter(r => r.width > 0 && r.height > 0)
+      .map(r => ({ kind, x: r.left - canvas.left, y: r.top - canvas.top, width: r.width, height: r.height })))
+  })
+  return { result, measured }
+}
+
+function expectHonestGeometry(result, measured) {
+  const overlays = result.view.overlays
+  expect(overlays.map(o => o.kind)).toEqual(expect.arrayContaining(['title', 'legend', 'scale', 'attribution']))
+  for (const m of measured) {
+    const same = overlays.find(o => o.kind === m.kind && Math.abs(o.x - m.x) < 1 && Math.abs(o.y - m.y) < 1 &&
+      Math.abs(o.width - m.width) < 1 && Math.abs(o.height - m.height) < 1)
+    expect(same, `${m.kind} overlay reported`).toBeTruthy()
+  }
+  const frame = result.view.frame
+  for (const site of result.sites) {
+    const hit = overlays.some(o => touches(site, o)) || site.label_boxes.some(box => overlays.some(o => overlap(box, o)))
+    expect(site.occluded, `site ${site.members[0]?.locality}`).toBe(hit)
+    // Labels listed are the ones whose box is in the frame and clear of every overlay
+    // (a clear label may still name a marker that is itself covered: the site is occluded).
+    const clear = site.label_boxes.filter(box => box.x >= 0 && box.y >= 0 && box.x + box.width <= frame.width &&
+      box.y + box.height <= frame.height && !overlays.some(o => overlap(box, o)))
+    expect(site.labels.length).toBe(clear.length)
+    expect(site.hidden_labels).toBe(site.label_boxes.length - clear.length)
+  }
+  const siteOf = new Map(result.sites.flatMap(site => site.members.flatMap(m => m.record_ids.map(id => [id, site]))))
+  for (const r of result.records) {
+    const inFrame = r.x >= 0 && r.x <= frame.width && r.y >= 0 && r.y <= frame.height
+    const covered = overlays.some(o => r.x >= o.x && r.x <= o.x + o.width && r.y >= o.y && r.y <= o.y + o.height)
+    const site = siteOf.get(`${r.source}|${r.id}`)
+    expect(r.in_picture).toBe(Boolean(inFrame && !covered && site && !site.occluded))
+  }
+}
+
+test('Sol bbox: Anangu under the title strip is not claimed visible', async ({ page }) => {
+  test.setTimeout(180000)
+  const { result, measured } = await exportAt(page, exportQuery([-77.3, -1.235, -76.2, -0.685]))
+  expectHonestGeometry(result, measured)
+  const title = result.view.overlays.find(o => o.kind === 'title')
+  expect(title.y).toBe(0)
+  expect(title.height).toBeGreaterThan(25)
+  const anangu = result.records.filter(r => r.y >= 0 && r.y < title.height && r.x >= 0 && r.x <= result.view.frame.width)
+  expect(anangu.length).toBeGreaterThan(0)
+  for (const r of anangu) expect(r.in_picture).toBe(false)
+  const site = result.sites.find(s => s.members.some(m => /Anangu/.test(m.locality)))
+  expect(site?.occluded).toBe(true)
+  expect(site.occluded_by).toContain('title')
+  // Its label avoided the strip (layout obstacle), so any label listed for it is fully below the strip.
+  for (const box of site.label_boxes) expect(box.y).toBeGreaterThanOrEqual(title.y + title.height)
+  expect(result.title_truncated).toBe(false)
+  expect(result.capture_attempts).toBe(1)
+})
+
+test('original auto frame: the legend moves off the markers, so every drawn site is visible', async ({ page }) => {
+  test.setTimeout(180000)
+  const { result, measured } = await exportAt(page, exportQuery([-77.74989, -1.08566, -76.24961, -0.46604]))
+  expectHonestGeometry(result, measured)
+  expect(result.view.legend_placement.occluded_sites).toBe(0)
+  expect(result.sites.filter(s => s.occluded)).toEqual([])
+  expect(result.sites.length).toBeGreaterThan(3)
+  // Picture unchanged in size; the view is still the exact fit.
+  expect([result.width, result.height]).toEqual([1600, 1200])
+  expect(result.view.frame).toEqual({ width: 760, height: 570 })
+})
+
+test('a legend change during the capture: one retry, consistent result; changes every time: explicit rejection', async ({ page }) => {
+  test.setTimeout(180000)
+  await page.goto(`./?${QUERY}`)
+  await page.waitForFunction(() => typeof window.ithomiiniMapsExport === 'function')
+  // html-to-image reads the map canvas during the capture, after the metadata snapshot.
+  const once = await page.evaluate(async () => {
+    const legend = document.querySelector('#app').__vue_app__.config.globalProperties.$pinia._s.get('legend')
+    const original = HTMLCanvasElement.prototype.toDataURL
+    let fired = false
+    HTMLCanvasElement.prototype.toDataURL = function (...args) {
+      if (!fired) { fired = true; legend.toggleItemVisibility('hermias') }
+      return original.apply(this, args)
+    }
+    try {
+      const result = await window.ithomiiniMapsExport()
+      return { attempts: result.capture_attempts, subspecies: [...new Set(result.records.map(r => r.subspecies))], hidden: [...legend.hiddenItems] }
+    } finally {
+      HTMLCanvasElement.prototype.toDataURL = original
+    }
+  })
+  expect(once.attempts).toBe(2)
+  expect(once.hidden).toEqual(['hermias'])
+  expect(once.subspecies).not.toContain('hermias')
+
+  const always = await page.evaluate(async () => {
+    const legend = document.querySelector('#app').__vue_app__.config.globalProperties.$pinia._s.get('legend')
+    const original = HTMLCanvasElement.prototype.toDataURL
+    let calls = 0
+    HTMLCanvasElement.prototype.toDataURL = function (...args) {
+      if (calls++ % 2 === 0) legend.toggleItemVisibility('hermias')
+      return original.apply(this, args)
+    }
+    try {
+      await window.ithomiiniMapsExport()
+      return 'resolved'
+    } catch (error) {
+      return error.message
+    } finally {
+      HTMLCanvasElement.prototype.toDataURL = original
+    }
+  })
+  expect(always).toContain('The map changed while the picture was being taken')
+})
+
+test('a bbox link is dropped after a programmatic move and does not snap back on resize', async ({ page }) => {
+  test.setTimeout(120000)
+  const bbox = [-77.3, -1.235, -76.2, -0.685]
+  await page.goto(`./?sp=Tithorea+harmonia&bbox=${bbox.join(',')}`)
+  const mapReady = () => document.querySelector('#app').__vue_app__._instance.setupState.mapRef?.loaded()
+  await page.waitForFunction(mapReady, null, { timeout: 60000 })
+  expect(new URL(page.url()).searchParams.get('bbox')).toBe(bbox.join(','))
+  const moved = await page.evaluate(() => new Promise(resolve => {
+    const map = document.querySelector('#app').__vue_app__._instance.setupState.mapRef
+    map.once('moveend', () => resolve(map.getCenter().toArray()))
+    map.easeTo({ center: [-70, -5], zoom: 5, duration: 200 })
+  }))
+  expect(new URL(page.url()).searchParams.has('bbox')).toBe(false)
+  await page.setViewportSize({ width: 1100, height: 700 })
+  await page.waitForTimeout(800)
+  const after = await page.evaluate(() => {
+    const map = document.querySelector('#app').__vue_app__._instance.setupState.mapRef
+    return { center: map.getCenter().toArray(), zoom: map.getZoom() }
+  })
+  expect(Math.abs(after.center[0] - moved[0])).toBeLessThan(1e-6)
+  expect(Math.abs(after.center[1] - moved[1])).toBeLessThan(1e-6)
+  expect(Math.abs(after.zoom - 5)).toBeLessThan(1e-6)
+  expect(new URL(page.url()).searchParams.has('bbox')).toBe(false)
+})

@@ -13,6 +13,7 @@ import CommandPaletteDialog from './components/sidebar/CommandPaletteDialog.vue'
 import { exportForR } from './utils/rExport'
 import { captureMapImage } from './utils/mapImageExport'
 import { buildExportResult, describeURLParams } from './utils/exportMetadata'
+import { runConsistentExport } from './utils/scriptedExport'
 import { MAP_STYLES } from './utils/mapStyles'
 import { useLegendStore } from './stores/legend'
 import { checkAllTiers, extractGoogleDriveFileId } from './utils/imageProxy'
@@ -125,6 +126,14 @@ const blobToBase64 = blob => new Promise((resolve, reject) => {
  */
 const linkParams = describeURLParams(window.location.search, { styleKeys: Object.keys(MAP_STYLES) })
 let pendingExport = null
+// Store state the picture depends on; any change bumps the counter (sync, so a change
+// and its undo during one capture still count).
+let storeChanges = 0
+if (store.exportMode) {
+  const legendStore = useLegendStore()
+  watch(() => [store.displayGeoJSON, store.colorPlan, store.colorBy, store.colorByAttribute, store.basemap,
+    JSON.stringify(store.filters), legendStore.hiddenItems.join('\u0000')], () => { storeChanges++ }, { flush: 'sync' })
+}
 const exportForScript = async () => {
   const deadline = performance.now() + 40000
   while (store.loading || !store.allFeatures.length || store.sourceLoading.size > 0 || !mapRef.value || !mapEngineRef.value) {
@@ -132,26 +141,37 @@ const exportForScript = async () => {
     await new Promise(resolve => setTimeout(resolve, 50))
   }
   if (currentView.value !== 'map') setView('map')
-  await mapEngineRef.value.prepareExport({ timeoutMs: Math.max(1000, deadline - performance.now()) })
-  let state = null
-  const { blob, width, height } = await renderMapImage({
-    onSettled: async () => { state = await mapEngineRef.value.collectExportState() },
+  const engine = mapEngineRef.value
+  const { output, snapshot, attempts } = await runConsistentExport({
+    prepare: () => engine.prepareExport({ timeoutMs: Math.max(1000, deadline - performance.now()) }),
+    capture: hooks => renderMapImage(hooks),
+    version: () => `${storeChanges}|${engine.exportStateVersion()}`,
+    // Every field, read together at the captured state; nothing is read after the capture.
+    snapshot: async () => {
+      const state = await engine.collectExportState()
+      const hidden = new Set(useLegendStore().hiddenItems)
+      const features = (store.displayGeoJSON?.features || []).filter(f => !hidden.has(f.properties[store.colorByAttribute]))
+      return buildExportResult({
+        pngBase64: null, width: null, height: null,
+        params: linkParams,
+        basemap: state.basemap,
+        colorBy: store.colorBy,
+        title: state.title,
+        titleTruncated: state.titleTruncated,
+        view: state.view,
+        features,
+        plan: store.colorPlan,
+        legendTruncated: state.legendTruncated,
+        markers: state.markers,
+        labels: state.labels,
+        overlays: state.overlays,
+        project: state.project,
+        legendPlacement: state.legendPlacement,
+      })
+    },
   })
-  const hidden = new Set(useLegendStore().hiddenItems)
-  const features = (store.displayGeoJSON?.features || []).filter(f => !hidden.has(f.properties[store.colorByAttribute]))
-  return buildExportResult({
-    pngBase64: await blobToBase64(blob), width, height,
-    params: linkParams,
-    basemap: state.basemap,
-    colorBy: store.colorBy,
-    title: mapEngineRef.value.$el?.querySelector?.('.export-title-strip')?.textContent?.trim() ?? null,
-    view: state.view,
-    features,
-    plan: store.colorPlan,
-    legendTruncated: state.legendTruncated,
-    markers: state.markers,
-    labels: state.labels,
-  })
+  return { ...snapshot, png_base64: await blobToBase64(output.blob), width: output.width, height: output.height,
+    capture_attempts: attempts }
 }
 if (store.exportMode) {
   window.ithomiiniMapsExport = () => {

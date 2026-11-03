@@ -144,4 +144,29 @@ describe('useViewStore', () => {
     expect(JSON.parse(localStorage.getItem('app-export-settings'))).toMatchObject({ aspectRatio: '16:9', dpi: 300 })
     window.history.replaceState({}, '', '/')
   })
+
+  it('a color_by from the link applies to the visit only; a colour picked later is stored', async () => {
+    localStorage.setItem('app-persist-enabled', 'true')
+    window.history.replaceState({}, '', '/?color_by=genus')
+    const store = useViewStore()
+    store.restoreVisualizationFromURL()
+    await nextTick()
+    expect(store.colorBy).toBe('genus')
+    expect(localStorage.getItem('map-color-by')).toBe(null)
+    store.setColorBy('species')
+    await nextTick()
+    expect(JSON.parse(localStorage.getItem('map-color-by'))).toBe('species')
+    window.history.replaceState({}, '', '/')
+  })
+
+  it('export=1 never stores a colour level', async () => {
+    localStorage.setItem('app-persist-enabled', 'true')
+    window.history.replaceState({}, '', '/?export=1')
+    const store = useViewStore()
+    store.setColorBy('species')
+    await nextTick()
+    expect(localStorage.getItem('map-color-by')).toBe(null)
+    window.history.replaceState({}, '', '/')
+  })
 })
+

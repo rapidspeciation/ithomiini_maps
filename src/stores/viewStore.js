@@ -53,8 +53,11 @@ export const useViewStore = defineStore('view', () => {
     const { species = [], subspecies = [] } = filterStore.filters
     return species.length === 1 || subspecies.length > 0 ? 'subspecies' : 'species'
   })
-  function setColorBy(value) {
+  // A colour level from a link (or any in export mode) applies to this visit only.
+  let colorByFromLink = false
+  function setColorBy(value, { fromLink = false } = {}) {
     colorByChosen.value = true
+    colorByFromLink = fromLink
     colorBy.value = value
   }
   watch(automaticColorBy, level => { if (!colorByChosen.value) colorBy.value = level }, { immediate: true })
@@ -184,7 +187,7 @@ export const useViewStore = defineStore('view', () => {
   const restoreVisualizationFromURL = () => {
     const params = new URLSearchParams(window.location.search)
     const linkedColorBy = parseColorByParam(params.get('color_by'))
-    if (linkedColorBy) setColorBy(linkedColorBy)
+    if (linkedColorBy) setColorBy(linkedColorBy, { fromLink: true })
     usePlanningStore().restoreFromURL(params)
     useHostPlantStore().restoreFromURL(params)
     if (params.get('cluster_style') === 'plain') clusterSettings.value.compositionRings = false
@@ -223,7 +226,7 @@ export const useViewStore = defineStore('view', () => {
   watch(visualizationMode, value => setStorage('app-visualization-mode', value))
   watch(heatmapSettings, value => setStorage('app-heatmap-settings', value), { deep: true })
   watch(rangeSettings, value => setStorage('app-range-settings', value), { deep: true })
-  watch(colorBy, value => { if (colorByChosen.value) setStorage('map-color-by', value) })
+  watch(colorBy, value => { if (colorByChosen.value && !colorByFromLink && !exportMode) setStorage('map-color-by', value) })
   watch(mapStyle, value => setStorage('map-style', value), { deep: true })
   watch([colorBy, mapStyle, sizeByIndividuals], () => { styleVersion.value++ }, { deep: true })
   watch(mapView, value => setStorage('map-view', value), { deep: true })

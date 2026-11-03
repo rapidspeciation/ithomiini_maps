@@ -94,4 +94,18 @@ describe('screen-space locality placement', () => {
       { ...view, markerObstacles: [{ x: 200, y: 150, radius: 140 }] })
     expect(blocked.placements).toEqual([])
   })
+
+  it('keeps labels clear of overlay boxes (export title strip and legend)', () => {
+    const title = { x: 0, y: 0, width: 400, height: 31 }
+    const legend = { x: 0, y: 200, width: 150, height: 100 }
+    const { placements } = layoutLocalityLabels([item('top', 200, 50, -2, 'Anangu Boca del Rio'), item('low', 100, 180, -1, 'Apuya')],
+      { ...view, obstacleRects: [title, legend] })
+    const asBox = r => ({ left: r.x, right: r.x + r.width, top: r.y, bottom: r.y + r.height })
+    expect(placements.length).toBeGreaterThan(0)
+    for (const placed of placements) {
+      expect(intersects(placed.rect, asBox(title))).toBe(false)
+      expect(intersects(placed.rect, asBox(legend))).toBe(false)
+    }
+  })
 })
+

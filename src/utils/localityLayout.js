@@ -103,8 +103,13 @@ function leaderGeometry(rect, anchor, radius) {
  * smaller ones. Only text and marker boxes block placement; leaders may cross.
  */
 export function layoutLocalityLabels(items, { project, width, height, measure, markerObstacles = [],
-  preferred = new Map(), maxLabels = Infinity, allowFar = false }) {
+  obstacleRects = [], preferred = new Map(), maxLabels = Infinity, allowFar = false }) {
   const grid = new SpatialGrid()
+  // Boxes drawn over the map (export title strip, legend, scale, credits): no label goes under them.
+  for (const { x, y, width: w, height: h } of obstacleRects) {
+    if (![x, y, w, h].every(Number.isFinite)) continue
+    grid.add({ left: x, right: x + w, top: y, bottom: y + h })
+  }
   for (const obstacle of markerObstacles) {
     const { x, y, radius } = obstacle
     if (![x, y, radius].every(Number.isFinite)) continue

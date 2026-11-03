@@ -40,8 +40,9 @@ export function parseColorByParam(value) {
 }
 
 /**
- * What the app honoured from its link. Unknown names, and values of `style`,
- * `color_by`, `bbox`, `export`, `sex` or `map_view` it cannot use, are ignored.
+ * What the app honoured from its link. Unknown names, repeated names (after the
+ * first), values of `style`, `color_by`, `bbox`, `export` or `sex` it cannot use, and
+ * `map_view` next to a usable `bbox`, are ignored.
  */
 export function describeURLParams(search, { styleKeys = [] } = {}) {
   const params = new URLSearchParams(search)
@@ -54,12 +55,19 @@ export function describeURLParams(search, { styleKeys = [] } = {}) {
     export: value => value === '1',
     sex: value => ['male', 'female', 'all'].includes(value),
   }
+  const ignore = name => { if (!ignored.includes(name)) ignored.push(name) }
   for (const [name, value] of params) {
-    if (!KNOWN_PARAMS.has(name) || (valid[name] && !valid[name](value))) {
-      if (!ignored.includes(name)) ignored.push(name)
+    // The app reads the first value of a name; a repeated one is not used.
+    if (!KNOWN_PARAMS.has(name) || (valid[name] && !valid[name](value)) || name in applied) {
+      ignore(name)
       continue
     }
     applied[name] = name === 'bbox' ? parseBbox(value) : value
+  }
+  // A usable bbox frames the map; map_view is then not used.
+  if (applied.bbox && 'map_view' in applied) {
+    delete applied.map_view
+    ignore('map_view')
   }
   return { applied, ignored }
 }
@@ -99,12 +107,18 @@ export function recordYear(record, today = new Date()) {
 
 export const recordKey = record => `${record?.source ?? ''}|${record?.id ?? ''}`
 
-/** One row per record drawn, with the fields as the map has them (no workbook values). */
-export function exportRecords(features) {
+/**
+ * One row per record drawn, with the fields as the map has them (no workbook values).
+ * With `geometry` ({ project, frame, overlays, markerOf }): `x`, `y` are the recorded
+ * lng/lat (the same `lng`, `lat`, never a display offset) projected to CSS px of the
+ * map canvas, and `in_picture` is true only when that point is inside the frame,
+ * outside every overlay, and the marker drawn for the record is not occluded.
+ */
+export function exportRecords(features, geometry = null) {
   return (features || []).map(feature => {
     const record = feature.properties ?? feature
     const [lng, lat] = recordedCoordinates(feature) ?? [null, null]
-    return {
+    const row = {
       source: record.source ?? null,
       id: record.id == null ? null : String(record.id),
       sex: record.sex ?? null,
@@ -114,6 +128,15 @@ export function exportRecords(features) {
       subspecies: record.subspecies ?? null,
       lng, lat,
     }
+    if (geometry) {
+      const point = lng == null ? null : geometry.project([lng, lat])
+      row.x = point ? round2(point.x) : null
+      row.y = point ? round2(point.y) : null
+      const marker = geometry.markerOf?.(recordKey(record))
+      row.in_picture = Boolean(point && pointInFrame(point, geometry.frame) &&
+        !geometry.overlays.some(rect => pointInRect(point, rect)) && marker && !marker.occluded)
+    }
+    return row
   })
 }
 
@@ -149,14 +172,18 @@ export function markerMembers(records) {
 const sameCoordinate = (a, b) => a && b && a[0] === b[0] && a[1] === b[1]
 
 /**
- * Drawn markers with the labels drawn for them. `markers`: [{ kind, id, lng, lat, records }]
- * (records = features). `labels`: placed label features from the locality layer:
- * a cluster label names `clusterId`; a site label names `anchorKey` = JSON [siteId, lng, lat].
+ * Drawn markers with the labels drawn for them. `markers`: [{ kind, id, lng, lat, records,
+ * x, y, radius }] (records = features; x, y, radius: the drawn marker in CSS px of the canvas).
+ * `labels`: placed label features from the locality layer: a cluster label names `clusterId`;
+ * a site label names `anchorKey` = JSON [siteId, lng, lat]; `box` { x, y, width, height } is
+ * the label's placed box. With `geometry` ({ frame, overlays }) a site is `occluded` when its
+ * marker disc or one of its label boxes touches an overlay; a label is listed only when its
+ * box is inside the frame and clear of every overlay (else it counts in `hidden_labels`).
  */
-export function exportSites(markers, labels, viewBbox) {
+export function exportSites(markers, labels, viewBbox, geometry = null) {
   const sites = markers.map(marker => {
     const members = markerMembers(marker.records)
-    return {
+    const site = {
       marker: marker.kind,
       lng: marker.lng,
       lat: marker.lat,
@@ -168,6 +195,15 @@ export function exportSites(markers, labels, viewBbox) {
       members,
       _marker: marker,
     }
+    if (geometry) {
+      const disc = { x: marker.x, y: marker.y, radius: marker.radius }
+      Object.assign(site, {
+        x: round2(marker.x), y: round2(marker.y), radius: round2(marker.radius),
+        label_boxes: [], hidden_labels: 0,
+        occluded_by: overlayKinds(geometry.overlays, rect => circleTouchesRect(disc, rect)),
+      })
+    }
+    return site
   })
   let unmatched = 0
   for (const label of labels) {
@@ -187,22 +223,94 @@ export function exportSites(markers, labels, viewBbox) {
     if (!site || typeof props.label !== 'string') { unmatched++; continue }
     // The layout wraps long names; the text is the same with spaces.
     const text = props.label.replace(/\s+/g, ' ').trim()
+    if (geometry) {
+      const box = props.box
+      const valid = box && [box.x, box.y, box.width, box.height].every(Number.isFinite)
+      const covered = valid ? overlayKinds(geometry.overlays, rect => rectsOverlap(box, rect)) : []
+      if (valid) site.label_boxes.push({ x: round2(box.x), y: round2(box.y), width: round2(box.width), height: round2(box.height) })
+      for (const kind of covered) if (!site.occluded_by.includes(kind)) site.occluded_by.push(kind)
+      if (!valid || covered.length || !rectInFrame(box, geometry.frame)) { site.hidden_labels++; continue }
+    }
     site.labels.push(text)
     site.label ??= text
   }
-  for (const site of sites) delete site._marker
+  for (const site of sites) {
+    if (geometry) site.occluded = site.occluded_by.length > 0
+    delete site._marker
+  }
   return { sites, unmatchedLabels: unmatched }
+}
+
+const round2 = value => Math.round(value * 100) / 100
+
+/** Positive-area overlap of two { x, y, width, height } boxes. */
+export function rectsOverlap(a, b) {
+  return a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height
+}
+/** A disc { x, y, radius } touches a box (also when it only grazes the edge). */
+export function circleTouchesRect({ x, y, radius }, rect) {
+  const dx = x - Math.max(rect.x, Math.min(x, rect.x + rect.width))
+  const dy = y - Math.max(rect.y, Math.min(y, rect.y + rect.height))
+  return dx * dx + dy * dy <= radius * radius
+}
+export function pointInRect(point, rect) {
+  return point.x >= rect.x && point.x <= rect.x + rect.width && point.y >= rect.y && point.y <= rect.y + rect.height
+}
+export function pointInFrame(point, frame) {
+  return point.x >= 0 && point.x <= frame.width && point.y >= 0 && point.y <= frame.height
+}
+function rectInFrame(box, frame) {
+  return box.x >= 0 && box.y >= 0 && box.x + box.width <= frame.width && box.y + box.height <= frame.height
+}
+function overlayKinds(overlays, touches) {
+  return [...new Set(overlays.filter(touches).map(rect => rect.kind))]
+}
+
+/**
+ * Overlays drawn over the map canvas in the picture (title strip, legend, scale bar,
+ * credits), as { kind, x, y, width, height } in CSS px relative to the canvas.
+ * `boxes`: [{ kind, rect: DOMRect-like }]; `canvas`: the canvas DOMRect; empty or
+ * off-frame boxes are left out.
+ */
+export function overlayRects(boxes, canvas) {
+  const frame = { width: canvas.width, height: canvas.height }
+  const rects = []
+  for (const { kind, rect } of boxes) {
+    if (!rect || !(rect.width > 0) || !(rect.height > 0)) continue
+    const box = { kind, x: round2(rect.left - canvas.left), y: round2(rect.top - canvas.top),
+      width: round2(rect.width), height: round2(rect.height) }
+    if (!rectsOverlap(box, { x: 0, y: 0, ...frame })) continue
+    rects.push(box)
+  }
+  return rects
+}
+
+/** How much a placement of the overlays hides: records in occluded markers, then occluded markers. */
+export function occlusionScore(sites) {
+  const hidden = sites.filter(site => site.occluded)
+  return { records: hidden.reduce((sum, site) => sum + site.records, 0), sites: hidden.length }
 }
 
 export function insideBbox([lng, lat], [w, s, e, n]) {
   return lng >= w && lng <= e && lat >= s && lat <= n
 }
 
-/** The complete return value of window.ithomiiniMapsExport(). */
-export function buildExportResult({ pngBase64, width, height, params, basemap, colorBy, title, view,
-  features, plan, legendTruncated = false, markers = [], labels = [] }) {
-  const records = exportRecords(features)
-  const { sites, unmatchedLabels } = exportSites(markers, labels, view?.bbox)
+/**
+ * The complete return value of window.ithomiiniMapsExport(). `overlays` and `project`
+ * (lng/lat → CSS px of the canvas at the captured camera) add the picture geometry:
+ * view.overlays, records[].x/y/in_picture and sites[].x/y/radius/label_boxes/occluded.
+ */
+export function buildExportResult({ pngBase64, width, height, params, basemap, colorBy, title, titleTruncated = false,
+  view, features, plan, legendTruncated = false, markers = [], labels = [], overlays = null, project = null,
+  legendPlacement = null, attempts = 1 }) {
+  const geometry = overlays && project && view?.frame ? { frame: view.frame, overlays, project } : null
+  const { sites, unmatchedLabels } = exportSites(markers, labels, view?.bbox, geometry)
+  if (geometry) {
+    const byRecord = new Map()
+    for (const site of sites) for (const member of site.members) for (const id of member.record_ids) byRecord.set(id, site)
+    geometry.markerOf = key => byRecord.get(key)
+  }
+  const records = exportRecords(features, geometry)
   return {
     version: EXPORT_METADATA_VERSION,
     png_base64: pngBase64,
@@ -212,10 +320,12 @@ export function buildExportResult({ pngBase64, width, height, params, basemap, c
     basemap,
     color_by: colorBy,
     title,
-    view,
+    title_truncated: !!titleTruncated,
+    view: geometry ? { ...view, overlays, legend_placement: legendPlacement } : view,
     records,
     legend: { unit: 'records', rows: legendRows(plan, colorBy), truncated: !!legendTruncated },
     sites,
     unmatched_labels: unmatchedLabels,
+    capture_attempts: attempts,
   }
 }

@@ -29,7 +29,10 @@ Run `node scripts/benchmark-locality-labels.mjs` against a running preview to me
 `style=<basemap key>` (for example `light`, `terrain`), `color_by=<subspecies|species|genus|status|mimicry|source>` and
 `bbox=w,s,e,n` (degrees) are read from the link and kept in it when the app rewrites the address. `bbox` only frames
 the map (MapLibre `fitBounds`, padding 32 px, maximum zoom 12, no animation, and no automatic fit to the data
-afterwards); it never filters. Moving the map by hand removes `bbox`. Unknown values are ignored.
+afterwards); it never filters. Any move of the map other than that fit (by hand, a fly-to, a search) removes `bbox`;
+a resize or a basemap switch that leaves the camera on the fitted frame keeps it. Unknown values, a repeated name
+after its first value, and `map_view` next to a usable `bbox` are ignored. A `color_by` from the link applies to the
+visit only (it is stored once the visitor picks a colour level; never in export mode).
 
 `export=1` turns on a fixed export mode (never stored): export preview at 4:3, a 760 x 570 CSS px frame, a 1600 x 1200
 PNG, legend, scale bar and credits on, a title strip composed from the active filters (taxon · sex · country; no text
@@ -42,15 +45,36 @@ then runs the same capture as the Export Image button and returns, instead of do
 ```
 { version: 1, png_base64, width: 1600, height: 1200,
   params: { applied: {name: value}, ignored: [names] },
-  basemap, color_by, title,
+  basemap, color_by, title, title_truncated,
   view: { bbox: [w, s, e, n], center: [lng, lat], zoom, frame: {width, height}, fit: {padding: 32, max_zoom: 12},
-          bbox_requested },
-  records: [{ source, id, sex, country, year, date, subspecies, lng, lat }],   // whole filtered set, map fields
+          bbox_requested,
+          overlays: [{ kind: 'title'|'legend'|'scale'|'attribution', x, y, width, height }],
+          legend_placement: { corner, placements_tried, occluded_sites, occluded_records } },
+  records: [{ source, id, sex, country, year, date, subspecies, lng, lat, x, y, in_picture }],
   legend: { unit: 'records', rows: [{ label, records, unknown }], truncated },
   sites: [{ marker: 'site'|'merged'|'cluster', lng, lat, center_in_view, records, merged_sites,
-            label, labels, members: [{ key, locality, record_ids: ['source|id'] }] }],
-  unmatched_labels }
+            label, labels, members: [{ key, locality, record_ids: ['source|id'] }],
+            x, y, radius, label_boxes: [{ x, y, width, height }], hidden_labels, occluded, occluded_by: [kinds] }],
+  unmatched_labels, capture_attempts }
 ```
+
+Picture geometry is in CSS px of the 760 x 570 map canvas (top left 0, 0; the PNG is the same picture at about 2.1x).
+`view.overlays` are the boxes drawn over the map in the picture. A record's `x`, `y` is its recorded `lng`, `lat`
+projected (never a display offset); `in_picture` is true only when that point is inside the frame, outside every
+overlay, and the marker drawn for the record is not occluded. A site's `x`, `y`, `radius` is the marker as drawn (with
+its halo); it is `occluded` when that disc, even only its edge, or one of its label boxes touches an overlay.
+`label`/`labels` list only labels whose box is inside the frame and clear of every overlay (others count in
+`hidden_labels`); a clear label can name an occluded marker. Site labels are laid out around the overlays. If the
+legend covers a drawn marker, the bottom-right and bottom-left corners are tried and the placement covering the
+fewest records is kept (`legend_placement`); the title strip cannot move, so a marker under it stays `occluded`.
+
+Everything in the result is read in one settled state, right before the capture. If anything it depends on changes
+before the capture ends (filters, hidden legend rows, colouring, data, camera, overlays, title or labels), that
+attempt is dropped and the export runs once more (`capture_attempts`: 2); a second change rejects with "The map
+changed while the picture was being taken".
+
+Timing: the app waits up to 40 s for its data, layers, framing and labels before it rejects. A caller's own deadline
+covers the page load and the capture too, so it is longer (the database worker allows 50 s for the whole run).
 
 `records` is the whole filtered set (also outside the frame); `view` is the camera actually drawn; `sites` are the
 markers MapLibre drew, read when the map was settled for the capture, with the labels drawn for them (`label` is null

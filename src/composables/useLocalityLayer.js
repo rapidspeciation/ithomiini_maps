@@ -29,7 +29,8 @@ const interpolateRadius = (stops, zoom) => {
 }
 
 /** Native text and leaders share a screen-space placement, then render in MapLibre. */
-export function useLocalityLayer(map, { isDarkBasemap = () => false } = {}) {
+// `obstacles()`: boxes { x, y, width, height } (CSS px of the canvas) labels must stay clear of.
+export function useLocalityLayer(map, { isDarkBasemap = () => false, obstacles = () => [] } = {}) {
   const planning = usePlanningStore()
   const store = useDataStore()
   let generation = 0
@@ -268,7 +269,8 @@ export function useLocalityLayer(map, { isDarkBasemap = () => false } = {}) {
     const { width, height } = mapSize(m)
     const result = layoutLocalityLabels(items, {
       project: coordinates => m.project(coordinates), width, height, measure,
-      markerObstacles: markerObstacles(m, renderedMarkers), preferred: preferredPlacements,
+      markerObstacles: markerObstacles(m, renderedMarkers), obstacleRects: obstacles() || [],
+      preferred: preferredPlacements,
       // By records, every site over the minimum is named where it fits; otherwise
       // only the busiest in view, next to their markers.
       maxLabels: byRecords ? Infinity : labelBudget(width, height), allowFar: byRecords,
@@ -276,7 +278,7 @@ export function useLocalityLayer(map, { isDarkBasemap = () => false } = {}) {
     preferredPlacements = result.choices
     const placedLabels = [], placedCallouts = []
     for (const placed of result.placements) {
-      const { item, text, center, anchor, leader } = placed
+      const { item, text, center, anchor, leader, rect } = placed
       const [anchorLng, anchorLat] = item.coordinates
       const length = Math.hypot(leader.shaft[0].x - anchor.x, leader.shaft[0].y - anchor.y)
       const sprite = leaderImageSpec(length, item.leaderRadius, item.selected, theme())
@@ -284,7 +286,9 @@ export function useLocalityLayer(map, { isDarkBasemap = () => false } = {}) {
         anchorLng, anchorLat, selected: item.selected, priority: item.priority,
         textOffset: [(center.x - anchor.x) / 12, (center.y - anchor.y) / 12],
         arrowImage: sprite.id, arrowLength: sprite.length, arrowRadius: sprite.radius, arrowTheme: sprite.theme,
-        arrowRotation: leader.arrowhead.rotation }
+        arrowRotation: leader.arrowhead.rotation,
+        // The placed box (CSS px of the canvas), for export metadata.
+        boxLeft: rect.left, boxTop: rect.top, boxRight: rect.right, boxBottom: rect.bottom }
       const label = { type: 'Feature', geometry: { type: 'Point', coordinates: item.coordinates }, properties }
       if (item.shortlisted) placedCallouts.push(label)
       else placedLabels.push(label)
@@ -558,8 +562,9 @@ export function useLocalityLayer(map, { isDarkBasemap = () => false } = {}) {
   }
   /** Placed labels: text, and the marker they name (`clusterId`, or `anchorKey` = [siteId, lng, lat]). */
   function placedLabels() {
-    return placed.map(feature => ({ label: feature.properties.label, clusterId: feature.properties.clusterId ?? null,
-      anchorKey: feature.properties.anchorKey ?? null, siteId: feature.properties.siteId ?? null }))
+    return placed.map(({ properties: p }) => ({ label: p.label, clusterId: p.clusterId ?? null,
+      anchorKey: p.anchorKey ?? null, siteId: p.siteId ?? null,
+      box: { x: p.boxLeft, y: p.boxTop, width: p.boxRight - p.boxLeft, height: p.boxBottom - p.boxTop } }))
   }
   return { invalidate, refresh, attach, cleanup, placedLabels }
 }

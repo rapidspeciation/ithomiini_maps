@@ -59,7 +59,9 @@ export function captureMapImage(map, settings, options) {
 
 // `onSettled(map)` runs once the map is idle at the export pixel ratio, right
 // before the capture, so anything it reads describes the captured picture.
-async function captureImage(map, settings, { capture = toPng, settle = settleLayout, onSettled } = {}) {
+// `onCaptured(map)` runs right after the capture, before the live map is restored,
+// so it can check that nothing changed in between.
+async function captureImage(map, settings, { capture = toPng, settle = settleLayout, onSettled, onCaptured } = {}) {
   const { width, height } = imageExportDimensions(settings)
   const container = map.getContainer()
   if (!container.clientWidth || !container.clientHeight) throw new Error('Open the map view before exporting an image.')
@@ -91,6 +93,7 @@ async function captureImage(map, settings, { capture = toPng, settle = settleLay
       pixelRatio, backgroundColor,
       filter: node => includeExportNode(node, settings),
     })
+    if (onCaptured) await onCaptured(map)
   } finally {
     container.style.borderColor = liveBorderColor
     container.style.boxShadow = liveBoxShadow
