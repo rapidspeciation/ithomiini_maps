@@ -59,7 +59,10 @@ describe('image export composition', () => {
     const seen = []
     const settings = { aspectRatio: 'custom', customWidth: 800, customHeight: 600, dpi: 100 }
     for (const fail of [true, false]) {
+      let captured
+      const restored = new Promise(resolve => { captured = resolve })
       const attempt = captureMapImage(map, settings, {
+        onCaptured: async () => captured(),
         settle: async () => {},
         onSettled: async () => { seen.push(['settled', container.style.borderColor, container.style.boxShadow, map.setPixelRatio.mock.lastCall[0]]) },
         capture: async (node, options) => {
@@ -69,8 +72,10 @@ describe('image export composition', () => {
           return 'data:image/png;base64,'
         },
       })
-      // Decoding the stub image is outside this test; only the frame state matters.
-      await attempt.catch(() => {})
+      // Decoding the stub image is outside this test (some DOM shims never answer it); only the frame state
+      // matters, and it is restored right after onCaptured (or the failed capture).
+      const settled = attempt.catch(() => {})
+      await Promise.race([settled, restored.then(() => new Promise(resolve => setTimeout(resolve, 0)))])
       expect(container.style.borderColor).toBe('rgb(1, 2, 3)')
       expect(container.style.boxShadow).toBe('0 0 30px red')
     }
