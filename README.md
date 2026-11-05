@@ -35,6 +35,7 @@ Interactive mapping tool for Ithomiini butterfly research. Visualize specimen di
 - **Mimicry Ring Propagation**: Automatically applied to Sanger and GBIF records based on species/subspecies matching
 - **Date Range Filter**: Filter by collection/preservation date
 - **CAMID Search**: Instant lookup by specimen ID
+- **Records without a CAM ID**: specimens the collection sheet lists as "NOT GIVEN" or blank get a synthetic, unique key `NOID-SANGER-<hash>` (from the row's own sheet values, see `scripts/process_data.py`). The app shows them as "No ID"; the key stays in exports and tooltips. Real CAM IDs are never changed; a CAM ID on more than one sheet row is kept on each row and listed as a warning when the data is built.
 - **Data Source**: Filter by Dore, Sanger Institute, or GBIF
 
 ### 📊 Data Table with Photos

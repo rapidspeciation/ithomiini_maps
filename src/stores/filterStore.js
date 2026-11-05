@@ -5,6 +5,7 @@ import { getStorage, setStorage } from '../utils/storageHelpers'
 import { isValidValue } from '../utils/validation'
 import { useDatasetStore } from './datasetStore'
 import { log } from '../utils/logger'
+import { isSyntheticId } from '../utils/recordId'
 
 /**
  * Subspecies narrow only the species they belong to. With M. polymnia and
@@ -260,7 +261,8 @@ export const useFilterStore = defineStore('filters', () => {
       .filter(isValidValue)
     return [...new Set([...names, ...filters.value.collectionLocation])].sort()
   })
-  const uniqueCamids = computed(() => uniqueValuesOf(datasetStore.allFeatures, 'id'))
+  // Synthetic NOID-... keys are not CAM IDs: kept out of the ID suggestions.
+  const uniqueCamids = computed(() => uniqueValuesOf(datasetStore.allFeatures, 'id').filter(id => !isSyntheticId(id)))
 
   const temporalDistribution = computed(() => {
     let data = datasetStore.allFeatures

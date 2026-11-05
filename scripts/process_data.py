@@ -16,6 +16,7 @@ Output:
   - public/data/map_points.json (for map rendering)
 """
 
+import hashlib
 import pandas as pd
 import requests
 import re
@@ -230,6 +231,58 @@ def clean_id(series):
     return s
 
 
+# Values the collection sheet uses in the ID column when a specimen has no CAM ID.
+PLACEHOLDER_IDS = {
+    '', 'NAN', 'NONE', 'NA', 'N/A', 'NULL', '-', '?', 'UNKNOWN',
+    'NOT GIVEN', 'NOT_GIVEN', 'NOTGIVEN', 'NO ID', 'NO_ID', 'NOID',
+    'TO BE ASSIGNED', 'TBA', 'PENDING',
+}
+
+# Synthetic ids start with this. It can never look like a CAM ID (CAM + digits) or a
+# DORE_/GBIF id, so the app can show these records as "No ID".
+SYNTHETIC_ID_PREFIX = 'NOID-'
+
+
+def is_placeholder_id(value):
+    """True for a missing ID or a placeholder such as 'NOT GIVEN' or 'Unknown'."""
+    if value is None or (not isinstance(value, str) and pd.isna(value)):
+        return True
+    return str(value).strip().upper() in PLACEHOLDER_IDS
+
+
+def fill_synthetic_ids(ids, df, source_tag, key_columns):
+    """
+    Give rows without a real ID a stable, unique synthetic one; real IDs are left as they are.
+
+    The id is NOID-<source_tag>-<10 hex of sha1 over the row's own values in key_columns>,
+    so it does not depend on the row's position in the sheet. Rows whose key values are all
+    identical get -2, -3, ... in sheet order.
+    """
+    ids = ids.copy()
+    missing = ids.apply(is_placeholder_id)
+    seen = {}
+    present = [c for c in key_columns if c in df.columns]
+    for idx in ids.index[missing]:
+        parts = [source_tag]
+        for col in present:
+            v = df.at[idx, col]
+            parts.append('' if v is None or (not isinstance(v, str) and pd.isna(v)) else str(v).strip())
+        digest = hashlib.sha1('\x1f'.join(parts).encode('utf-8')).hexdigest()[:10]
+        base = f"{SYNTHETIC_ID_PREFIX}{source_tag}-{digest.upper()}"
+        n = seen.get(base, 0) + 1
+        seen[base] = n
+        ids.at[idx] = base if n == 1 else f"{base}-{n}"
+    return ids, int(missing.sum())
+
+
+# Raw sheet columns that identify a specimen row without a CAM ID.
+SANGER_ROW_KEY_COLUMNS = [
+    'Data_entry_order', 'FieldMark_ID', 'Insectary_ID', 'Tube_1_id', 'Tube_2_id',
+    'SPECIES', 'Subspecies_Form', 'Sex', 'Collection_date', 'Collection_time',
+    'Collection_location', 'DECIMAL_LATITUDE', 'DECIMAL_LONGITUDE',
+]
+
+
 def normalize_mimicry(value):
     """Convert mimicry ring to Title Case for consistency."""
     if pd.isna(value) or value in ['', 'nan', 'NAN', 'Unknown', 'UNKNOWN']:
@@ -436,6 +489,15 @@ def load_sanger_data():
             target_id = df_col.iloc[:, 0]
             
         df_col['clean_id'] = clean_id(target_id)
+        # Specimens without a CAM ID ('NOT GIVEN', blank) get a synthetic NOID-SANGER-... id
+        # so every record keeps a unique identity (repeated 'Unknown' ids looked like duplicates).
+        df_col['clean_id'], n_synthetic = fill_synthetic_ids(
+            df_col['clean_id'], df_col, 'SANGER', SANGER_ROW_KEY_COLUMNS)
+        print(f"   {n_synthetic} rows without a CAM ID got a synthetic {SYNTHETIC_ID_PREFIX}SANGER-... id")
+        real = df_col.loc[~df_col['clean_id'].str.startswith(SYNTHETIC_ID_PREFIX), 'clean_id']
+        repeated = sorted(real[real.duplicated(keep=False)].unique())
+        if repeated:
+            print(f"   WARNING: {len(repeated)} CAM IDs appear on more than one row (kept, report to the team): {', '.join(repeated[:20])}")
         
         # ── Photo Matching ──
         # Filter out RAW files

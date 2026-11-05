@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { STATUS_COLORS } from '../utils/constants'
 import { getProxyState, setProxyMode } from '../utils/imageProxy'
 import GallerySearchSelect from './GallerySearchSelect.vue'
+import { displayRecordId, recordIdTitle } from '../utils/recordId'
 
 const props = defineProps({
   currentSpecimen: Object,
@@ -72,7 +73,7 @@ const subspeciesOptions = computed(() =>
 const individualOptions = computed(() =>
   (props.individualsList || []).map(ind => ({
     value: ind.gallery_id || `${ind.id || ''}|${ind.image_url || ''}`,
-    label: ind.id,
+    label: displayRecordId(ind.id),
     meta: ind.observation_date || ind.country || '',
     searchText: [ind.id, ind.observation_date, ind.country, ind.source].filter(Boolean).join(' '),
   }))
@@ -164,8 +165,8 @@ function statusClass(tier) {
         monospace
         @update:model-value="emit('select-individual', $event)"
       />
-      <div v-else class="single-individual-id">
-        {{ currentSpecimen?.id || 'N/A' }}
+      <div v-else class="single-individual-id" :title="recordIdTitle(currentSpecimen?.id)">
+        {{ displayRecordId(currentSpecimen?.id) }}
       </div>
     </div>
 

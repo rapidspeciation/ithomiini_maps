@@ -10,6 +10,7 @@ import { useTableSort } from '../composables/useTableSort'
 import { useColumnResize } from '../composables/useColumnResize'
 import { rowsToCsv, downloadCsv } from '../utils/tableExport'
 import { useThemeStore } from '../stores/theme'
+import { displayRecordId, recordIdTitle } from '../utils/recordId'
 import { getThemeOptions } from '../themes/presets'
 import { Palette } from 'lucide-vue-next'
 import ThemeModeSwitch from './ThemeModeSwitch.vue'
@@ -1324,8 +1325,8 @@ const exportTableCsv = () => {
                 <span v-else class="no-photo">—</span>
               </div>
             </td>
-            <td v-if="visibleColumns.id" class="cell-id">
-              {{ row.id }}
+            <td v-if="visibleColumns.id" class="cell-id" :title="recordIdTitle(row.id)">
+              {{ displayRecordId(row.id, '') }}
             </td>
             <td
               v-if="visibleColumns.scientific_name"

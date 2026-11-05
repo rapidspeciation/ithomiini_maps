@@ -15,6 +15,7 @@ import { usePopupSelection } from '../composables/usePopupSelection'
 import { computeClusterStats, countUniqueIndividuals } from '../utils/clusterStats'
 import { groupCollectionSites, recordedPointsForFeatures } from '../utils/collectionSites'
 import LocalityMapLink from './LocalityMapLink.vue'
+import { displayRecordId, recordIdTitle } from '../utils/recordId'
 
 const props = defineProps({
   coordinates: {
@@ -404,12 +405,12 @@ const bioprojects = computed(() => {
               :key="ind.id"
               :value="idx"
             >
-              {{ ind.id }}
+              {{ displayRecordId(ind.id) }}
             </option>
           </select>
           <!-- Show ID as text when only 1 individual -->
-          <div v-else class="single-individual-id">
-            {{ currentIndividual?.id || 'N/A' }}
+          <div v-else class="single-individual-id" :title="recordIdTitle(currentIndividual?.id)">
+            {{ displayRecordId(currentIndividual?.id) }}
           </div>
         </div>
 

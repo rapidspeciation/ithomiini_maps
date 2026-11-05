@@ -1,4 +1,5 @@
 <script setup>
+import { displayRecordId } from '../utils/recordId'
 import { nextTick, ref } from 'vue'
 import FallbackImage from './FallbackImage.vue'
 
@@ -113,7 +114,7 @@ defineExpose({
             <button
               class="thumbnail preview-thumb"
               :class="{ active: groupHasCurrentItem(speciesGroup) }"
-              :title="speciesGroup.subspecies[0]?.individuals[0]?.id || 'View'"
+              :title="displayRecordId(speciesGroup.subspecies[0]?.individuals[0]?.id, 'View')"
               @click.stop="groupHasCurrentItem(speciesGroup)
                 ? emit('toggle-species', speciesGroup.name)
                 : emit('select-individual', itemKey(speciesGroup.subspecies[0]?.individuals[0]), false)"
@@ -154,7 +155,7 @@ defineExpose({
                   <button
                     class="thumbnail preview-thumb"
                     :class="{ active: subspGroup.individuals.some(item => itemKey(item) === itemKey(currentItem)) }"
-                    :title="subspGroup.individuals[0]?.id || 'View'"
+                    :title="displayRecordId(subspGroup.individuals[0]?.id, 'View')"
                     @click.stop="subspGroup.individuals.some(item => itemKey(item) === itemKey(currentItem))
                       ? emit('toggle-subspecies', subgroupKey(speciesGroup.name, subspGroup.name))
                       : emit('select-individual', itemKey(subspGroup.individuals[0]), false)"
