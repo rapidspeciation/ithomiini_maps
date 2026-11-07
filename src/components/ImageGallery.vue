@@ -8,6 +8,7 @@ import { useHostPlantGalleryData } from '../composables/useHostPlantGalleryData'
 import GallerySidebar from './GallerySidebar.vue'
 import GalleryThumbnailStrip from './GalleryThumbnailStrip.vue'
 import Panzoom from '@panzoom/panzoom'
+import { trapTabKey } from '../utils/focusTrap'
 
 const store = useDataStore()
 const hostPlantStore = useHostPlantStore()
@@ -632,7 +633,13 @@ const viewOnMap = () => {
 }
 
 // Keyboard navigation
+const galleryRoot = ref(null)
+const closeButton = ref(null)
+let focusBeforeOpen = null
 const onKeyDown = (e) => {
+  if (trapTabKey(e, galleryRoot.value)) return
+  // Arrows and +/- belong to a focused field or list (species, subspecies, individual).
+  if (e.target instanceof Element && e.target.closest('input, select, textarea, [role="listbox"], [role="combobox"]') && e.key !== 'Escape') return
   switch (e.key) {
     case 'ArrowLeft':
       goToPrev()
@@ -709,12 +716,14 @@ const initializeThumbnailStrip = () => {
 // Setup/cleanup
 onMounted(async () => {
   document.addEventListener('keydown', onKeyDown)
+  // A dialog: focus moves in (to Close), stays in (onKeyDown) and goes back where it was on close.
+  focusBeforeOpen = document.activeElement
+  closeButton.value?.focus({ preventScroll: true })
   await ensureHostPlantGalleryData()
 
-  // Initialize thumbnail strip with all collapsed
-  nextTick(() => {
-    initializeThumbnailStrip()
-  })
+  // Fold every group first, then open the one that holds the photo being shown. (Folding on the next tick
+  // used to undo that, so a species with 127 photos opened as a single thumbnail.)
+  initializeThumbnailStrip()
 
   // Check for gallery selection from popup
   if (store.gallerySelection) {
@@ -726,6 +735,7 @@ onMounted(async () => {
 
 onUnmounted(() => {
   document.removeEventListener('keydown', onKeyDown)
+  if (focusBeforeOpen?.isConnected) focusBeforeOpen.focus?.({ preventScroll: true })
   imageLoadAttempt += 1
   clearDirectFallbackTimer()
   clearDirectFallbackProbes()
@@ -809,9 +819,9 @@ watch(currentIndex, () => {
 </script>
 
 <template>
-  <div class="image-gallery">
+  <div ref="galleryRoot" class="image-gallery" role="dialog" aria-modal="true" aria-label="Photo gallery" tabindex="-1">
     <!-- Close button -->
-    <button class="btn-close" aria-label="Close" @click="emit('close')">
+    <button ref="closeButton" class="btn-close" aria-label="Close gallery" @click="emit('close')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M18 6 6 18M6 6l12 12"/>
       </svg>
@@ -952,7 +962,7 @@ watch(currentIndex, () => {
 
           <!-- Zoom controls -->
           <div class="zoom-controls">
-            <button @click="zoomOut" :disabled="zoomLevel <= 1">
+            <button type="button" aria-label="Zoom out" @click="zoomOut" :disabled="zoomLevel <= 1">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="11" cy="11" r="8"/>
                 <path d="m21 21-4.3-4.3"/>
@@ -960,7 +970,7 @@ watch(currentIndex, () => {
               </svg>
             </button>
             <span class="zoom-level">{{ Math.round(zoomLevel * 100) }}%</span>
-            <button @click="zoomIn" :disabled="zoomLevel >= 5">
+            <button type="button" aria-label="Zoom in" @click="zoomIn" :disabled="zoomLevel >= 5">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="11" cy="11" r="8"/>
                 <path d="m21 21-4.3-4.3"/>

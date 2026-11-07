@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch, useId } from 'vue'
 
 const props = defineProps({
   modelValue: [String, Number],
@@ -21,6 +21,10 @@ const emit = defineEmits(['update:modelValue'])
 
 const search = ref('')
 const isOpen = ref(false)
+// Option highlighted with the arrow keys; Enter picks it. The options are not Tab stops.
+const activeIndex = ref(-1)
+const listId = `gallery-search-${useId()}`
+const menuRef = ref(null)
 
 const selectedOption = computed(() =>
   props.options.find(option => String(option.value) === String(props.modelValue))
@@ -47,8 +51,11 @@ const filteredOptions = computed(() => {
     .slice(0, 80)
 })
 
+watch(search, () => { activeIndex.value = -1 })
+
 function open() {
   isOpen.value = true
+  activeIndex.value = -1
   if (!selectedOption.value || search.value === selectedOption.value.label) {
     search.value = ''
   }
@@ -66,6 +73,28 @@ function selectOption(option) {
   search.value = option?.label || ''
   isOpen.value = false
 }
+
+function onKeydown(event) {
+  const n = filteredOptions.value.length
+  if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+    event.preventDefault()
+    if (!isOpen.value) { open(); return }
+    if (!n) return
+    const step = event.key === 'ArrowDown' ? 1 : -1
+    activeIndex.value = activeIndex.value < 0 ? (step > 0 ? 0 : n - 1) : (activeIndex.value + step + n) % n
+    nextTick(() => menuRef.value?.querySelector('[data-active="true"]')?.scrollIntoView?.({ block: 'nearest' }))
+  } else if (event.key === 'Enter') {
+    if (!isOpen.value || !n) return
+    event.preventDefault()
+    selectOption(filteredOptions.value[Math.max(0, activeIndex.value)])
+  } else if (event.key === 'Escape') {
+    if (!isOpen.value) return
+    // Closes the list only; a second Escape reaches the gallery.
+    event.preventDefault()
+    event.stopPropagation()
+    isOpen.value = false
+  }
+}
 </script>
 
 <template>
@@ -75,21 +104,31 @@ function selectOption(option) {
       :placeholder="selectedOption?.label || placeholder"
       class="gallery-search-input"
       :aria-label="placeholder"
+      role="combobox"
+      aria-autocomplete="list"
+      :aria-expanded="isOpen"
+      :aria-controls="listId"
+      :aria-activedescendant="isOpen && activeIndex >= 0 ? `${listId}-${activeIndex}` : undefined"
       @focus="open"
       @input="search = $event.target.value; isOpen = true"
       @blur="closeSoon"
-      @keydown.esc.prevent="isOpen = false"
+      @keydown="onKeydown"
     />
     <svg class="select-caret" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <path d="m7 10 5 5 5-5z"/>
     </svg>
-    <div v-if="isOpen" class="gallery-search-menu">
+    <div v-if="isOpen" :id="listId" ref="menuRef" class="gallery-search-menu" role="listbox" tabindex="-1">
       <button
-        v-for="option in filteredOptions"
+        v-for="(option, index) in filteredOptions"
+        :id="`${listId}-${index}`"
         :key="option.value"
         type="button"
+        role="option"
+        tabindex="-1"
+        :aria-selected="String(option.value) === String(modelValue)"
+        :data-active="index === activeIndex"
         class="gallery-search-option"
-        :class="{ selected: String(option.value) === String(modelValue) }"
+        :class="{ selected: String(option.value) === String(modelValue), active: index === activeIndex }"
         @mousedown.prevent="selectOption(option)"
       >
         <span class="option-label">{{ option.label }}</span>
@@ -177,8 +216,14 @@ function selectOption(option) {
 }
 
 .gallery-search-option:hover,
-.gallery-search-option.selected {
+.gallery-search-option.selected,
+.gallery-search-option.active {
   background: rgb(var(--color-accent-rgb) / 0.12);
+}
+
+/* The option Enter will pick (arrow keys): fill plus an accent edge. */
+.gallery-search-option.active {
+  box-shadow: inset 3px 0 0 var(--color-accent);
 }
 
 .option-label {
