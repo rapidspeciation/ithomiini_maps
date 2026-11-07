@@ -288,8 +288,14 @@
   border-bottom: none;
 }
 
-.search-result-item:hover {
+.search-result-item:hover,
+.search-result-item.is-active {
   background: var(--color-bg-secondary);
+}
+
+/* The row Enter will open: a fill plus an accent edge (arrow keys or pointer). */
+.search-result-item.is-active {
+  box-shadow: inset 3px 0 0 var(--color-accent);
 }
 
 .result-icon {
@@ -767,8 +773,10 @@
   max-width: 100%;
 }
 
+/* Phones: every record popup (one site, a group of sites, a host plant) is a card centred on the screen. Anchored
+   to the tapped point it ran off the right edge with its close button. */
 @media (max-width: 600px) {
-  :deep(.enhanced-popup:has(.cluster-popup)) {
+  :deep(.enhanced-popup) {
     z-index: 40;
     position: fixed !important;
     left: 50vw !important;
@@ -778,8 +786,14 @@
     transform: translate(-50%, -50%) !important;
   }
 
-  :deep(.enhanced-popup:has(.cluster-popup) .maplibregl-popup-tip) {
+  :deep(.enhanced-popup .maplibregl-popup-tip) {
     display: none;
+  }
+
+  :deep(.enhanced-popup .point-popup) {
+    max-height: calc(100dvh - 24px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
 }
 

@@ -102,9 +102,11 @@ const {
   searchResults,
   isSearching,
   showSearchResults,
+  activeIndex: activeSearchIndex,
   searchInputRef,
   onSearchInput,
   selectSearchResult,
+  onSearchKeydown,
   handleClickOutside,
   clearSearch,
   cleanup: cleanupSearch
@@ -551,8 +553,8 @@ const initMap = () => {
 let previousDataLength = 0
 
 // Handle open gallery from popup
+// The record popup stays open under the full-screen gallery, so closing the gallery returns to it.
 const handleOpenGallery = (mode = 'butterflies') => {
-  closeEnhancedPopup()
   emit('open-gallery', mode)
 }
 
@@ -1122,9 +1124,15 @@ defineExpose({ prepareExport, collectExportState, exportStateVersion })
           type="text"
           placeholder="Search location..."
           aria-label="Search location"
+          role="combobox"
+          aria-autocomplete="list"
+          aria-controls="location-search-results"
+          :aria-expanded="showSearchResults && searchResults.length > 0"
+          :aria-activedescendant="showSearchResults && activeSearchIndex >= 0 ? `location-result-${activeSearchIndex}` : undefined"
           @input="onSearchInput"
           @focus="showSearchResults = searchResults.length > 0"
           @keydown.escape="clearSearch"
+          @keydown="onSearchKeydown"
         />
         <svg
           v-if="isSearching"
@@ -1147,11 +1155,18 @@ defineExpose({ prepareExport, collectExportState, exportStateVersion })
       </div>
 
       <!-- Search Results Dropdown -->
-      <div v-if="showSearchResults && searchResults.length > 0" class="search-results">
+      <div v-if="showSearchResults && searchResults.length > 0" id="location-search-results" class="search-results" role="listbox" aria-label="Places">
         <button
           v-for="(result, index) in searchResults"
+          :id="`location-result-${index}`"
           :key="index"
+          type="button"
+          role="option"
+          :aria-selected="index === activeSearchIndex"
           class="search-result-item"
+          :class="{ 'is-active': index === activeSearchIndex }"
+          tabindex="-1"
+          @mouseenter="activeSearchIndex = index"
           @click="selectSearchResult(result)"
         >
           <svg class="result-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

@@ -79,13 +79,13 @@ const openGallery = () => {
 <template>
   <div class="point-popup plant-popup">
     <div class="popup-actions">
-      <button class="popup-action-btn" @click="emit('toggle-dock')" title="Dock to right panel">
+      <button type="button" class="popup-action-btn" @click="emit('toggle-dock')" title="Dock to right panel" aria-label="Dock to right panel">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="3" width="18" height="18" rx="2"/>
           <path d="M9 3v18"/>
         </svg>
       </button>
-      <button class="popup-action-btn" @click="emit('close')" title="Close">
+      <button type="button" class="popup-action-btn" @click="emit('close')" title="Close" aria-label="Close">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="18" y1="6" x2="6" y2="18"/>
           <line x1="6" y1="6" x2="18" y2="18"/>
@@ -95,7 +95,7 @@ const openGallery = () => {
 
     <div class="popup-layout">
       <div class="popup-left-section">
-        <div class="plant-marker-card">
+        <div class="plant-marker-card" :class="{ 'photo-openable': plantPhoto?.url }" @click="plantPhoto?.url && openGallery()">
           <FallbackImage
             v-if="plantPhoto?.url"
             :candidates="plantImageCandidates"
@@ -115,7 +115,8 @@ const openGallery = () => {
             class="open-gallery-btn"
             type="button"
             title="Open host plant gallery"
-            @click="openGallery"
+            aria-label="Open host plant gallery"
+            @click.stop="openGallery"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M15 3h6v6"/>
@@ -540,3 +541,5 @@ const openGallery = () => {
   line-height: 1.35;
 }
 </style>
+
+<style src="./popup-shared.css"></style>

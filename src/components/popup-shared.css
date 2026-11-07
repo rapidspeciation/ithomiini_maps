@@ -1,0 +1,34 @@
+/* Shared by the record popup (PointPopup) and the host plant popup (PlantPopup). Not scoped: the classes are
+   only used inside .point-popup. */
+
+/* The photo opens the gallery: a click on the picture does what the small corner button does. */
+.point-popup .photo-openable {
+  cursor: zoom-in;
+}
+.point-popup .photo-openable img {
+  transition: transform 160ms ease-out;
+}
+@media (hover: hover) {
+  .point-popup .photo-openable:hover img {
+    transform: scale(1.04);
+  }
+}
+.point-popup .photo-openable:active img {
+  transform: scale(1.01);
+}
+@media (prefers-reduced-motion: reduce) {
+  .point-popup .photo-openable img { transition: none; }
+  .point-popup .photo-openable:hover img { transform: none; }
+}
+
+/* Touch screens: the dock and close buttons keep their 26 px look but take a 44 px tap area. */
+@media (pointer: coarse) {
+  .point-popup .popup-action-btn {
+    position: relative;
+  }
+  .point-popup .popup-action-btn::before {
+    content: '';
+    position: absolute;
+    inset: -9px;
+  }
+}

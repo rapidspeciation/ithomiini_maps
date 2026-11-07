@@ -92,4 +92,23 @@ describe('PointPopup', () => {
     expect(host.querySelector('.cluster-sites')).toBeNull()
     expect(host.querySelector('.cluster-sites-toggle')).toBeNull()
   })
+
+  it('opens the gallery from a click on the record photo, once per click', async () => {
+    let opened = 0
+    const withPhoto = { ...points[0], image_url: 'https://example.org/photo.jpg' }
+    const host = mount({ coordinates: { lat: -1, lng: -77.6 }, points: [withPhoto], onOpenGallery: () => { opened++ } })
+    await nextTick()
+    const photo = host.querySelector('.photo-container')
+    expect(photo.classList.contains('photo-openable')).toBe(true)
+    photo.querySelector('img').click()
+    expect(opened).toBe(1)
+    host.querySelector('.expand-btn').click()
+    expect(opened).toBe(2)
+    expect(host.querySelector('.expand-btn').getAttribute('aria-label')).toBe('Open photo in the gallery')
+
+    const without = mount({ coordinates: { lat: -1, lng: -77.6 }, points: [points[1]], onOpenGallery: () => { opened++ } })
+    without.querySelector('.photo-container').click()
+    expect(opened).toBe(2)
+    expect(without.querySelector('.photo-container').classList.contains('photo-openable')).toBe(false)
+  })
 })

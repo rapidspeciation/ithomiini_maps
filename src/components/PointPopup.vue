@@ -247,13 +247,13 @@ const bioprojects = computed(() => {
 <template>
   <div class="point-popup" :class="{ 'cluster-popup': isCluster }">
     <div class="popup-actions">
-      <button class="popup-action-btn" @click="emit('toggle-dock')" title="Dock to right panel">
+      <button type="button" class="popup-action-btn" @click="emit('toggle-dock')" title="Dock to right panel" aria-label="Dock to right panel">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="3" width="18" height="18" rx="2"/>
           <path d="M9 3v18"/>
         </svg>
       </button>
-      <button class="popup-action-btn" @click="emit('close')" title="Close">
+      <button type="button" class="popup-action-btn" @click="emit('close')" title="Close" aria-label="Close">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="18" y1="6" x2="6" y2="18"/>
           <line x1="6" y1="6" x2="18" y2="18"/>
@@ -349,7 +349,7 @@ const bioprojects = computed(() => {
       <!-- Left Column: Photo & Individual Details -->
       <div class="popup-left-section">
         <!-- Photo -->
-        <div class="photo-container">
+        <div class="photo-container" :class="{ 'photo-openable': currentPhoto?.url }" @click="currentPhoto?.url && openGallery()">
           <img
             v-if="currentPhoto?.url"
             :src="getThumbnailUrl(currentPhoto.url)"
@@ -376,8 +376,10 @@ const bioprojects = computed(() => {
           <button
             v-if="currentPhoto?.url"
             class="expand-btn"
-            @click="openGallery"
+            type="button"
             title="View in Gallery"
+            aria-label="Open photo in the gallery"
+            @click.stop="openGallery"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polyline points="15 3 21 3 21 9"/>
@@ -1287,3 +1289,5 @@ const bioprojects = computed(() => {
   .point-popup { box-sizing: border-box; min-width: 0; width: min(480px, calc(100vw - 24px)); }
 }
 </style>
+
+<style src="./popup-shared.css"></style>
