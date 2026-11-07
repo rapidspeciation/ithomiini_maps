@@ -744,14 +744,14 @@ defineExpose({ open: () => { dialogOpen.value = true } })
                 autocomplete="off"
                 spellcheck="false"
               >
-              <button class="cmd-close" @click="dialogOpen = false" aria-label="Close">
+              <button type="button" class="cmd-close" @click="dialogOpen = false" aria-label="Close">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               </button>
             </div>
 
             <div ref="listRef" class="cmd-list">
               <div v-if="!query.trim()" class="cmd-hint">
-                Start typing to search taxonomy, geography, and mimicry filters. Use ↑↓ to navigate, Enter to apply.
+                Start typing to search taxonomy, geography, and mimicry filters.<span class="cmd-key-hint"> Use ↑↓ to navigate, Enter to apply.</span>
               </div>
               <template v-else-if="ranked.groups.length === 0 && ranked.suggestions.length === 0">
                 <div class="cmd-hint cmd-hint--empty">No matches found.</div>
@@ -862,6 +862,9 @@ defineExpose({ open: () => { dialogOpen.value = true } })
                 <svg class="cmd-chip-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               </button>
             </div>
+
+            <!-- Phones: the map or table sits under this sheet; one tap goes back to it with the filters applied. -->
+            <button type="button" class="cmd-done" @click="dialogOpen = false">Done</button>
           </aside>
         </div>
       </div>
@@ -1236,7 +1239,33 @@ defineExpose({ open: () => { dialogOpen.value = true } })
 .cmd-fade-enter-from,
 .cmd-fade-leave-to { opacity: 0; }
 
+/* Touch screens: no arrow-key hint, and the close button gets a 44 px tap area. */
+@media (pointer: coarse) {
+  .cmd-key-hint { display: none; }
+  .cmd-close { position: relative; }
+  .cmd-close::before { content: ''; position: absolute; inset: -8px; }
+}
+
+.cmd-done { display: none; }
+
 @media (max-width: 768px) {
+  .cmd-done {
+    display: block;
+    width: 100%;
+    min-height: 44px;
+    margin-top: 12px;
+    border: 1px solid var(--color-accent);
+    border-radius: 8px;
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .cmd-done:active { transform: translateY(1px); }
+  /* Stays in reach when the filter list scrolls. */
+  .cmd-done { position: sticky; bottom: 0; }
+
   .cmd-dialog { flex-direction: column; max-height: 85vh; }
   .cmd-sidebar { width: auto; max-height: 200px; }
 }

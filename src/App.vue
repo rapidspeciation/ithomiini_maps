@@ -18,6 +18,7 @@ import { MAP_STYLES } from './utils/mapStyles'
 import { useLegendStore } from './stores/legend'
 import { checkAllTiers, extractGoogleDriveFileId } from './utils/imageProxy'
 import { log } from './utils/logger'
+import { searchWithView } from './utils/viewParam'
 
 const store = useDataStore()
 const mobileLayout = useMobileLayout()
@@ -54,6 +55,11 @@ const mapEngineRef = ref(null)
 // View control
 const setView = (view) => {
   currentView.value = view
+  // Shared links open the view they were copied from.
+  const search = searchWithView(window.location.search, view)
+  if (search !== window.location.search) {
+    window.history.replaceState(window.history.state, '', `${window.location.pathname}${search}${window.location.hash}`)
+  }
 }
 
 // Modal controls
