@@ -33,6 +33,31 @@ export function matchesSubspeciesSelection(item, subspeciesSet, scope) {
   return !selected || selected.has(item.subspecies)
 }
 
+/**
+ * Short names a shared link may use for the `source` parameter, so the link has no spaces or
+ * parentheses (chat apps end a link early at an encoded space). Full names still work; `all` is
+ * every source in the data manifest.
+ */
+export const SOURCE_URL_KEYS = Object.freeze({
+  sanger: 'Sanger Institute',
+  gbif_unam: 'GBIF (UNAM)',
+  gbif_other: 'GBIF (Other Institutions)',
+  dore: 'Dore et al. (2022)',
+  inaturalist: 'iNaturalist',
+})
+
+export function parseSourceParam(value, allSources = Object.values(SOURCE_URL_KEYS)) {
+  const out = []
+  for (const raw of value.split(',')) {
+    const name = raw.trim()
+    if (!name) continue
+    const key = name.toLowerCase()
+    if (key === 'all') out.push(...allSources)
+    else out.push(SOURCE_URL_KEYS[key] ?? name)
+  }
+  return [...new Set(out)]
+}
+
 export const useFilterStore = defineStore('filters', () => {
   const datasetStore = useDatasetStore()
 
@@ -99,7 +124,7 @@ export const useFilterStore = defineStore('filters', () => {
     if (params.get('ssp')) filters.value.subspecies = params.get('ssp').split(',')
     if (params.get('mim')) { filters.value.mimicry = params.get('mim').split(','); showMimicryFilter.value = true }
     if (params.get('status')) filters.value.status = params.get('status').split(',')
-    if (params.get('source')) filters.value.source = params.get('source').split(',')
+    if (params.get('source')) filters.value.source = parseSourceParam(params.get('source'), Object.keys(datasetStore.sourceConfig))
     const country = parseListParam(params.get('country'))
     if (country) filters.value.country = country
     if (params.has('locality')) {
