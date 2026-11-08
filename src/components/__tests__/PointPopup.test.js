@@ -160,16 +160,38 @@ describe('PointPopup', () => {
     expect(host.querySelector('.details-section').textContent).not.toContain('Sex:')
   })
 
-  it('makes the one-record ID a button that copies it, with brief "Copied" feedback', async () => {
+  it('makes the one-record ID a button that copies it; success is a check and an announcement, the box keeps its text', async () => {
     const writeText = vi.fn(async () => {})
     Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
     const host = mount({ coordinates: { lat: -1, lng: -77.6 }, points: [points[0]] })
     const button = host.querySelector('button.single-individual-id')
     expect(button.getAttribute('aria-label')).toBe('Copy record ID CAM00001')
     button.click()
-    await Promise.resolve(); await nextTick()
+    for (let i = 0; i < 3; i++) { await Promise.resolve(); await nextTick() }
     expect(writeText).toHaveBeenCalledWith('CAM00001')
-    expect(button.textContent).toContain('Copied')
+    expect(button.getAttribute('title')).toBe('Copied')
+    expect(button.querySelector('.record-id-live').textContent).toBe('Record ID copied')
+    // No visible word that would widen the box and wrap the ID.
+    expect(button.querySelector('.record-id-text').textContent).toBe('CAM00001')
+    expect(button.textContent.replace('Record ID copied', '').trim()).toBe('CAM00001')
+  })
+
+  it('says nothing was copied when both copy methods fail, and leaves the ID selected to copy by hand', async () => {
+    const writeText = vi.fn(async () => { throw new Error('denied') })
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
+    const execCommand = vi.fn(() => false)
+    Object.defineProperty(document, 'execCommand', { value: execCommand, configurable: true })
+    const host = mount({ coordinates: { lat: -1, lng: -77.6 }, points: [points[0]] })
+    host.querySelector('button.single-individual-id').click()
+    for (let i = 0; i < 4; i++) { await Promise.resolve(); await nextTick() }
+    expect(execCommand).toHaveBeenCalledWith('copy')
+    expect(host.querySelector('button.single-individual-id')).toBeNull()
+    const field = host.querySelector('.single-individual-id input')
+    expect(field.value).toBe('CAM00001')
+    expect(document.activeElement).toBe(field)
+    expect(host.querySelector('.single-individual-id').textContent).toContain('Copy failed')
+    expect(host.textContent).not.toContain('Record ID copied')
+    delete document.execCommand
   })
 
   it('shows a record without a CAM ID as plain "No ID", not a copy button', () => {
