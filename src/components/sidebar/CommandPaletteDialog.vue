@@ -789,7 +789,7 @@ defineExpose({ open: () => { dialogOpen.value = true } })
                   >
                     <span class="cmd-item-label">
                       <template v-if="hit.item.kind === 'subspecies'">
-                        <em class="cmd-species">{{ hit.item.speciesName }}</em>
+                        <em v-if="!hit.item.value.startsWith(hit.item.speciesName)" class="cmd-species">{{ hit.item.speciesName }}</em>
                         <span class="cmd-binomial" v-html="highlight(hit.item.value, hit)" />
                       </template>
                       <template v-else>
@@ -814,7 +814,7 @@ defineExpose({ open: () => { dialogOpen.value = true } })
                   >
                     <span class="cmd-item-label">
                       <template v-if="hit.item.kind === 'subspecies'">
-                        <em class="cmd-species">{{ hit.item.speciesName }}</em>
+                        <em v-if="!hit.item.value.startsWith(hit.item.speciesName)" class="cmd-species">{{ hit.item.speciesName }}</em>
                         <em class="cmd-binomial">{{ hit.item.value }}</em>
                       </template>
                       <em v-else-if="hit.item.kind === 'species'" class="cmd-binomial">{{ hit.item.value }}</em>
