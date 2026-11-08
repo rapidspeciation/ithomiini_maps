@@ -96,6 +96,19 @@ describe('theme tokens', () => {
     }
   }
 
+  it('keeps muted labels readable on the accent-tinted Location Summary box (accent-subtle over the popup)', () => {
+    const fails = []
+    for (const mode of ['light', 'dark']) {
+      for (const p of palettes) {
+        const t = tokens(p, mode)
+        const box = over(parse(t['color-accent-subtle'], t), parse(t['color-bg-primary'], t))
+        const r = contrast(parse(t['color-text-muted'], t), box)
+        if (r < 4.5) fails.push(`${p} ${mode} ${r.toFixed(2)}`)
+      }
+    }
+    expect(fails).toEqual([])
+  })
+
   it('keeps every -rgb channel token equal to its colour (used as rgb(var(--x-rgb) / a) for tints)', () => {
     for (const mode of ['light', 'dark']) {
       for (const p of palettes) {
