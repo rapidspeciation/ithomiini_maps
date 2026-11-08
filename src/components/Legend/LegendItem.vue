@@ -213,14 +213,13 @@ function toggleVisibility() {
   font-style: italic;
 }
 
-/* Wrap mode: text wraps with hanging indent (outdent) */
+/* Wrap mode: a long name continues on the next line, flush with its first line (a hanging indent read as a
+   misaligned epithet in a two-word name). */
 .legend-label.wrap-enabled {
   white-space: normal;
   word-break: break-word;
   overflow: visible;
   text-overflow: clip;
-  padding-left: 1em;
-  text-indent: -1em;
 }
 
 /* When wrapping, align dot to top of first line instead of center */

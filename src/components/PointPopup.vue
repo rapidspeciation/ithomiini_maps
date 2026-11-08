@@ -336,7 +336,7 @@ const bioprojects = computed(() => {
           <span class="count-badge">{{ totalSpecies }}</span>
           <span class="section-label">Species</span>
         </div>
-        <ul class="species-summary" :class="{ 'no-dots': !speciesRows.some(row => row.colors.length) }">
+        <ul class="species-summary" :class="{ 'no-dots': !speciesRows.some(row => row.colors.length) }" :style="{ '--dot-col': `${Math.max(1, ...speciesRows.map(row => row.colors.length)) * 9 - 2}px` }">
           <li v-for="row in speciesRows" :key="row.species">
             <button type="button" class="species-row" :title="`Show ${row.species} specimens`" @click="openSpecies(row.species)">
               <span v-if="row.colors.length || speciesRows.some(other => other.colors.length)" class="species-dots" aria-hidden="true">
@@ -1111,7 +1111,8 @@ const bioprojects = computed(() => {
 .summary-stats { margin-top: 0; padding-top: 0; border-top: 0; align-items: baseline; flex-wrap: wrap; }
 .summary-stats .sex-stats { margin: 0 0 0 auto; padding: 0; border: 0; }
 .species-summary { list-style: none; margin: 0; padding: 0; max-height: 260px; overflow-y: auto; }
-.species-row { display: grid; grid-template-columns: 34px minmax(0, 1fr) 64px 28px 14px; align-items: center; gap: 8px; width: 100%; padding: 5px 4px; border: 0; border-radius: 4px; background: transparent; color: var(--color-text-primary); font: inherit; text-align: left; cursor: pointer; }
+/* The dot column is as wide as the most dots in a row (7 px each), so one dot sits next to its name. */
+.species-row { display: grid; grid-template-columns: var(--dot-col, 7px) minmax(0, 1fr) 64px 28px 14px; align-items: center; gap: 8px; width: 100%; padding: 5px 4px; border: 0; border-radius: 4px; background: transparent; color: var(--color-text-primary); font: inherit; text-align: left; cursor: pointer; }
 .no-dots .species-row { grid-template-columns: minmax(0, 1fr) 64px 28px 14px; }
 .species-row:hover, .species-row:focus-visible { background: var(--color-bg-tertiary); outline: none; }
 .species-row:hover .species-row-chevron { color: var(--color-accent-text); }
