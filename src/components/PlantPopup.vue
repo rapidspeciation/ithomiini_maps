@@ -243,22 +243,28 @@ const openGallery = (fromPhoto = false) => {
   border: 1px solid var(--color-border);
 }
 
+/* Dock and close stay in view when a tall card scrolls: a sticky row of no height at the top of the card, at the
+   same place as before (8 px from the top and right edges). The margins cancel out, so nothing below moves. */
 .popup-actions {
-  position: absolute;
+  position: sticky;
   top: 8px;
-  right: 8px;
+  height: 0;
+  margin: -4px -4px 4px 0;
   display: flex;
+  justify-content: flex-end;
   gap: 2px;
   z-index: 10;
 }
 
 .popup-action-btn {
+  flex: none;
   width: 26px;
   height: 26px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: transparent;
+  /* Opaque, the card's own colour: scrolled content passes under the buttons, not through them. */
+  background: var(--color-bg-primary);
   border: none;
   color: var(--color-text-muted);
   cursor: pointer;
