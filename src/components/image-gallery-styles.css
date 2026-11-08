@@ -575,6 +575,23 @@
 
 /* Responsive */
 @media (max-width: 768px) {
+  /* Phones: the photo, its caption row and the zoom bar form one group in the middle of the free height, instead of
+     the photo centred alone and the caption far below it. With the arrows off the photo it can use the full width. */
+  .image-viewer-wrapper {
+    justify-content: center;
+  }
+
+  .image-viewer {
+    flex: 0 1 auto;
+  }
+
+  .gallery-image {
+    max-width: 100%;
+    /* The viewer is as tall as its photo: a portrait photo stops short of the top buttons, caption, zoom bar
+       and thumbnail strip (about 400 px together) instead of being cut. */
+    max-height: calc(100dvh - 400px);
+  }
+
   /* Phones: previous, name and count, next in one row under the photo, so the arrows never cover the specimen
      or its ruler. */
   .photo-nav-row {
