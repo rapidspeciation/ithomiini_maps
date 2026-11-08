@@ -1323,9 +1323,6 @@ const updateExportHeight = (value) => {
               Plant records shown only in {{ store.filters.country.join(', ') }} (placed by coordinates).
             </p>
 
-            <p class="filter-hint">
-              {{ hostPlantStore.manifest?.metadata?.gbif_download_doi_note || 'GBIF citation metadata unavailable.' }}
-            </p>
           </div>
         </div>
       </div>
