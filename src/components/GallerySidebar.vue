@@ -114,21 +114,60 @@ function statusClass(tier) {
     <button class="gallery-sidebar-close" @click="emit('close-mobile')" aria-label="Close panel">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
     </button>
-    <div class="gallery-mode-toggle">
+    <!-- Top row: Butterflies / Host Plants, and the image cache setting, which is reached from here without
+         scrolling past the facts (it used to sit at the bottom of the sidebar). -->
+    <div class="gallery-top-row">
+      <div class="gallery-mode-toggle">
+        <button
+          class="mode-btn"
+          :class="{ active: mode === 'butterflies' }"
+          @click="emit('set-gallery-mode', 'butterflies')"
+        >
+          Butterflies
+        </button>
+        <button
+          class="mode-btn"
+          :class="{ active: mode === 'host-plants' }"
+          @click="emit('set-gallery-mode', 'host-plants')"
+        >
+          Host Plants
+        </button>
+      </div>
       <button
-        class="mode-btn"
-        :class="{ active: mode === 'butterflies' }"
-        @click="emit('set-gallery-mode', 'butterflies')"
+        type="button"
+        class="image-cache-btn"
+        :class="{ active: showImageCache }"
+        title="Image cache: where photos load from"
+        aria-label="Image cache settings"
+        aria-controls="gallery-image-cache"
+        :aria-expanded="showImageCache"
+        @click="showImageCache = !showImageCache"
       >
-        Butterflies
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+        <span class="image-cache-label">Image cache</span>
       </button>
-      <button
-        class="mode-btn"
-        :class="{ active: mode === 'host-plants' }"
-        @click="emit('set-gallery-mode', 'host-plants')"
-      >
-        Host Plants
-      </button>
+    </div>
+
+    <!-- Image cache: same choices and behaviour as before, opened from the top row -->
+    <div v-show="showImageCache" id="gallery-image-cache" class="image-cache-panel" role="group" aria-label="Image cache">
+      <div class="image-cache-title">Image cache</div>
+      <label class="proxy-option" v-for="opt in proxyOptions" :key="opt.value">
+        <input type="radio" name="gallery-proxy-mode"
+          :value="opt.value"
+          :checked="proxyState.mode.value === opt.value"
+          @change="setProxyMode(opt.value)" />
+        <div class="proxy-option-content">
+          <div class="proxy-option-header">
+            <span class="proxy-option-name">{{ opt.label }}</span>
+            <span v-if="opt.value !== 'auto'" class="proxy-status-dot"
+                  :class="statusClass(opt.value)" />
+          </div>
+          <small class="proxy-option-desc">{{ opt.desc }}</small>
+        </div>
+      </label>
     </div>
 
     <!-- Species Section -->
@@ -362,33 +401,6 @@ function statusClass(tier) {
       </div>
     </div>
 
-    <!-- Image Cache -->
-    <div class="sidebar-section collapsible-section">
-      <button class="collapse-toggle"
-        @click="showImageCache = !showImageCache"
-        :class="{ expanded: showImageCache }">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="m9 18 6-6-6-6"/>
-        </svg>
-        Image cache
-      </button>
-      <div v-show="showImageCache" class="collapse-content">
-        <label class="proxy-option" v-for="opt in proxyOptions" :key="opt.value">
-          <input type="radio" name="gallery-proxy-mode"
-            :value="opt.value"
-            :checked="proxyState.mode.value === opt.value"
-            @change="setProxyMode(opt.value)" />
-          <div class="proxy-option-content">
-            <div class="proxy-option-header">
-              <span class="proxy-option-name">{{ opt.label }}</span>
-              <span v-if="opt.value !== 'auto'" class="proxy-status-dot"
-                    :class="statusClass(opt.value)" />
-            </div>
-            <small class="proxy-option-desc">{{ opt.desc }}</small>
-          </div>
-        </label>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -753,41 +765,77 @@ function statusClass(tier) {
   font-size: 0.9rem;
 }
 
-/* Collapsible Section */
-.collapsible-section {
-  border-top: 1px solid var(--color-border);
-  padding-top: 8px;
-}
-
-.collapse-toggle {
-  width: 100%;
-  min-height: 24px;
+/* Top row: mode toggle and the image cache button */
+.gallery-top-row {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   gap: 6px;
-  padding: 4px 0;
-  background: none;
-  border: none;
+}
+
+.gallery-top-row .gallery-mode-toggle {
+  flex: 1;
+  min-width: 0;
+}
+
+.image-cache-btn {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 10px;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border-control);
+  border-radius: 8px;
   color: var(--color-text-secondary);
-  font-size: 0.78rem;
-  font-weight: 500;
+  font: inherit;
+  font-size: 0.8rem;
   cursor: pointer;
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
 }
 
-.collapse-toggle:hover { color: var(--color-text-primary); }
-
-.collapse-toggle svg {
-  width: 14px;
-  height: 14px;
-  transition: transform 0.2s;
+.image-cache-btn svg {
+  width: 18px;
+  height: 18px;
 }
 
-.collapse-toggle.expanded svg {
-  transform: rotate(90deg);
+.image-cache-btn:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
 }
 
-.collapse-content {
-  padding-top: 4px;
+.image-cache-btn.active {
+  border-color: var(--color-accent);
+  color: var(--color-accent-text);
+  background: var(--color-accent-subtle);
+}
+
+.image-cache-btn:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* The name shows on phones, where the button stands alone at the top of the drawer. */
+.image-cache-label {
+  display: none;
+}
+
+.image-cache-panel {
+  padding: 8px 10px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+
+.image-cache-title {
+  margin-bottom: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
 }
 
 /* Proxy Options */
@@ -874,6 +922,15 @@ function statusClass(tier) {
      in-drawer copy to avoid duplication. */
   .gallery-sidebar .gallery-mode-toggle {
     display: none;
+  }
+
+  /* Alone at the top of the drawer, left of its close button: named, not just an icon. */
+  .image-cache-label {
+    display: inline;
+  }
+
+  .gallery-top-row {
+    padding-right: 48px;
   }
 
   .gallery-sidebar-close {

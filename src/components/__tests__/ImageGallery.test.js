@@ -109,6 +109,21 @@ describe('ImageGallery', () => {
     expect(host.querySelector('.image-counter').classList.contains('image-counter--single')).toBe(true)
   })
 
+  it('opens Image cache from the top row of the sidebar, before the facts, with the same five choices', async () => {
+    const { host } = await mountGallery()
+    const sidebar = host.querySelector('.gallery-sidebar')
+    const button = sidebar.querySelector('.gallery-top-row .image-cache-btn')
+    expect(button.getAttribute('aria-expanded')).toBe('false')
+    // It comes before the species picker and the record facts in the sidebar.
+    expect(button.compareDocumentPosition(sidebar.querySelector('.sidebar-details')) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    button.click(); await nextTick()
+    expect(button.getAttribute('aria-expanded')).toBe('true')
+    const panel = sidebar.querySelector('#gallery-image-cache')
+    expect(panel.style.display).not.toBe('none')
+    expect([...panel.querySelectorAll('.proxy-option-name')].map(e => e.textContent)).toEqual(['Auto', 'wsrv.nl', 'Google CDN', 'Thumbnail', 'Off'])
+    expect(sidebar.querySelector('.collapsible-section')).toBeNull()
+  })
+
   it('keeps pickers, count badges and the Search summary for several records', async () => {
     const { host } = await mountGallery()
     const sidebar = host.querySelector('.gallery-sidebar')
