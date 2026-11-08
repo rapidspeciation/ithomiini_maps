@@ -1057,3 +1057,72 @@
   .detail-panel-dock { top: 104px; width: 100%; height: calc(100% - 158px); z-index: 35; }
   .panel-docked .bbox-controls { right: 10px; }
 }
+
+/* Map-mode switch (MapModeSwitch.vue). Wide maps: in the toolbar row after the light/dark button. */
+.map-mode-switch--toolbar {
+  flex: none;
+}
+
+/* Results from the location search open over the switch when it sits under the search box. */
+.location-search.has-results {
+  z-index: 31;
+}
+
+/* Laptop widths where the row would reach the area-select button: the switch goes under the location search
+   (with the detail panel docked too, which takes 340 to 380 px of the map). */
+@media (min-width: 769px) and (max-width: 1279px) {
+  .map-mode-switch--toolbar {
+    position: absolute;
+    top: 96px;
+    left: 0;
+  }
+}
+@media (min-width: 769px) {
+  .panel-docked .map-mode-switch--toolbar {
+    position: absolute;
+    top: 96px;
+    left: 0;
+  }
+}
+/* Docked and narrow: icons only (names stay for screen readers and in the tooltip). */
+@media (min-width: 769px) and (max-width: 1279px) {
+  .panel-docked .map-mode-switch--toolbar :deep(.map-mode-label) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .panel-docked .map-mode-switch--toolbar :deep(.map-mode-btn) {
+    padding: 0 9px;
+  }
+}
+
+/* Preview Export: the size badge sits at the top centre and the frame starts under the search box, so the switch
+   goes beside the search box (icons only), clear of both. */
+@media (min-width: 769px) {
+  .export-mode .map-mode-switch--toolbar {
+    position: absolute;
+    top: 46px;
+    left: 288px;
+  }
+  .export-mode .map-mode-switch--toolbar :deep(.map-mode-label) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .export-mode .map-mode-switch--toolbar :deep(.map-mode-btn) {
+    padding: 0 9px;
+  }
+}
+
+/* Phones: its own row under the record count (App.vue, 110 to 142 px), left of the area-select button and the
+   zoom group. Under the record and site panels, which open over it, like the count. */
+.map-mode-switch--phone {
+  position: absolute;
+  top: 150px;
+  left: 10px;
+  z-index: 20;
+}

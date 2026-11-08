@@ -8,6 +8,7 @@ import { useFilterStore } from './filterStore'
 import { usePlanningStore } from './planning'
 import { useHostPlantStore } from './hostPlants'
 import { MAP_STYLES } from '../utils/mapStyles'
+import { isMapMode } from '../utils/mapModes'
 import { parseColorByParam, parseStyleParam } from '../utils/exportMetadata'
 
 export const useViewStore = defineStore('view', () => {
@@ -28,7 +29,8 @@ export const useViewStore = defineStore('view', () => {
     }),
   })
 
-  const visualizationMode = ref(getStorage('app-visualization-mode', 'points'))
+  const storedMode = getStorage('app-visualization-mode', 'points')
+  const visualizationMode = ref(isMapMode(storedMode) ? storedMode : 'points')
   const DEFAULT_HEATMAP_SETTINGS = { radius: 40, intensity: 1, opacity: 0.7 }
   const heatmapSettings = ref(getStorage('app-heatmap-settings', DEFAULT_HEATMAP_SETTINGS))
 
@@ -197,7 +199,8 @@ export const useViewStore = defineStore('view', () => {
       const closed = JSON.parse(params.get('legend_closed') || 'null')
       if (Array.isArray(closed)) useLegendStore().collapsedSpecies = closed.filter(s => typeof s === 'string').slice(0, 500)
     } catch { /* Ignore invalid shared display settings. */ }
-    if (params.get('viz')) visualizationMode.value = params.get('viz')
+    // Only the four modes; an unknown value would leave the map with no data layer.
+    if (isMapMode(params.get('viz'))) visualizationMode.value = params.get('viz')
     if (params.get('range_method')) rangeSettings.value.method = params.get('range_method')
     if (params.get('range_group')) rangeSettings.value.groupBy = params.get('range_group')
     if (params.get('range_buffer')) rangeSettings.value.bufferKm = Number(params.get('range_buffer'))

@@ -36,8 +36,12 @@ import { getThemeOptions } from '../themes/presets'
 import { Palette } from 'lucide-vue-next'
 import ThemeModeSwitch from './ThemeModeSwitch.vue'
 import ThemeToggleButton from './ThemeToggleButton.vue'
+import MapModeSwitch from './MapModeSwitch.vue'
+import { useMediaQuery } from '@vueuse/core'
 
 const store = useDataStore()
+// Phones get the map-mode switch under the record count (App.vue), outside the toolbar row's stacking layer.
+const isPhoneLayout = useMediaQuery('(max-width: 768px)')
 const legendStore = useLegendStore()
 const planning = usePlanningStore()
 const themeStore = useThemeStore()
@@ -1113,7 +1117,7 @@ defineExpose({ prepareExport, collectExportState, exportStateVersion })
 
 
     <!-- Location Search -->
-    <div ref="searchInputRef" class="location-search">
+    <div ref="searchInputRef" class="location-search" :class="{ 'has-results': showSearchResults && searchResults.length > 0 }">
       <div class="search-input-wrapper">
         <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="11" cy="11" r="8"/>
@@ -1349,7 +1353,12 @@ defineExpose({ prepareExport, collectExportState, exportStateVersion })
 
       <!-- Light/Dark Mode Toggle -->
       <ThemeToggleButton class="mode-toggle-btn" />
+
+      <!-- Points / Clusters / Heatmap / Ranges -->
+      <MapModeSwitch v-if="!isPhoneLayout" class="map-mode-switch--toolbar" />
     </div>
+
+    <MapModeSwitch v-if="isPhoneLayout" stacked class="map-mode-switch--phone" />
 
   </div>
 </template>

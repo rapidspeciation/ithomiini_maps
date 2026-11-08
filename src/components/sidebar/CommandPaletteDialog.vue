@@ -1,5 +1,6 @@
 <script setup>
 import { computed, inject, nextTick, ref, watch } from 'vue'
+import { MAP_MODES } from '../../utils/mapModes'
 import { useMagicKeys, onClickOutside } from '@vueuse/core'
 import { useDataStore } from '@/stores/data'
 import { useLegendStore } from '@/stores/legend'
@@ -148,12 +149,7 @@ const allItems = computed(() => {
   return items
 })
 
-const VIZ_MODES = [
-  { value: 'points', label: 'Points' },
-  { value: 'clusters', label: 'Clusters' },
-  { value: 'heatmap', label: 'Heatmap' },
-  { value: 'ranges', label: 'Ranges' },
-]
+const VIZ_MODES = MAP_MODES
 
 const uniqueStatuses = computed(() => {
   const set = new Set()

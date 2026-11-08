@@ -2,6 +2,7 @@
 import { useDataStore } from '../stores/data'
 import { useLegendStore } from '../stores/legend'
 import { Eye, EyeOff } from 'lucide-vue-next'
+import { mapModeLabel } from '../utils/mapModes'
 
 const store = useDataStore()
 const legendStore = useLegendStore()
@@ -22,37 +23,19 @@ function resetRangeSettings() {
 </script>
 
 <template>
-  <!-- Visualization Mode -->
-  <div class="filter-section">
+  <!-- Options of the map mode chosen on the map (MapModeSwitch.vue) -->
+  <div class="filter-section" data-map-mode-options>
     <label class="section-label">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <polygon points="12 2 2 7 12 12 22 7 12 2"/>
         <polyline points="2 17 12 22 22 17"/>
         <polyline points="2 12 12 17 22 12"/>
       </svg>
-      Visualization
+      {{ mapModeLabel(store.visualizationMode) }} settings
     </label>
-    <div class="viz-mode-toggle">
-      <button
-        :class="{ active: store.visualizationMode === 'points' }"
-        @click="store.visualizationMode = 'points'"
-      >Points</button>
-      <button
-        :class="{ active: store.visualizationMode === 'clusters' }"
-        @click="store.visualizationMode = 'clusters'"
-      >Clusters</button>
-      <button
-        :class="{ active: store.visualizationMode === 'heatmap' }"
-        @click="store.visualizationMode = 'heatmap'"
-      >Heatmap</button>
-      <button
-        :class="{ active: store.visualizationMode === 'ranges' }"
-        @click="store.visualizationMode = 'ranges'"
-      >Ranges</button>
-    </div>
 
     <!-- Points settings -->
-    <div v-if="store.visualizationMode === 'points'" style="margin-top: 12px;">
+    <div v-if="store.visualizationMode === 'points'">
       <label class="toggle-row scatter-toggle">
         <input type="checkbox" v-model="store.sizeByIndividuals" />
         <span>Size markers by individuals</span>
@@ -63,7 +46,7 @@ function resetRangeSettings() {
     </div>
 
     <!-- Clusters settings -->
-    <div v-if="store.visualizationMode === 'clusters'" class="settings-panel" style="margin-top: 12px;">
+    <div v-if="store.visualizationMode === 'clusters'" class="settings-panel">
       <p class="filter-hint" style="margin-top: 0; margin-bottom: 8px;">
         Groups nearby points into clusters. Click a cluster to view all points.
       </p>
@@ -108,7 +91,7 @@ function resetRangeSettings() {
     </div>
 
     <!-- Heatmap settings -->
-    <div v-if="store.visualizationMode === 'heatmap'" class="settings-panel" style="margin-top: 12px;">
+    <div v-if="store.visualizationMode === 'heatmap'" class="settings-panel">
       <div class="setting-row">
         <label>Radius</label>
         <div class="slider-group">
@@ -136,7 +119,7 @@ function resetRangeSettings() {
     </div>
 
     <!-- Ranges settings -->
-    <div v-if="store.visualizationMode === 'ranges'" class="settings-panel" style="margin-top: 12px;">
+    <div v-if="store.visualizationMode === 'ranges'" class="settings-panel">
       <div class="setting-row">
         <label>Method</label>
         <select v-model="store.rangeSettings.method" class="style-select">
@@ -244,35 +227,6 @@ function resetRangeSettings() {
   width: 14px;
   height: 14px;
   opacity: 0.7;
-}
-
-.viz-mode-toggle {
-  display: flex;
-  gap: 6px;
-}
-
-.viz-mode-toggle button {
-  flex: 1;
-  padding: 8px 12px;
-  background: var(--color-bg-tertiary);
-  border: 1px solid var(--color-border);
-  border-radius: 4px;
-  color: var(--color-text-secondary);
-  font-size: 0.8rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.viz-mode-toggle button:hover {
-  background: var(--color-bg-hover);
-  color: var(--color-text-primary);
-}
-
-.viz-mode-toggle button.active {
-  background: var(--color-accent);
-  border-color: var(--color-accent);
-  color: var(--color-on-accent);
 }
 
 .slider-value {
