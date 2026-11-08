@@ -181,6 +181,10 @@ export const HEATMAP_RAMPS = {
 }
 const HEATMAP_STOPS = [0, 0.1, 0.3, 0.55, 0.8, 1]
 
+/** Ranges, hex density: fill by records per hexagon on a log scale (utils/rangePolygons.js `density`). */
+export const HEX_RAMP = ['#FFE57F', '#FFCA28', '#FFA726', '#FF7043', '#F44336', '#C62828']
+const HEX_STOPS = [0, 0.2, 0.4, 0.6, 0.8, 1]
+
 /** Marker halo on light basemaps: grey and pale markers keep >= 3:1 against Positron-like tiles. */
 const LIGHT_BASEMAP_HALO = 'rgba(17, 24, 39, 0.8)'
 
@@ -188,6 +192,8 @@ export function useDataLayer(map, options = {}) {
   const store = useDataStore()
   const legendStore = useLegendStore()
   const { onShowPopup, onDataChanged, isDarkBasemap = () => true } = options
+  // Most records in one hexagon of the Ranges hex layer (0 when it is not drawn), for the map's colour key.
+  const hexMaxCount = ref(0)
   let dataGeneration = 0
   let clusterClickGeneration = 0
 
@@ -637,6 +643,7 @@ export function useDataLayer(map, options = {}) {
 
       if (isHexBin) {
         const hexGeoJSON = generateHexBins(geojson, rangeSettings)
+        hexMaxCount.value = hexGeoJSON.features.length ? hexGeoJSON._maxCount || 0 : 0
 
         if (hexGeoJSON.features.length > 0) {
           map.value.addSource('range-source', {
@@ -649,15 +656,7 @@ export function useDataLayer(map, options = {}) {
             type: 'fill',
             source: 'range-source',
             paint: {
-              'fill-color': [
-                'interpolate', ['linear'], ['get', 'density'],
-                0, '#FFE57F',
-                0.2, '#FFCA28',
-                0.4, '#FFA726',
-                0.6, '#FF7043',
-                0.8, '#F44336',
-                1, '#C62828'
-              ],
+              'fill-color': ['interpolate', ['linear'], ['get', 'density'], ...HEX_STOPS.flatMap((stop, i) => [stop, HEX_RAMP[i]])],
               'fill-opacity': rangeSettings.opacity
             }
           })
@@ -1029,6 +1028,7 @@ export function useDataLayer(map, options = {}) {
   return {
     addDataLayer,
     fitBoundsToData,
+    hexMaxCount,
     clearClusterExtentCircle,
     recreateClusterExtentCircle,
     updateClusterExtentColors,

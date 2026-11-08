@@ -29,7 +29,7 @@ import { waitForMapIdle } from '../utils/mapImageExport'
 import { readClusterLeaves } from '../utils/clusterLeaves'
 import { useLocalityLayer } from '../composables/useLocalityLayer'
 import { useClusterComposition } from '../composables/useClusterComposition'
-import { HEATMAP_RAMPS, visibleSiteRadius } from '../composables/useDataLayer'
+import { HEATMAP_RAMPS, HEX_RAMP, visibleSiteRadius } from '../composables/useDataLayer'
 import SiteComparison from './SiteComparison.vue'
 import { useThemeStore } from '../stores/theme'
 import { getThemeOptions } from '../themes/presets'
@@ -125,7 +125,18 @@ const fitPopupToMap = (currentPopup = popup) => {
     const viewport = map.value.getContainer().getBoundingClientRect()
     const overflow = (start, end, min, max) => end > max ? end - max : start < min ? start - min : 0
     const x = overflow(bounds.left, bounds.right, viewport.left + 12, viewport.right - 12)
-    const y = overflow(bounds.top, bounds.bottom, viewport.top + 12, viewport.bottom - 12)
+    // The card's top also clears the floating controls above it (toolbar row, map-mode switch, location search),
+    // which sit over popups; a card that grows upward used to slide under the switch.
+    const left = bounds.left - x, right = bounds.right - x
+    let minTop = viewport.top + 12
+    for (const el of mapWrapper.value?.querySelectorAll('.map-layer-controls > *, .map-mode-switch, .location-search .search-input-wrapper') || []) {
+      const r = el.getBoundingClientRect()
+      if (!r.width || r.top > viewport.top + 240 || r.right <= left || r.left >= right) continue
+      minTop = Math.max(minTop, r.bottom + 8)
+    }
+    let y = overflow(bounds.top, bounds.bottom, minTop, viewport.bottom - 12)
+    // A card taller than the room left keeps its top (header, close button) in view.
+    if (bounds.top - y < minTop) y = bounds.top - minTop
     if (x || y) map.value.panBy([x, y], { duration: 0 })
   }))
 }
@@ -243,7 +254,7 @@ const toggleDock = () => {
   }
 }
 
-const { addDataLayer, fitBoundsToData, clearClusterExtentCircle, recreateClusterExtentCircle, updateClusterExtentColors, setStyleChanging } = useDataLayer(map, { onShowPopup: handleShowPopup, isDarkBasemap, onDataChanged: (data, sites) => {
+const { addDataLayer, fitBoundsToData, hexMaxCount, clearClusterExtentCircle, recreateClusterExtentCircle, updateClusterExtentColors, setStyleChanging } = useDataLayer(map, { onShowPopup: handleShowPopup, isDarkBasemap, onDataChanged: (data, sites) => {
   siteRegistry = sites
   layerUpdates++
   localityLayer.invalidate(data, sites)
@@ -302,6 +313,9 @@ watch(
 )
 
 // The heatmap key shows the ramp drawn on the current basemap (useDataLayer.js).
+const hexRamp = `linear-gradient(90deg, ${HEX_RAMP.join(', ')})`
+// Ranges as hex density: the key appears once hexagons are drawn.
+const showHexKey = computed(() => store.visualizationMode === 'ranges' && store.rangeSettings.method === 'hexbin' && hexMaxCount.value > 0)
 const densityRamp = computed(() => `linear-gradient(90deg, ${HEATMAP_RAMPS[isDarkBasemap() ? 'dark' : 'light'].slice(1).join(', ')})`)
 
 // Map layer dropdown
@@ -1031,6 +1045,11 @@ defineExpose({ prepareExport, collectExportState, exportStateVersion })
       <div v-if="store.visualizationMode === 'heatmap' && (store.exportSettings.includeLegend || !store.exportSettings.enabled)" class="density-legend" role="note" title="Relative to the filtered records, not abundance">
         <strong>Record density</strong>
         <div class="density-ramp" :style="{ background: densityRamp }"></div><div class="density-scale"><span>Lower</span><span>Higher</span></div>
+      </div>
+      <!-- Ranges, hex density: what the hexagon colours count (log scale, so a few busy cells do not wash out the rest). -->
+      <div v-else-if="showHexKey && (store.exportSettings.includeLegend || !store.exportSettings.enabled)" class="density-legend" role="note" title="Colour on a log scale">
+        <strong>Records per hexagon</strong>
+        <div class="density-ramp" :style="{ background: hexRamp }"></div><div class="density-scale"><span>1</span><span>{{ hexMaxCount.toLocaleString() }}</span></div>
       </div>
       <div v-if="store.exportMode" class="export-title-strip">{{ exportTitleText }}</div>
       <!-- Legend Component (customizable, draggable) -->
