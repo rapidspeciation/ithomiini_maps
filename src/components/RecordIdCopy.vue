@@ -105,8 +105,8 @@ onUnmounted(() => clearTimeout(timer))
   background: var(--color-bg-hover);
 }
 
-.record-id-copy:focus-visible,
-.record-id-copy.is-failed:focus-within {
+/* The failed state needs no ring of its own: the selected field inside gets the app's focus ring (style.css). */
+.record-id-copy:focus-visible {
   outline: 2px solid var(--color-focus);
   outline-offset: 2px;
 }
