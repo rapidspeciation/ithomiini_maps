@@ -132,7 +132,7 @@ function focus(site) {
 
 <style scoped>
 .site-comparison { position: absolute; top: 0; right: 0; z-index: 25; display: flex; flex-direction: column; box-sizing: border-box; width: 380px; height: 100%; color: var(--color-text-primary); background: var(--color-bg-primary); border-left: 1px solid var(--color-border); box-shadow: -4px 0 20px rgba(0,0,0,.3); overflow: hidden; font-size: .82rem; }
-.field-sites-tab { position: absolute; right: 0; top: 210px; z-index: 24; display: flex; align-items: center; justify-content: center; gap: 2px; width: 48px; height: 48px; padding: 0 6px 0 2px; border: 1px solid var(--color-border); border-right: 0; border-radius: 10px 0 0 10px; color: var(--color-text-primary); background: var(--color-bg-primary); box-shadow: -3px 3px 10px rgba(0,0,0,.15); }
+.field-sites-tab { position: absolute; right: 0; top: 210px; z-index: 24; display: flex; align-items: center; justify-content: center; gap: 2px; width: 48px; height: 48px; padding: 0 6px 0 2px; border: 1px solid var(--color-border-control); border-right: 0; border-radius: 10px 0 0 10px; color: var(--color-text-primary); background: var(--color-bg-primary); box-shadow: -3px 3px 10px rgba(0,0,0,.15); }
 /* Below the map controls, which are 44 px tall on touch screens. */
 @media (max-width: 768px) { .field-sites-tab { top: 316px; } }
 .field-sites-tab:hover { color: var(--color-accent-text); background: var(--color-bg-secondary); }

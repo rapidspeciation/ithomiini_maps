@@ -741,7 +741,10 @@ const bioprojects = computed(() => {
 }
 .point-popup.cluster-popup { box-sizing: border-box; width: 480px; max-width: min(480px, calc(100vw - 24px)); }
 
-:global(.enhanced-popup .point-popup.cluster-popup) { max-height: min(75vh, 650px); overflow-y: auto; overscroll-behavior: contain; scrollbar-color: var(--color-border-light) transparent; }
+/* Map popups scroll inside once they reach the room the map gives them (--popup-room, set by MapEngine's
+   fitPopupToMap from the controls above and the map's bottom edge). */
+:global(.enhanced-popup .point-popup) { max-height: var(--popup-room, none); overflow-y: auto; overscroll-behavior: contain; scrollbar-color: var(--color-border-light) transparent; }
+:global(.enhanced-popup .point-popup.cluster-popup) { max-height: min(75vh, 650px, var(--popup-room, 100vh)); overflow-y: auto; overscroll-behavior: contain; scrollbar-color: var(--color-border-light) transparent; }
 
 .popup-actions {
   position: absolute;

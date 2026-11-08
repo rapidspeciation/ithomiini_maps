@@ -134,9 +134,18 @@ const fitPopupToMap = (currentPopup = popup) => {
       if (!r.width || r.top > viewport.top + 240 || r.right <= left || r.left >= right) continue
       minTop = Math.max(minTop, r.bottom + 8)
     }
-    let y = overflow(bounds.top, bounds.bottom, minTop, viewport.bottom - 12)
+    // The card is never taller than the room between those controls and the map's bottom edge: past that it
+    // scrolls inside (a record with Genome open used to run off the screen with no way to reach its end).
+    let box = bounds
+    const card = currentPopup.getElement().querySelector('.point-popup')
+    if (card) {
+      const chrome = bounds.height - card.getBoundingClientRect().height // the tip under the card
+      card.style.setProperty('--popup-room', `${Math.max(200, Math.floor(viewport.bottom - 12 - minTop - chrome))}px`)
+      box = currentPopup.getElement().getBoundingClientRect()
+    }
+    let y = overflow(box.top, box.bottom, minTop, viewport.bottom - 12)
     // A card taller than the room left keeps its top (header, close button) in view.
-    if (bounds.top - y < minTop) y = bounds.top - minTop
+    if (box.top - y < minTop) y = box.top - minTop
     if (x || y) map.value.panBy([x, y], { duration: 0 })
   }))
 }
@@ -1049,7 +1058,12 @@ defineExpose({ prepareExport, collectExportState, exportStateVersion })
       <!-- Ranges, hex density: what the hexagon colours count (log scale, so a few busy cells do not wash out the rest). -->
       <div v-else-if="showHexKey && (store.exportSettings.includeLegend || !store.exportSettings.enabled)" class="density-legend" role="note" title="Colour on a log scale">
         <strong>Records per hexagon</strong>
-        <div class="density-ramp" :style="{ background: hexRamp }"></div><div class="density-scale"><span>1</span><span>{{ hexMaxCount.toLocaleString() }}</span></div>
+        <!-- Ramp and swatch at the layer's fill opacity, so they match the hexagons. -->
+        <template v-if="hexMaxCount > 1">
+          <div class="density-ramp" :style="{ background: hexRamp, opacity: store.rangeSettings.opacity }"></div><div class="density-scale"><span>1</span><span>{{ hexMaxCount.toLocaleString() }}</span></div>
+        </template>
+        <!-- One record per hexagon at most: one colour, not a scale from 1 to 1. -->
+        <div v-else class="density-single"><span class="density-swatch" :style="{ background: HEX_RAMP[HEX_RAMP.length - 1], opacity: store.rangeSettings.opacity }"></span>1 record</div>
       </div>
       <div v-if="store.exportMode" class="export-title-strip">{{ exportTitleText }}</div>
       <!-- Legend Component (customizable, draggable) -->
@@ -1409,6 +1423,11 @@ defineExpose({ prepareExport, collectExportState, exportStateVersion })
 .density-legend strong { display: block; margin-bottom: 8px; }
 .density-ramp { height: 9px; border-radius: 3px; }
 .density-scale { display: flex; justify-content: space-between; margin-top: 4px; }
+.density-single { display: flex; align-items: center; gap: 8px; }
+.density-swatch { width: 14px; height: 14px; border-radius: 3px; }
+/* Docked panel on a laptop (the map is about 340 px wide): the key goes up under the Field sites tab, clear of the
+   species legend at the bottom left. */
+@media (min-width: 601px) and (max-width: 1279px) { .map-wrapper.panel-docked .density-legend { top: 268px; bottom: auto; } }
 @media (max-width: 600px) { .density-legend { right: 8px; width: 144px; } }
 .map-empty-notice { position: absolute; z-index: 3; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; align-items: center; gap: 12px; width: max-content; max-width: calc(100% - 32px); padding: 10px 12px 10px 16px; border-radius: 8px; color: var(--color-text-primary); background: var(--color-bg-secondary); border: 1px solid var(--color-border); box-shadow: 0 4px 16px rgba(0,0,0,.25); font-size: 13px; }
 .map-empty-notice button { flex: none; padding: 6px 10px; border-radius: 6px; color: var(--color-accent-text); background: transparent; border: 1px solid var(--color-accent); font: inherit; cursor: pointer; }
