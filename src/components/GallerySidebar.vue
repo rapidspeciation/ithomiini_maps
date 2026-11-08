@@ -929,8 +929,13 @@ function statusClass(tier) {
     display: inline;
   }
 
+  /* The named button right above already says "Image cache". */
+  .image-cache-title {
+    display: none;
+  }
+
   .gallery-top-row {
-    padding-right: 48px;
+    padding-right: 56px;
   }
 
   .gallery-sidebar-close {
@@ -938,12 +943,13 @@ function statusClass(tier) {
     align-items: center;
     justify-content: center;
     position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 36px;
-    height: 36px;
+    /* 44 px, level with the Image cache button in the top row. */
+    top: 16px;
+    right: 12px;
+    width: 44px;
+    height: 44px;
     padding: 0;
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--color-border-control);
     border-radius: 8px;
     background: var(--color-bg-primary);
     color: var(--color-text-secondary);

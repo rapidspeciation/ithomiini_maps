@@ -821,7 +821,8 @@ watch(currentIndex, () => {
 <template>
   <div ref="galleryRoot" class="image-gallery" role="dialog" aria-modal="true" aria-label="Photo gallery" tabindex="-1">
     <!-- Close button -->
-    <button ref="closeButton" class="btn-close" aria-label="Close gallery" @click="emit('close')">
+    <!-- Hidden while the phone Info drawer is open: its own close button sat right beside this one. -->
+    <button ref="closeButton" class="btn-close" :class="{ 'btn-close--behind-drawer': showMobileGallerySidebar }" aria-label="Close gallery" @click="emit('close')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M18 6 6 18M6 6l12 12"/>
       </svg>

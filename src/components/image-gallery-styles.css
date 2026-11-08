@@ -788,3 +788,8 @@
     color: var(--color-on-accent);
   }
 }
+
+/* Phones: while the Info drawer is open, only its own close button shows at the top right. */
+.btn-close--behind-drawer {
+  visibility: hidden;
+}

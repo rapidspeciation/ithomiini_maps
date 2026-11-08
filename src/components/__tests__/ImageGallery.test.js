@@ -124,6 +124,16 @@ describe('ImageGallery', () => {
     expect(sidebar.querySelector('.collapsible-section')).toBeNull()
   })
 
+  it('hides the gallery close button while the phone Info drawer, with its own close button, is open', async () => {
+    const { host } = await mountGallery()
+    const galleryClose = host.querySelector('.btn-close')
+    expect(galleryClose.classList.contains('btn-close--behind-drawer')).toBe(false)
+    host.querySelector('.btn-gallery-filters').click(); await nextTick()
+    expect(galleryClose.classList.contains('btn-close--behind-drawer')).toBe(true)
+    host.querySelector('.gallery-sidebar-close').click(); await nextTick()
+    expect(galleryClose.classList.contains('btn-close--behind-drawer')).toBe(false)
+  })
+
   it('keeps pickers, count badges and the Search summary for several records', async () => {
     const { host } = await mountGallery()
     const sidebar = host.querySelector('.gallery-sidebar')
