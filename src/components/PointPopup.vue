@@ -16,7 +16,8 @@ import { computeClusterStats, countUniqueIndividuals } from '../utils/clusterSta
 import { groupCollectionSites, recordedPointsForFeatures } from '../utils/collectionSites'
 import LocalityMapLink from './LocalityMapLink.vue'
 import FallbackImage from './FallbackImage.vue'
-import { displayRecordId, recordIdTitle } from '../utils/recordId'
+import RecordIdCopy from './RecordIdCopy.vue'
+import { displayRecordId } from '../utils/recordId'
 
 const props = defineProps({
   coordinates: {
@@ -430,9 +431,8 @@ const bioprojects = computed(() => {
             </option>
           </select>
           <!-- Show ID as text when only 1 individual -->
-          <div v-else class="single-individual-id" :title="recordIdTitle(currentIndividual?.id)">
-            {{ displayRecordId(currentIndividual?.id) }}
-          </div>
+          <!-- One record: its ID in a box that copies it -->
+          <RecordIdCopy v-else class="single-individual-id" :id="currentIndividual?.id" />
         </div>
 
         <!-- Individual Details -->
@@ -445,7 +445,7 @@ const bioprojects = computed(() => {
 
           <div v-if="singleRecordSex" class="detail-row">
             <span class="detail-label">Sex:</span>
-            <span class="detail-value sex-count" :class="singleRecordSex">{{ singleRecordSex === 'male' ? '♂ male' : '♀ female' }}</span>
+            <span class="detail-value"><span class="sex-symbol" :class="singleRecordSex" aria-hidden="true">{{ singleRecordSex === 'male' ? '♂' : '♀' }}</span> {{ singleRecordSex }}</span>
           </div>
 
           <!-- Mimicry Ring -->
@@ -967,7 +967,7 @@ const bioprojects = computed(() => {
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
   border-radius: 6px;
-  color: var(--color-info-text);
+  color: var(--color-text-primary);
   font-size: 0.8rem;
   font-family: monospace;
 }
@@ -1208,9 +1208,9 @@ const bioprojects = computed(() => {
   color: var(--color-sex-female);
 }
 
-.detail-value.sex-count {
-  display: inline;
-}
+/* Sex as a fact: the symbol keeps its colour, the word is body text (blue bold text read as a link). */
+.sex-symbol.male { color: var(--color-sex-male); }
+.sex-symbol.female { color: var(--color-sex-female); }
 
 .sex-count.unknown {
   color: var(--color-text-muted); /* Gray for unknown */

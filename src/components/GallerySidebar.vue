@@ -3,7 +3,8 @@ import { computed, ref } from 'vue'
 import { STATUS_COLORS } from '../utils/constants'
 import { getProxyState, setProxyMode } from '../utils/imageProxy'
 import GallerySearchSelect from './GallerySearchSelect.vue'
-import { displayRecordId, recordIdTitle } from '../utils/recordId'
+import { displayRecordId } from '../utils/recordId'
+import RecordIdCopy from './RecordIdCopy.vue'
 
 const props = defineProps({
   currentSpecimen: Object,
@@ -177,9 +178,7 @@ function statusClass(tier) {
         monospace
         @update:model-value="emit('select-individual', $event)"
       />
-      <div v-else class="single-individual-id" :title="recordIdTitle(currentSpecimen?.id)">
-        {{ displayRecordId(currentSpecimen?.id) }}
-      </div>
+      <RecordIdCopy v-else class="single-individual-id" :id="currentSpecimen?.id" />
     </div>
 
     <div class="sidebar-divider"></div>
@@ -234,6 +233,12 @@ function statusClass(tier) {
       <div v-if="currentSpecimen?.observation_date" class="detail-row">
         <span class="detail-label">Date:</span>
         <span class="detail-value">{{ currentSpecimen.observation_date }}</span>
+      </div>
+
+      <!-- Sex, as in the record popup -->
+      <div v-if="!isHostPlants && (currentSpecimen?.sex === 'male' || currentSpecimen?.sex === 'female')" class="detail-row">
+        <span class="detail-label">Sex:</span>
+        <span class="detail-value"><span class="sex-symbol" :class="currentSpecimen.sex" aria-hidden="true">{{ currentSpecimen.sex === 'male' ? '♂' : '♀' }}</span> {{ currentSpecimen.sex }}</span>
       </div>
 
       <div v-if="isHostPlants && currentSpecimen?.host_taxon_rank" class="detail-row">
@@ -293,7 +298,7 @@ function statusClass(tier) {
 
       <!-- Coordinates -->
       <div v-if="coordinates" class="detail-row">
-        <span class="detail-label">Coords:</span>
+        <span class="detail-label">Coordinates:</span>
         <span class="detail-value coords">{{ coordinates.lat.toFixed(4) }}, {{ coordinates.lng.toFixed(4) }}</span>
       </div>
 
@@ -565,6 +570,9 @@ function statusClass(tier) {
   font-style: normal;
   font-family: monospace;
 }
+
+.sex-symbol.male { color: var(--color-sex-male); }
+.sex-symbol.female { color: var(--color-sex-female); }
 
 .single-taxon {
   padding: 8px 10px;

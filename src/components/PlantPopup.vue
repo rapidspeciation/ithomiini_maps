@@ -404,7 +404,7 @@ const openGallery = (fromPhoto = false) => {
 }
 
 .single-individual-id {
-  color: var(--color-info-text);
+  color: var(--color-text-primary);
   font-family: monospace;
 }
 

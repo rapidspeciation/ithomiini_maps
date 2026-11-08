@@ -160,6 +160,24 @@ describe('PointPopup', () => {
     expect(host.querySelector('.details-section').textContent).not.toContain('Sex:')
   })
 
+  it('makes the one-record ID a button that copies it, with brief "Copied" feedback', async () => {
+    const writeText = vi.fn(async () => {})
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
+    const host = mount({ coordinates: { lat: -1, lng: -77.6 }, points: [points[0]] })
+    const button = host.querySelector('button.single-individual-id')
+    expect(button.getAttribute('aria-label')).toBe('Copy record ID CAM00001')
+    button.click()
+    await Promise.resolve(); await nextTick()
+    expect(writeText).toHaveBeenCalledWith('CAM00001')
+    expect(button.textContent).toContain('Copied')
+  })
+
+  it('shows a record without a CAM ID as plain "No ID", not a copy button', () => {
+    const host = mount({ coordinates: { lat: -1, lng: -77.6 }, points: [{ ...points[0], id: 'NOID-SANGER-abc' }] })
+    expect(host.querySelector('button.single-individual-id')).toBeNull()
+    expect(host.querySelector('.single-individual-id').textContent.trim()).toBe('No ID')
+  })
+
   it('shows the sex of one record as a detail row', () => {
     const host = mount({ coordinates: { lat: -1, lng: -77.6 }, points: [{ ...points[0], sex: 'male' }] })
     const rows = [...host.querySelectorAll('.details-section .detail-row')].map(el => el.textContent.replace(/\s+/g, ''))
