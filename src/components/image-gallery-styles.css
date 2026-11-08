@@ -277,6 +277,11 @@
   display: none;
 }
 
+/* Desktop: the row adds no box, so the arrows and the count keep their places on the photo. */
+.photo-nav-row {
+  display: contents;
+}
+
 /* Thumbnail strip with grouped layout */
 .thumbnail-strip {
   display: flex;
@@ -570,9 +575,30 @@
 
 /* Responsive */
 @media (max-width: 768px) {
+  /* Phones: previous, name and count, next in one row under the photo, so the arrows never cover the specimen
+     or its ruler. */
+  .photo-nav-row {
+    display: flex;
+    order: 2;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 4px;
+    padding: 0 8px;
+  }
+
   .nav-btn {
-    width: 40px;
-    height: 60px;
+    position: static;
+    transform: none;
+    flex: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+  }
+
+  .nav-btn svg {
+    width: 24px;
+    height: 24px;
   }
 
   /* Phones: the name and count, then the zoom bar, sit in their own rows under the photo instead of over it. */
@@ -581,14 +607,12 @@
     order: 3;
     align-self: center;
     transform: none;
-    margin: 6px 0 10px;
+    margin: 4px 0 8px;
   }
 
   .image-counter {
     position: static;
-    order: 2;
-    align-self: center;
-    margin-top: 8px;
+    min-width: 0;
     max-width: calc(100% - 24px);
     text-align: center;
     white-space: nowrap;

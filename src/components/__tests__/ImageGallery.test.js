@@ -79,4 +79,33 @@ describe('ImageGallery', () => {
     expect(one.host.querySelector('.nav-prev')).toBeNull()
     expect(one.host.querySelector('.nav-next')).toBeNull()
   })
+
+  it('keeps the arrows in the caption row: previous, name and count, next (a row under the photo on phones)', async () => {
+    const { host } = await mountGallery()
+    const row = host.querySelector('.photo-nav-row')
+    expect([...row.children].map(el => el.className.split(' ').find(c => ['nav-prev', 'image-counter', 'nav-next'].includes(c))))
+      .toEqual(['nav-prev', 'image-counter', 'nav-next'])
+    expect(host.querySelector('.image-viewer').contains(host.querySelector('.nav-prev'))).toBe(false)
+  })
+
+  it('shows one record like the popup: plain names, no count badges, no Search summary', async () => {
+    const { host } = await mountGallery({ features: [records[0]] })
+    const sidebar = host.querySelector('.gallery-sidebar')
+    expect(sidebar.querySelectorAll('.single-taxon').length).toBe(2)
+    expect(sidebar.querySelector('.single-taxon').textContent.trim()).toBe('Mechanitis messenoides')
+    expect(sidebar.querySelector('.single-individual-id').textContent.trim()).toBe('CAM070000')
+    expect(sidebar.querySelectorAll('.count-badge').length).toBe(0)
+    expect(sidebar.querySelector('.search-summary')).toBeNull()
+    expect(sidebar.textContent).toContain('Individual')
+    expect(sidebar.textContent).not.toContain('Individuals')
+  })
+
+  it('keeps pickers, count badges and the Search summary for several records', async () => {
+    const { host } = await mountGallery()
+    const sidebar = host.querySelector('.gallery-sidebar')
+    // Two species keep their picker; the shown species has one subspecies, which reads as plain text.
+    expect([...sidebar.querySelectorAll('.single-taxon')].map(el => el.textContent.trim())).toEqual(['deceptus'])
+    expect(sidebar.querySelectorAll('.count-badge').length).toBe(2)
+    expect(sidebar.querySelector('.search-summary')).not.toBeNull()
+  })
 })

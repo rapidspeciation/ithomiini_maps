@@ -937,30 +937,39 @@ watch(currentIndex, () => {
             />
           </div>
 
-          <!-- Navigation arrows (inside wrapper) -->
-          <button
-            v-if="specimensWithImages.length > 1"
-            class="nav-btn nav-prev"
-            aria-label="Previous photo"
-            :disabled="!hasPrev"
-            @click="goToPrev"
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="m15 18-6-6 6-6"/>
-            </svg>
-          </button>
+          <!-- Arrows and caption. Desktop: arrows on the photo edges, count at bottom right (display: contents).
+               Phones: one row under the photo, so the arrows never cover the specimen. -->
+          <div class="photo-nav-row">
+            <button
+              v-if="specimensWithImages.length > 1"
+              class="nav-btn nav-prev"
+              aria-label="Previous photo"
+              :disabled="!hasPrev"
+              @click="goToPrev"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="m15 18-6-6 6-6"/>
+              </svg>
+            </button>
 
-          <button
-            v-if="specimensWithImages.length > 1"
-            class="nav-btn nav-next"
-            aria-label="Next photo"
-            :disabled="!hasNext"
-            @click="goToNext"
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="m9 18 6-6-6-6"/>
-            </svg>
-          </button>
+            <!-- Image counter -->
+            <div class="image-counter">
+              <!-- Phones have no sidebar beside the photo: name what it shows. -->
+              <em v-if="currentSpecimen?.scientific_name" class="image-counter-name">{{ currentSpecimen.scientific_name }}</em>
+              {{ currentIndex + 1 }} / {{ specimensWithImages.length }}
+            </div>
+            <button
+              v-if="specimensWithImages.length > 1"
+              class="nav-btn nav-next"
+              aria-label="Next photo"
+              :disabled="!hasNext"
+              @click="goToNext"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="m9 18 6-6-6-6"/>
+              </svg>
+            </button>
+          </div>
 
           <!-- Zoom controls -->
           <div class="zoom-controls">
@@ -983,13 +992,6 @@ watch(currentIndex, () => {
             <button @click="resetZoom" :disabled="!canResetView" class="reset-btn">
               Reset
             </button>
-          </div>
-
-          <!-- Image counter -->
-          <div class="image-counter">
-            <!-- Phones have no sidebar beside the photo: name what it shows. -->
-            <em v-if="currentSpecimen?.scientific_name" class="image-counter-name">{{ currentSpecimen.scientific_name }}</em>
-            {{ currentIndex + 1 }} / {{ specimensWithImages.length }}
           </div>
 
         </div>

@@ -54,7 +54,14 @@ const subspeciesCount = computed(() => props.subspeciesList?.length || 0)
 const isHostPlants = computed(() => props.mode === 'host-plants')
 const primaryLabel = computed(() => isHostPlants.value ? 'Host Taxa' : 'Species')
 const secondaryLabel = computed(() => isHostPlants.value ? 'Occurrence Sets' : 'Subspecies')
-const individualLabel = computed(() => isHostPlants.value ? 'Occurrences' : 'Individuals')
+const singleIndividual = computed(() => (props.individualsList?.length || 0) <= 1)
+const individualLabel = computed(() => isHostPlants.value
+  ? (singleIndividual.value ? 'Occurrence' : 'Occurrences')
+  : (singleIndividual.value ? 'Individual' : 'Individuals'))
+// One species (or one subspecies) shows as plain text, like the record popup: a picker with one choice offers nothing.
+const singleSpecies = computed(() => (props.speciesList?.length || 0) === 1)
+// The whole search is one record: no summary of ones and zeros.
+const singleRecord = computed(() => (props.allFilteredTotal ?? 0) <= 1 && singleIndividual.value)
 const speciesOptions = computed(() =>
   (props.speciesList || []).map(sp => ({
     value: sp.species,
@@ -126,35 +133,40 @@ function statusClass(tier) {
     <!-- Species Section -->
     <div class="sidebar-section">
       <div class="section-header">
-        <span class="count-badge">{{ totalSpecies }}</span>
+        <span v-if="!singleSpecies" class="count-badge">{{ totalSpecies }}</span>
         <span class="section-label">{{ primaryLabel }}</span>
       </div>
       <GallerySearchSelect
+        v-if="!singleSpecies"
         :model-value="selectedSpecies || ''"
         :options="speciesOptions"
         :placeholder="isHostPlants ? 'Search host taxa...' : 'Search species...'"
         @update:model-value="emit('select-species', $event || null)"
       />
+      <!-- One species: plain text, as in the record popup -->
+      <div v-else class="single-taxon">{{ selectedSpecies || speciesList?.[0]?.species }}</div>
     </div>
 
     <!-- Subspecies Section -->
     <div v-if="subspeciesList?.length > 0" class="sidebar-section">
       <div class="section-header">
-        <span class="count-badge">{{ subspeciesCount }}</span>
+        <span v-if="subspeciesCount > 1" class="count-badge">{{ subspeciesCount }}</span>
         <span class="section-label">{{ secondaryLabel }}</span>
       </div>
       <GallerySearchSelect
+        v-if="subspeciesCount > 1"
         :model-value="selectedSubspecies || ''"
         :options="subspeciesOptions"
         :placeholder="isHostPlants ? 'Search sets...' : 'Search subspecies...'"
         @update:model-value="emit('select-subspecies', $event || null)"
       />
+      <div v-else class="single-taxon">{{ selectedSubspecies || subspeciesList[0]?.name }}</div>
     </div>
 
     <!-- Individuals Section -->
     <div class="sidebar-section">
       <div class="section-header">
-        <span class="count-badge">{{ individualsList?.length || 0 }}</span>
+        <span v-if="individualsList?.length > 1" class="count-badge">{{ individualsList.length }}</span>
         <span class="section-label">{{ individualLabel }}</span>
       </div>
       <GallerySearchSelect
@@ -316,10 +328,10 @@ function statusClass(tier) {
       </button>
     </div>
 
-    <div class="sidebar-divider"></div>
+    <!-- Search Summary: left out for one record, whose photo and facts already say it all -->
+    <div v-if="!singleRecord" class="sidebar-divider"></div>
 
-    <!-- Search Summary -->
-    <div class="search-summary">
+    <div v-if="!singleRecord" class="search-summary">
       <div class="summary-title">Search Summary</div>
       <div class="summary-stats-grid">
         <div class="stat-row">
@@ -552,6 +564,18 @@ function statusClass(tier) {
 .sidebar-select.individual-select {
   font-style: normal;
   font-family: monospace;
+}
+
+.single-taxon {
+  padding: 8px 10px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  color: var(--color-text-primary);
+  font-size: 0.85rem;
+  font-style: italic;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
 }
 
 .single-individual-id {
