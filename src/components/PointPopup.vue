@@ -958,7 +958,7 @@ const bioprojects = computed(() => {
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
   border-radius: 6px;
-  color: var(--color-info);
+  color: var(--color-info-text);
   font-size: 0.8rem;
   font-family: monospace;
 }
