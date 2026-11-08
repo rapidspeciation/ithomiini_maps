@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createApp, nextTick } from 'vue'
 import { createPinia } from 'pinia'
 import PointPopup from '../PointPopup.vue'
@@ -60,8 +60,10 @@ describe('PointPopup', () => {
     await nextTick()
     expect(host.querySelector('.site-summary')).toBeNull()
     expect(host.querySelector('.photo-container')).not.toBeNull()
-    expect(host.querySelectorAll('.taxonomy-select')).toHaveLength(2)
+    // Two species to choose from; the chosen species has one subspecies, shown as text.
+    expect(host.querySelectorAll('.taxonomy-select')).toHaveLength(1)
     expect(host.querySelector('.taxonomy-select').value).toBe('Mechanitis lysimnia')
+    expect(host.querySelector('.single-taxon').textContent.trim()).toBe('lysimnia')
     // The overview already shows site details; the specimen view keeps one line.
     expect(host.querySelector('.location-summary')).toBeNull()
     expect(host.querySelector('.crumb-place').textContent.trim()).toBe('5 sites')
@@ -110,5 +112,70 @@ describe('PointPopup', () => {
     without.querySelector('.photo-container').click()
     expect(opened).toBe(2)
     expect(without.querySelector('.photo-container').classList.contains('photo-openable')).toBe(false)
+  })
+
+  it('shows "No photo" with no gallery action when every photo source fails', async () => {
+    let opened = 0
+    const withPhoto = { ...points[0], image_url: 'https://example.org/broken.jpg' }
+    const host = mount({ coordinates: { lat: -1, lng: -77.6 }, points: [withPhoto], onOpenGallery: () => { opened++ } })
+    await nextTick()
+    // Each candidate (proxy, then direct) fails in turn; the last failure gives up.
+    for (let i = 0; i < 5 && host.querySelector('.photo-container img'); i++) {
+      host.querySelector('.photo-container img').dispatchEvent(new Event('error'))
+      await nextTick()
+    }
+    const photo = host.querySelector('.photo-container')
+    expect(photo.querySelector('img')).toBeNull()
+    expect(photo.textContent).toContain('No photo')
+    expect(photo.classList.contains('photo-openable')).toBe(false)
+    expect(host.querySelector('.expand-btn')).toBeNull()
+    expect(host.querySelector('.photo-indicator')).toBeNull()
+    photo.click()
+    expect(opened).toBe(0)
+  })
+
+  it('tries the next photo source when the first one fails', async () => {
+    const withPhoto = { ...points[0], image_url: 'https://example.org/photo.jpg' }
+    const host = mount({ coordinates: { lat: -1, lng: -77.6 }, points: [withPhoto] })
+    await nextTick()
+    const first = host.querySelector('.photo-container img').getAttribute('src')
+    host.querySelector('.photo-container img').dispatchEvent(new Event('error'))
+    await nextTick()
+    const second = host.querySelector('.photo-container img')
+    expect(second).not.toBeNull()
+    expect(second.getAttribute('src')).not.toBe(first)
+    expect(host.querySelector('.expand-btn')).not.toBeNull()
+  })
+
+  it('shows a one-record popup as plain text, without repeated counts of 1', () => {
+    const host = mount({ coordinates: { lat: -1, lng: -77.6 }, points: [points[0]] })
+    expect(host.querySelectorAll('select')).toHaveLength(0)
+    expect([...host.querySelectorAll('.single-taxon')].map(el => el.textContent.trim())).toEqual(['Mechanitis polymnia', 'polymnia'])
+    expect(host.querySelectorAll('.count-badge')).toHaveLength(0)
+    const labels = [...host.querySelectorAll('.section-label')].map(el => el.textContent.trim())
+    expect(labels).toEqual(['Individual', 'Species', 'Subspecies'])
+    const stats = [...host.querySelectorAll('.location-summary .stat-label')].map(el => el.textContent.trim())
+    expect(stats).toEqual(['species', 'individual'])
+  })
+
+  it('keeps choices and counts when a site has several records', () => {
+    const site = points.slice(0, 2).map(point => ({ ...point, collection_location: 'Suchipakari', lat: -1, scientific_name: 'Mechanitis polymnia', subspecies: 'polymnia' }))
+    const host = mount({ coordinates: { lat: -1, lng: -77.6 }, points: site })
+    expect(host.querySelector('.individual-select')).not.toBeNull()
+    expect(host.querySelector('.individuals-section .count-badge').textContent).toBe('2')
+    expect(host.querySelector('.individuals-section .section-label').textContent.trim()).toBe('Individuals')
+    expect(host.querySelector('.location-summary .location-stats').textContent).toContain('individuals')
+  })
+
+  it('puts focus on the expand button when the photo opens the gallery, so it comes back there', async () => {
+    const withPhoto = { ...points[0], image_url: 'https://example.org/photo.jpg' }
+    let focusedAtOpen = null
+    const host = mount({
+      coordinates: { lat: -1, lng: -77.6 }, points: [withPhoto],
+      onOpenGallery: () => { focusedAtOpen = document.activeElement }
+    })
+    await nextTick()
+    host.querySelector('.photo-container img').click()
+    expect(focusedAtOpen).toBe(host.querySelector('.expand-btn'))
   })
 })

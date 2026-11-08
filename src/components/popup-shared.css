@@ -21,14 +21,26 @@
   .point-popup .photo-openable:hover img { transform: none; }
 }
 
-/* Touch screens: the dock and close buttons keep their 26 px look but take a 44 px tap area. */
+/* Touch screens: the dock and close buttons, the photo's expand button and the GoaT link keep their look but take
+   a tap area of about 44 px. */
 @media (pointer: coarse) {
-  .point-popup .popup-action-btn {
+  .point-popup .popup-action-btn,
+  .point-popup .goat-header-link {
     position: relative;
   }
   .point-popup .popup-action-btn::before {
     content: '';
     position: absolute;
     inset: -9px;
+  }
+  .point-popup .expand-btn::before {
+    content: '';
+    position: absolute;
+    inset: -8px;
+  }
+  .point-popup .goat-header-link::before {
+    content: '';
+    position: absolute;
+    inset: -10px -4px;
   }
 }

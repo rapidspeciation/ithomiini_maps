@@ -8,13 +8,14 @@ const genomeExpandedPreference = moduleRef(false)
 import { computed, ref, watch } from 'vue'
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import { useDataStore } from '../stores/data'
-import { getThumbnailUrl } from '../utils/imageProxy'
+import { getImageUrlCandidates } from '../utils/imageProxy'
 import { STATUS_COLORS } from '../utils/constants'
 import { getGoatUrl, parseBioprojectIds } from '../utils/goatHelpers'
 import { usePopupSelection } from '../composables/usePopupSelection'
 import { computeClusterStats, countUniqueIndividuals } from '../utils/clusterStats'
 import { groupCollectionSites, recordedPointsForFeatures } from '../utils/collectionSites'
 import LocalityMapLink from './LocalityMapLink.vue'
+import FallbackImage from './FallbackImage.vue'
 import { displayRecordId, recordIdTitle } from '../utils/recordId'
 
 const props = defineProps({
@@ -94,6 +95,15 @@ const currentPhoto = computed(() => {
   return store.getPhotoForItem(currentIndividual.value)
 })
 
+// The popup photo tries the same sources as the gallery and table; when every one fails the box says "No photo"
+// and stops offering the gallery.
+const photoCandidates = computed(() =>
+  currentPhoto.value?.url ? getImageUrlCandidates(currentPhoto.value.url, { width: 800 }) : [])
+const photoFailed = ref(false)
+watch(() => currentPhoto.value?.url, () => { photoFailed.value = false })
+const hasPhoto = computed(() => Boolean(currentPhoto.value?.url) && !photoFailed.value)
+const expandBtn = ref(null)
+
 // Handle individual selection
 const selectIndividual = (index) => {
   selectedIndividualIndex.value = index
@@ -147,12 +157,18 @@ const subspeciesCount = computed(() => {
 // Individual count for current species+subspecies
 const individualsCount = computed(() => individualsList.value.length)
 const recordSelectorLabel = computed(() => {
-  if (!props.isCluster) return 'Individuals'
-  return selectedSubspecies.value ? 'Subspecies Records' : 'Species Records'
+  const one = individualsCount.value === 1
+  if (!props.isCluster) return one ? 'Individual' : 'Individuals'
+  if (selectedSubspecies.value) return one ? 'Subspecies record' : 'Subspecies records'
+  return one ? 'Species record' : 'Species records'
 })
+const plural = (count, one, many) => (count === 1 ? one : many)
 
 // Open gallery with current selection
-const openGallery = () => {
+const openGallery = (fromPhoto = false) => {
+  // A click on the photo leaves focus on the page; put it on the expand button so it comes back here when the
+  // gallery closes.
+  if (fromPhoto === true) expandBtn.value?.focus({ preventScroll: true })
   // Set gallery selection in store
   store.gallerySelection = {
     species: selectedSpecies.value,
@@ -282,7 +298,7 @@ const bioprojects = computed(() => {
       <div class="location-stats summary-stats">
         <div class="stat">
           <span class="stat-value">{{ totalIndividuals }}</span>
-          <span class="stat-label">individuals</span>
+          <span class="stat-label">{{ plural(totalIndividuals, 'individual', 'individuals') }}</span>
         </div>
         <div class="stat">
           <span class="stat-value">{{ totalSpecies }}</span>
@@ -345,55 +361,55 @@ const bioprojects = computed(() => {
       <LocalityMapLink v-if="!isCluster" :site="locationSite" />
     </div>
 
-    <div v-if="!showSummary" class="popup-layout">
-      <!-- Left Column: Photo & Individual Details -->
-      <div class="popup-left-section">
-        <!-- Photo -->
-        <div class="photo-container" :class="{ 'photo-openable': currentPhoto?.url }" @click="currentPhoto?.url && openGallery()">
-          <img
-            v-if="currentPhoto?.url"
-            :src="getThumbnailUrl(currentPhoto.url)"
-            :alt="currentIndividual?.id || 'Specimen'"
-            loading="lazy"
-            referrerpolicy="no-referrer"
-            @error="$event.target.style.display = 'none'"
-          />
-          <div v-else class="no-photo">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-              <circle cx="8.5" cy="8.5" r="1.5"/>
-              <polyline points="21 15 16 10 5 21"/>
-            </svg>
-            <span>No photo</span>
-          </div>
-
-          <!-- Photo indicator -->
-          <div v-if="!currentPhoto?.sameIndividual && currentPhoto?.url" class="photo-indicator">
-            Same species
-          </div>
-
-          <!-- Expand button -->
-          <button
-            v-if="currentPhoto?.url"
-            class="expand-btn"
-            type="button"
-            title="View in Gallery"
-            aria-label="Open photo in the gallery"
-            @click.stop="openGallery"
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="15 3 21 3 21 9"/>
-              <polyline points="9 21 3 21 3 15"/>
-              <line x1="21" y1="3" x2="14" y2="10"/>
-              <line x1="3" y1="21" x2="10" y2="14"/>
-            </svg>
-          </button>
+    <div v-if="!showSummary" class="popup-layout" :class="{ 'popup-layout--no-crumbs': !hasSummary }">
+      <!-- Photo: beside the details on narrow screens, across the card on laptops (grid areas below) -->
+      <div class="photo-container" :class="{ 'photo-openable': hasPhoto }" @click="hasPhoto && openGallery(true)">
+        <FallbackImage
+          v-if="hasPhoto"
+          :candidates="photoCandidates"
+          :alt="currentIndividual?.id || 'Specimen'"
+          loading="lazy"
+          @error="photoFailed = true"
+        />
+        <div v-else class="no-photo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
+          <span>No photo</span>
         </div>
 
+        <!-- Photo indicator -->
+        <div v-if="hasPhoto && !currentPhoto?.sameIndividual" class="photo-indicator">
+          Same species
+        </div>
+
+        <!-- Expand button -->
+        <button
+          v-if="hasPhoto"
+          ref="expandBtn"
+          class="expand-btn"
+          type="button"
+          title="View in Gallery"
+          aria-label="Open photo in the gallery"
+          @click.stop="openGallery"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 3 21 3 21 9"/>
+            <polyline points="9 21 3 21 3 15"/>
+            <line x1="21" y1="3" x2="14" y2="10"/>
+            <line x1="3" y1="21" x2="10" y2="14"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Left Column: Individual Details -->
+      <div class="popup-left-section">
         <!-- Individuals Dropdown -->
         <div class="individuals-section">
           <div class="section-header">
-            <span class="count-badge">{{ individualsCount }}</span>
+            <span v-if="individualsCount > 1" class="count-badge">{{ individualsCount }}</span>
             <span class="section-label">{{ recordSelectorLabel }}</span>
           </div>
           <select
@@ -472,10 +488,11 @@ const bioprojects = computed(() => {
         <!-- Species Section -->
         <div class="taxonomy-section">
           <div class="section-header">
-            <span class="count-badge">{{ totalSpecies }}</span>
+            <span v-if="speciesList.length > 1" class="count-badge">{{ totalSpecies }}</span>
             <span class="section-label">Species</span>
           </div>
           <select
+            v-if="speciesList.length > 1"
             :value="selectedSpecies || ''"
             @change="selectSpecies($event.target.value || null)"
             class="taxonomy-select"
@@ -488,15 +505,18 @@ const bioprojects = computed(() => {
               {{ sp.species }} ({{ sp.count }})
             </option>
           </select>
+          <!-- One species here: plain text, like a single individual -->
+          <div v-else class="single-taxon">{{ selectedSpecies || speciesList[0]?.species }}</div>
         </div>
 
         <!-- Subspecies Section -->
         <div v-if="subspeciesList.length > 0" class="taxonomy-section">
           <div class="section-header">
-            <span class="count-badge">{{ subspeciesCount }}</span>
+            <span v-if="subspeciesList.length > 1" class="count-badge">{{ subspeciesCount }}</span>
             <span class="section-label">Subspecies</span>
           </div>
           <select
+            v-if="subspeciesList.length > 1"
             :value="selectedSubspecies || ''"
             @change="selectSubspecies($event.target.value || null)"
             class="taxonomy-select"
@@ -509,6 +529,7 @@ const bioprojects = computed(() => {
               {{ ssp.name }} ({{ ssp.count }})
             </option>
           </select>
+          <div v-else class="single-taxon">{{ selectedSubspecies || subspeciesList[0]?.name }}</div>
         </div>
 
         <template v-if="!hasSummary">
@@ -584,7 +605,7 @@ const bioprojects = computed(() => {
             </div>
             <div class="stat">
               <span class="stat-value">{{ totalIndividuals }}</span>
-              <span class="stat-label">individuals</span>
+              <span class="stat-label">{{ plural(totalIndividuals, 'individual', 'individuals') }}</span>
             </div>
             <div v-if="hasDuplicateRecords" class="stat">
               <span class="stat-value">{{ totalRecords }}</span>
@@ -747,20 +768,27 @@ const bioprojects = computed(() => {
 }
 
 .popup-layout {
-  display: flex;
-  gap: 10px;
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    "photo right"
+    "left  right";
+  gap: 8px 10px;
 }
 
-/* Left Column: Photo & Individual Details */
+/* Left Column: Individual Details */
 .popup-left-section {
-  flex-shrink: 0;
-  width: 150px;
+  grid-area: left;
+  align-self: start;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
 .photo-container {
+  grid-area: photo;
   position: relative;
   width: 150px;
   height: 150px;
@@ -774,6 +802,34 @@ const bioprojects = computed(() => {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* Laptops: the specimen sheet (wings, label, ruler) spans the card and is shown whole, readable without a click. */
+@media (min-width: 1024px) {
+  .popup-layout {
+    grid-template-rows: auto auto;
+    grid-template-areas:
+      "photo photo"
+      "left  right";
+  }
+  /* Without the crumbs row, keep the dock and close buttons off the photo. */
+  .popup-layout--no-crumbs {
+    padding-top: 24px;
+  }
+  .photo-container {
+    width: 100%;
+    height: min(250px, 32vh);
+  }
+  .photo-container img {
+    object-fit: contain;
+  }
+  /* No photo: a short box, not a large empty one. */
+  .photo-container:has(.no-photo) {
+    height: 96px;
+  }
+  .photo-container:has(.no-photo) .no-photo {
+    flex-direction: row;
+  }
 }
 
 .no-photo {
@@ -949,7 +1005,8 @@ const bioprojects = computed(() => {
 
 /* Right Column: Species, Subspecies & Location */
 .popup-right-section {
-  flex: 1;
+  grid-area: right;
+  align-self: start;
   min-width: 0;
   display: flex;
   flex-direction: column;
@@ -972,6 +1029,18 @@ const bioprojects = computed(() => {
   font-style: italic;
   cursor: pointer;
   transition: all 0.2s;
+}
+
+.single-taxon {
+  padding: 6px 8px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  color: var(--color-text-primary);
+  font-size: 0.85rem;
+  font-style: italic;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
 }
 
 .taxonomy-select:hover {

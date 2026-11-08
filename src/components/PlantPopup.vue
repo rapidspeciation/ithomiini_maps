@@ -63,9 +63,17 @@ const plantImageCandidates = computed(() =>
   plantPhoto.value?.url ? getImageUrlCandidates(plantPhoto.value.url, { width: 400 }) : []
 )
 
+// When every source fails the card shows the host plant marker again and stops offering the photo.
+const photoFailed = ref(false)
+watch(() => plantPhoto.value?.url, () => { photoFailed.value = false })
+const hasPhoto = computed(() => Boolean(plantPhoto.value?.url) && !photoFailed.value)
+const galleryBtn = ref(null)
+
 const rankLabel = computed(() => props.taxon.rank || 'host taxon')
 
-const openGallery = () => {
+const openGallery = (fromPhoto = false) => {
+  // Focus comes back to the gallery button when the gallery closes.
+  if (fromPhoto === true) galleryBtn.value?.focus({ preventScroll: true })
   const occ = activeOccurrence.value
   store.gallerySelection = {
     mode: 'host-plants',
@@ -95,12 +103,13 @@ const openGallery = () => {
 
     <div class="popup-layout">
       <div class="popup-left-section">
-        <div class="plant-marker-card" :class="{ 'photo-openable': plantPhoto?.url }" @click="plantPhoto?.url && openGallery()">
+        <div class="plant-marker-card" :class="{ 'photo-openable': hasPhoto }" @click="hasPhoto && openGallery(true)">
           <FallbackImage
-            v-if="plantPhoto?.url"
+            v-if="hasPhoto"
             :candidates="plantImageCandidates"
             :alt="displayName"
             loading="lazy"
+            @error="photoFailed = true"
           />
           <template v-else>
           <svg viewBox="0 0 64 64" aria-hidden="true">
@@ -108,10 +117,11 @@ const openGallery = () => {
           </svg>
           <span>Host plant occurrence</span>
           </template>
-          <div v-if="plantPhoto?.url && !plantPhoto.sameOccurrence" class="photo-indicator">
+          <div v-if="hasPhoto && !plantPhoto.sameOccurrence" class="photo-indicator">
             Same host plant
           </div>
           <button
+            ref="galleryBtn"
             class="open-gallery-btn"
             type="button"
             title="Open host plant gallery"
@@ -128,7 +138,7 @@ const openGallery = () => {
 
         <div class="individuals-section">
           <div class="section-header">
-            <span class="count-badge">{{ occurrenceCount }}</span>
+            <span v-if="occurrenceCount > 1" class="count-badge">{{ occurrenceCount }}</span>
             <span class="section-label">{{ occurrenceCount === 1 ? 'Occurrence' : 'Occurrences at site' }}</span>
           </div>
           <select
@@ -174,7 +184,6 @@ const openGallery = () => {
       <div class="popup-right-section">
         <div class="taxonomy-section">
           <div class="section-header">
-            <span class="count-badge">1</span>
             <span class="section-label">Host {{ rankLabel }}</span>
           </div>
           <div class="taxonomy-select taxonomy-display">
