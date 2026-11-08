@@ -953,10 +953,11 @@ watch(currentIndex, () => {
             </button>
 
             <!-- Image counter -->
-            <div class="image-counter">
+            <!-- One photo: no "1 / 1" (phones still name the species under it). -->
+            <div class="image-counter" :class="{ 'image-counter--single': specimensWithImages.length <= 1 }">
               <!-- Phones have no sidebar beside the photo: name what it shows. -->
               <em v-if="currentSpecimen?.scientific_name" class="image-counter-name">{{ currentSpecimen.scientific_name }}</em>
-              {{ currentIndex + 1 }} / {{ specimensWithImages.length }}
+              <template v-if="specimensWithImages.length > 1">{{ currentIndex + 1 }} / {{ specimensWithImages.length }}</template>
             </div>
             <button
               v-if="specimensWithImages.length > 1"

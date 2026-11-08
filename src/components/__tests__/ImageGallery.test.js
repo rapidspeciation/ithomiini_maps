@@ -100,6 +100,15 @@ describe('ImageGallery', () => {
     expect(sidebar.textContent).not.toContain('Individuals')
   })
 
+  it('names the sex and says "Coordinates" like the popup, and shows no "1 / 1" for one photo', async () => {
+    const { host } = await mountGallery({ features: [{ ...records[0], sex: 'female' }] })
+    const rows = [...host.querySelectorAll('.sidebar-details .detail-row')].map(el => el.textContent.replace(/\s+/g, ''))
+    expect(rows).toContain('Sex:♀female')
+    expect(rows.some(r => r.startsWith('Coordinates:'))).toBe(true)
+    expect(host.querySelector('.image-counter').textContent).not.toContain('/')
+    expect(host.querySelector('.image-counter').classList.contains('image-counter--single')).toBe(true)
+  })
+
   it('keeps pickers, count badges and the Search summary for several records', async () => {
     const { host } = await mountGallery()
     const sidebar = host.querySelector('.gallery-sidebar')

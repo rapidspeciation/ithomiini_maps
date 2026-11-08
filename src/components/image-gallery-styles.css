@@ -277,6 +277,11 @@
   display: none;
 }
 
+/* Desktop: the counter badge only counts, so one photo has none. */
+.image-counter--single {
+  display: none;
+}
+
 /* Desktop: the row adds no box, so the arrows and the count keep their places on the photo. */
 .photo-nav-row {
   display: contents;
@@ -640,6 +645,14 @@
   .image-counter-name {
     display: inline;
     margin-right: 6px;
+  }
+
+  .image-counter.image-counter--single {
+    display: block;
+  }
+
+  .image-counter--single .image-counter-name {
+    margin-right: 0;
   }
 
   .thumbnail-strip {
