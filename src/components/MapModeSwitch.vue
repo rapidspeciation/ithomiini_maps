@@ -84,7 +84,8 @@ function onKeydown(event, index) {
   display: inline-flex;
   align-items: stretch;
   background: var(--color-bg-overlay);
-  border: 1px solid var(--color-border);
+  /* The control-edge role (3:1 and more), as the phone pills and the buttons beside it. */
+  border: 1px solid var(--color-border-control);
   border-radius: 8px;
   box-shadow: 0 2px 10px var(--color-shadow-color);
   backdrop-filter: blur(4px);
@@ -100,7 +101,7 @@ function onKeydown(event, index) {
   padding: 0 11px;
   background: transparent;
   border: none;
-  border-left: 1px solid var(--color-border);
+  border-left: 1px solid var(--color-border-control);
   color: var(--color-text-secondary);
   font: inherit;
   font-size: 0.8rem;
@@ -119,13 +120,14 @@ function onKeydown(event, index) {
   border-radius: 0 7px 7px 0;
 }
 
+/* A tint that shows on the light overlay too (the white of bg-secondary did not). */
 .map-mode-btn:hover:not(.active) {
-  background: var(--color-bg-secondary);
+  background: var(--color-bg-hover);
   color: var(--color-text-primary);
 }
 
 .map-mode-btn:active:not(.active) {
-  background: var(--color-bg-hover);
+  background: rgb(var(--color-accent-rgb) / 0.14);
 }
 
 .map-mode-icon {

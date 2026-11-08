@@ -364,7 +364,7 @@
   height: 36px;
   padding: 0;
   background: var(--color-bg-overlay);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-control);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
@@ -383,7 +383,7 @@
   gap: 8px;
   padding: 8px 12px;
   background: var(--color-bg-overlay);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-control);
   border-radius: 8px;
   color: var(--color-text-primary);
   font-size: 0.8rem;
@@ -396,7 +396,7 @@
 
 .dropdown-trigger:hover {
   background: var(--color-bg-secondary);
-  border-color: var(--color-border-light);
+  border-color: var(--color-accent);
 }
 
 .dropdown-trigger .layer-icon {
@@ -645,7 +645,7 @@
   gap: 6px;
   padding: 8px;
   background: var(--color-bg-overlay);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-control);
   border-radius: 8px;
   color: var(--color-text-secondary);
   cursor: pointer;
@@ -982,8 +982,15 @@
   max-width: unset;
   padding: 12px;
 }
+/* One column in the 340 px panel: photo, individual, then species and the Location Summary at full width (two
+   columns left the summary 150 px, and place names broke mid-word). The photo keeps its size. */
 .detail-panel-body :deep(.popup-layout) {
-  flex-direction: column;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto;
+  grid-template-areas:
+    "photo"
+    "left"
+    "right";
 }
 .detail-panel-body :deep(.popup-left-section) {
   width: 100%;
@@ -1059,6 +1066,19 @@
   transition: right 0.25s ease-out;
 }
 
+/* The Field sites tab rides on the docked panel's left edge instead of lying over the record photo; on phones,
+   where the panel is the full width, it waits until the panel closes. */
+@media (min-width: 601px) {
+  .panel-docked:not(.comparison-docked) :deep(.field-sites-tab) {
+    right: var(--dock-width);
+  }
+}
+@media (max-width: 600px) {
+  .panel-docked:not(.comparison-docked) :deep(.field-sites-tab) {
+    visibility: hidden;
+  }
+}
+
 /* Laptop widths with a docked panel: the map is too narrow for the area button beside the zoom group (it landed on
    the light/dark button), so it goes under the zoom and full-screen buttons. */
 @media (min-width: 601px) and (max-width: 1279px) {
@@ -1100,9 +1120,10 @@
     left: 0;
   }
 }
-/* Docked and narrow: icons only (names stay for screen readers and in the tooltip). */
+/* Docked and narrow: icons only, except the chosen mode, which keeps its name (the others keep theirs for screen
+   readers and in the tooltip). */
 @media (min-width: 769px) and (max-width: 1279px) {
-  .panel-docked .map-mode-switch--toolbar :deep(.map-mode-label) {
+  .panel-docked .map-mode-switch--toolbar :deep(.map-mode-btn:not(.active) .map-mode-label) {
     position: absolute;
     width: 1px;
     height: 1px;
