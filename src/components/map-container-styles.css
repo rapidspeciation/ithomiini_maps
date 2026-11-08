@@ -797,8 +797,10 @@
     visibility: hidden;
   }
 
+  /* Centred on the screen, the card stays below the pill row (it ends near y 100): a taller card scrolls inside,
+     with its dock and close buttons kept at the top. */
   :deep(.enhanced-popup .point-popup) {
-    max-height: calc(100dvh - 24px);
+    max-height: calc(100dvh - 2 * 112px);
     overflow-y: auto;
     overscroll-behavior: contain;
   }

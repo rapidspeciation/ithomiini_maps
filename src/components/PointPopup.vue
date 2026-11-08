@@ -747,10 +747,11 @@ const bioprojects = computed(() => {
 :global(.enhanced-popup .point-popup.cluster-popup) { max-height: min(75vh, 650px, var(--popup-room, 100vh)); overflow-y: auto; overscroll-behavior: contain; scrollbar-color: var(--color-border-light) transparent; }
 
 /* Dock and close stay in view when a tall card scrolls: a sticky row of no height at the top of the card, at the
-   same place as before (8 px from the top and right edges). The margins cancel out, so nothing below moves. */
+   same place as before (8 px from the top and right edges). The margins cancel out, so nothing below moves. The
+   sticky offset counts from inside the card's 12 px padding, hence -4 px. */
 .popup-actions {
   position: sticky;
-  top: 8px;
+  top: -4px;
   height: 0;
   margin: -4px -4px 4px 0;
   display: flex;
