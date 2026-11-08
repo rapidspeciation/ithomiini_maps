@@ -154,8 +154,17 @@ describe('PointPopup', () => {
     expect(host.querySelectorAll('.count-badge')).toHaveLength(0)
     const labels = [...host.querySelectorAll('.section-label')].map(el => el.textContent.trim())
     expect(labels).toEqual(['Individual', 'Species', 'Subspecies'])
-    const stats = [...host.querySelectorAll('.location-summary .stat-label')].map(el => el.textContent.trim())
-    expect(stats).toEqual(['species', 'individual'])
+    // No "1 species · 1 individual · ♂ 1": the sex is a detail row instead.
+    expect(host.querySelector('.location-summary .location-stats')).toBeNull()
+    expect(host.querySelector('.location-summary .sex-stats')).toBeNull()
+    expect(host.querySelector('.details-section').textContent).not.toContain('Sex:')
+  })
+
+  it('shows the sex of one record as a detail row', () => {
+    const host = mount({ coordinates: { lat: -1, lng: -77.6 }, points: [{ ...points[0], sex: 'male' }] })
+    const rows = [...host.querySelectorAll('.details-section .detail-row')].map(el => el.textContent.replace(/\s+/g, ''))
+    expect(rows).toContain('Sex:♂male')
+    expect(host.querySelector('.sex-stats')).toBeNull()
   })
 
   it('keeps choices and counts when a site has several records', () => {

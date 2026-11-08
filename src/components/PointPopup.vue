@@ -144,6 +144,9 @@ const formattedRadius = computed(() => {
 
 // Sex counts
 const maleCount = computed(() => props.points.filter(p => p.sex === 'male').length)
+// One record at a plain site: the popup already names it, so counts of 1 would only repeat it.
+const singleRecord = computed(() => !props.isCluster && props.points.length === 1)
+const singleRecordSex = computed(() => (singleRecord.value && ['male', 'female'].includes(props.points[0]?.sex) ? props.points[0].sex : null))
 const femaleCount = computed(() => props.points.filter(p => p.sex === 'female').length)
 
 // Subspecies count for selected species
@@ -440,6 +443,11 @@ const bioprojects = computed(() => {
             <span class="detail-value">{{ currentIndividual.observation_date }}</span>
           </div>
 
+          <div v-if="singleRecordSex" class="detail-row">
+            <span class="detail-label">Sex:</span>
+            <span class="detail-value sex-count" :class="singleRecordSex">{{ singleRecordSex === 'male' ? '♂ male' : '♀ female' }}</span>
+          </div>
+
           <!-- Mimicry Ring -->
           <div v-if="currentIndividual?.mimicry_ring && currentIndividual.mimicry_ring !== 'Unknown'" class="detail-row">
             <span class="detail-label">Mimicry Ring:</span>
@@ -598,7 +606,8 @@ const bioprojects = computed(() => {
             <span class="detail-value">{{ formattedRadius }}</span>
           </div>
 
-          <div class="location-stats">
+          <!-- One record: no row of ones; its sex is a detail row beside Date and Source. -->
+          <div v-if="!singleRecord" class="location-stats">
             <div class="stat">
               <span class="stat-value">{{ totalSpecies }}</span>
               <span class="stat-label">species</span>
@@ -614,7 +623,7 @@ const bioprojects = computed(() => {
           </div>
 
           <!-- Sex counts (only show if we have sex data) -->
-          <div v-if="!isCluster && (maleCount > 0 || femaleCount > 0)" class="sex-stats">
+          <div v-if="!singleRecord && !isCluster && (maleCount > 0 || femaleCount > 0)" class="sex-stats">
             <span v-if="maleCount > 0" class="sex-count male">♂ {{ maleCount }}</span>
             <span v-if="femaleCount > 0" class="sex-count female">♀ {{ femaleCount }}</span>
             <span v-if="totalRecords - maleCount - femaleCount > 0" class="sex-count unknown">
@@ -1196,6 +1205,10 @@ const bioprojects = computed(() => {
 
 .sex-count.female {
   color: var(--color-sex-female);
+}
+
+.detail-value.sex-count {
+  display: inline;
 }
 
 .sex-count.unknown {
