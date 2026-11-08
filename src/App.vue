@@ -398,11 +398,11 @@ onMounted(async () => {
       <!-- Mobile quick actions (top bar; replaces the location search row) -->
       <div class="mobile-quick-bar" :class="{ 'mobile-quick-bar--hidden': showMobileSidebar || showImageGallery, 'mobile-quick-bar--grid': !store.exportSettings.enabled }">
         <template v-if="!store.exportSettings.enabled">
-          <button class="mobile-pill" :class="{ 'mobile-pill--active': currentView === 'map' }" @click="setView('map')">
+          <button class="mobile-pill" :class="{ 'mobile-pill--active': currentView === 'map' }" :aria-pressed="currentView === 'map'" @click="setView('map')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
             <span>Map</span>
           </button>
-          <button class="mobile-pill" :class="{ 'mobile-pill--active': currentView === 'table' }" @click="setView('table')">
+          <button class="mobile-pill" :class="{ 'mobile-pill--active': currentView === 'table' }" :aria-pressed="currentView === 'table'" @click="setView('table')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
             <span>Table</span>
           </button>
@@ -755,6 +755,9 @@ html, body, #app {
 .mobile-sidebar-panel > .sidebar {
   overflow: visible !important;
 }
+.mobile-sidebar-panel .sidebar-footer button {
+  min-height: 44px;
+}
 .mobile-sidebar-panel .sidebar-footer {
   position: sticky;
   bottom: 0;
@@ -876,19 +879,14 @@ html, body, #app {
   transform: translateY(-8px);
 }
 
-.mobile-pill--active {
-  background: var(--color-accent);
-  color: var(--color-on-accent);
-  border-color: var(--color-accent);
-}
-
 .mobile-pill {
   display: inline-flex;
   align-items: center;
   gap: 5px;
   min-height: 44px;
   padding: 8px 12px;
-  border: 1px solid rgb(var(--color-text-primary-rgb) / 0.18);
+  /* The control-edge token (3:1 and more on the page colours): the pills float on the map, which is just as light. */
+  border: 1px solid var(--color-border-control);
   border-radius: 999px;
   background: rgb(var(--color-bg-primary-rgb) / 0.85);
   backdrop-filter: blur(12px);
@@ -904,6 +902,13 @@ html, body, #app {
 
 .mobile-pill:active {
   transform: scale(0.96);
+}
+
+/* The view in use (Map or Table): accent fill and edge. After .mobile-pill, which used to win and hide it. */
+.mobile-pill.mobile-pill--active {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  border-color: var(--color-accent);
 }
 
 .mobile-pill svg {
