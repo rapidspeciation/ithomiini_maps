@@ -791,6 +791,12 @@
     display: none;
   }
 
+  /* The centred card would cover half of the zoom group and the area button: hide them until it closes. */
+  .map-wrapper.popup-open :deep(.maplibregl-ctrl-top-right),
+  .map-wrapper.popup-open .bbox-controls {
+    visibility: hidden;
+  }
+
   :deep(.enhanced-popup .point-popup) {
     max-height: calc(100dvh - 24px);
     overflow-y: auto;

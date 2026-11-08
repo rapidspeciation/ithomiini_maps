@@ -24,7 +24,7 @@ import { usePlanningStore } from '../stores/planning'
 import { parseSharedMapView } from '../utils/sharedMapView'
 import { EXPORT_BBOX_MAX_ZOOM, EXPORT_BBOX_PADDING, EXPORT_FRAME, exportSites, exportTitle, occlusionScore, overlayRects, parseBbox } from '../utils/exportMetadata'
 import { clusterCircleRadius } from '../utils/clusterComposition'
-import { MERGED_SIZE_CAP, markerSizeFactor } from '../utils/sites'
+import { MERGED_SIZE_CAP, markerSizeFactor, siteKeyFor } from '../utils/sites'
 import { waitForMapIdle } from '../utils/mapImageExport'
 import { readClusterLeaves } from '../utils/clusterLeaves'
 import { useLocalityLayer } from '../composables/useLocalityLayer'
@@ -737,12 +737,31 @@ watch([() => planning.localitySettings, () => planning.shortlistIds, () => plann
   localityLayer.refresh()
 }, { deep: true })
 
+// A site chosen in a cluster popup or the field sites panel: fly there, then open its popup, as a click on its
+// marker would (it used to close the popup and leave the reader to find the marker).
 watch(() => planning.focusRequestId, () => {
   const id = planning.selectedSiteId
   const site = planning.sites.find(s => s.id === id)
   if (!site || !map.value) return
   closeEnhancedPopup()
-  map.value.flyTo({ center: site.coordinates, zoom: Math.max(map.value.getZoom(), 11), duration: 600 })
+  const recorded = site.recordedPoints || []
+  const lngLat = recorded.length === 1 ? recorded[0] : site.coordinates
+  const keys = new Set(recorded.map(siteKeyFor))
+  const points = (store.filteredGeoJSON?.features || [])
+    .filter(f => Array.isArray(f.geometry?.coordinates) && keys.has(siteKeyFor(f.geometry.coordinates)))
+    .map(f => f.properties)
+  const request = planning.focusRequestId
+  let opened = false
+  const open = () => {
+    // Only once, and not if another site was chosen meanwhile.
+    if (opened || request !== planning.focusRequestId || !points.length || !map.value) return
+    opened = true
+    handleShowPopup({ type: 'point', coordinates: { lat: lngLat[1], lng: lngLat[0] }, lngLat, points })
+  }
+  map.value.once('moveend', open)
+  // A fly-to that does not move the camera may end without a moveend.
+  setTimeout(open, 1200)
+  map.value.flyTo({ center: lngLat, zoom: Math.max(map.value.getZoom(), 11), duration: 600 })
 })
 
 // Title strip of ?export=1, composed from the active filters only.
@@ -1002,7 +1021,7 @@ defineExpose({ prepareExport, collectExportState, exportStateVersion })
 </script>
 
 <template>
-  <div ref="mapWrapper" class="map-wrapper" :class="{ 'export-mode': store.exportSettings.enabled, 'panel-docked': !!activeDock, 'comparison-docked': activeDock === 'comparison' }">
+  <div ref="mapWrapper" class="map-wrapper" :class="{ 'export-mode': store.exportSettings.enabled, 'panel-docked': !!activeDock, 'comparison-docked': activeDock === 'comparison', 'popup-open': showEnhancedPopup && !popupDocked }">
     <div
       ref="mapContainer"
       class="map"
