@@ -137,6 +137,7 @@ export function useLocationSearch(map) {
     showSearchResults,
     activeIndex,
     searchInputRef,
+    searchLocation,
     onSearchInput,
     selectSearchResult,
     onSearchKeydown,

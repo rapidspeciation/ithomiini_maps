@@ -197,6 +197,7 @@ provide('openImageGallery', openImageGallery)
 provide('openExport', openExport)
 provide('directExportMap', directExportMap)
 provide('setView', setView)
+provide('mapRef', mapRef)
 
 onMounted(async () => {
   await store.loadMapData()
@@ -395,7 +396,7 @@ onMounted(async () => {
       </button>
 
       <!-- Mobile quick actions (top bar; replaces the location search row) -->
-      <div class="mobile-quick-bar" :class="{ 'mobile-quick-bar--hidden': showMobileSidebar || showImageGallery }">
+      <div class="mobile-quick-bar" :class="{ 'mobile-quick-bar--hidden': showMobileSidebar || showImageGallery, 'mobile-quick-bar--grid': !store.exportSettings.enabled }">
         <template v-if="!store.exportSettings.enabled">
           <button class="mobile-pill" :class="{ 'mobile-pill--active': currentView === 'map' }" @click="setView('map')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
@@ -749,6 +750,19 @@ html, body, #app {
   box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
 }
 
+/* Phones: Reset, Share and Export stay at the bottom of the Menu while it scrolls (it is about 2,300 px long). The
+   footer keeps its own place at the end, so it never covers the last filters. */
+.mobile-sidebar-panel > .sidebar {
+  overflow: visible !important;
+}
+.mobile-sidebar-panel .sidebar-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  box-shadow: 0 -6px 16px var(--color-shadow-color);
+}
+
 .mobile-sidebar-panel > .sidebar {
   position: static !important;
   width: 100% !important;
@@ -782,7 +796,7 @@ html, body, #app {
 /* Phones: record count under the pill row, left of the map controls */
 .mobile-record-count {
   position: fixed;
-  top: 106px;
+  top: 110px;
   left: 10px;
   /* Under the Field sites and detail panels (25, 35), which open over it. */
   z-index: 20;
@@ -823,6 +837,37 @@ html, body, #app {
 
 .mobile-quick-bar::-webkit-scrollbar {
   display: none;
+}
+
+/* The six view and action pills share the row equally, icon over label, so none is cut off at 360 or 390 px. */
+.mobile-quick-bar--grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 4px;
+  overflow: visible;
+  mask-image: none;
+  -webkit-mask-image: none;
+}
+
+.mobile-quick-bar--grid .mobile-pill {
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  min-width: 0;
+  padding: 5px 2px;
+  border-radius: 14px;
+  font-size: 0.68rem;
+}
+
+.mobile-quick-bar--grid .mobile-pill svg {
+  width: 16px;
+  height: 16px;
+}
+
+.mobile-quick-bar--grid .mobile-pill span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .mobile-quick-bar--hidden {

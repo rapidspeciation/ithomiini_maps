@@ -8,6 +8,7 @@ import { getThemeOptions } from '@/themes/presets'
 const THEME_PRESETS = getThemeOptions()
 import { isValidValue } from '@/utils/validation'
 import config from '@/config'
+import { useLocationSearch } from '@/composables/useLocationSearch'
 
 const store = useDataStore()
 const legendStore = useLegendStore()
@@ -18,6 +19,28 @@ const openMimicryFn = inject('openMimicrySelector', null)
 const openExportFn = inject('openExport', null)
 const directExportMapFn = inject('directExportMap', null)
 const setViewFn = inject('setView', null)
+const mobileLayout = inject('mobileLayout', null)
+const mapRef = inject('mapRef', null)
+
+// Phones have no location box (the pill bar takes its row), so the sheet offers places too. The geocoder runs on a
+// tap, not as you type: species names would otherwise be sent to it on every search.
+const isPhone = computed(() => Boolean(mobileLayout?.isMobile?.value))
+const places = useLocationSearch(mapRef || ref(null))
+const placesQuery = ref('')
+const showPlaces = computed(() => isPhone.value && query.value.trim().length >= 2)
+const placeResults = computed(() =>
+  placesQuery.value && placesQuery.value === query.value.trim() ? places.searchResults.value : [])
+const searchPlaces = () => {
+  placesQuery.value = query.value.trim()
+  places.searchLocation(placesQuery.value)
+}
+const selectPlace = async (result) => {
+  dialogOpen.value = false
+  setViewFn?.('map')
+  await nextTick()
+  mapRef?.value?.resize?.()
+  places.selectSearchResult(result)
+}
 
 const dialogOpen = ref(false)
 const inputRef = ref(null)
@@ -771,10 +794,10 @@ defineExpose({ open: () => { dialogOpen.value = true } })
                     <span class="cmd-item-label">
                       <template v-if="hit.item.kind === 'subspecies'">
                         <em class="cmd-species">{{ hit.item.speciesName }}</em>
-                        <span v-html="highlight(hit.item.value, hit)" />
+                        <span class="cmd-binomial" v-html="highlight(hit.item.value, hit)" />
                       </template>
                       <template v-else>
-                        <span v-html="highlight(hit.item.value, hit)" />
+                        <span :class="{ 'cmd-binomial': hit.item.kind === 'species' }" v-html="highlight(hit.item.value, hit)" />
                       </template>
                     </span>
                     <span class="cmd-item-type">{{ hit.item.typeLabel }}</span>
@@ -796,14 +819,39 @@ defineExpose({ open: () => { dialogOpen.value = true } })
                     <span class="cmd-item-label">
                       <template v-if="hit.item.kind === 'subspecies'">
                         <em class="cmd-species">{{ hit.item.speciesName }}</em>
-                        {{ hit.item.value }}
+                        <em class="cmd-binomial">{{ hit.item.value }}</em>
                       </template>
+                      <em v-else-if="hit.item.kind === 'species'" class="cmd-binomial">{{ hit.item.value }}</em>
                       <template v-else>{{ hit.item.value }}</template>
                     </span>
                     <span class="cmd-item-type">{{ hit.item.typeLabel }}</span>
                     <span class="cmd-item-count">{{ hit.item.count.toLocaleString() }}</span>
                   </button>
                 </template>
+              </template>
+
+              <template v-if="showPlaces">
+                <div class="cmd-group-heading">Places</div>
+                <button
+                  v-if="!placeResults.length"
+                  type="button"
+                  class="cmd-item cmd-item--place-search"
+                  :disabled="places.isSearching.value"
+                  @click="searchPlaces"
+                >
+                  <svg class="cmd-place-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                  <span class="cmd-item-label">{{ places.isSearching.value ? 'Searching places…' : `Search places for “${query.trim()}”` }}</span>
+                </button>
+                <button
+                  v-for="place in placeResults"
+                  :key="place.name"
+                  type="button"
+                  class="cmd-item"
+                  @click="selectPlace(place)"
+                >
+                  <svg class="cmd-place-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                  <span class="cmd-item-label cmd-place-name">{{ place.name }}</span>
+                </button>
               </template>
             </div>
           </div>
@@ -822,7 +870,7 @@ defineExpose({ open: () => { dialogOpen.value = true } })
             </div>
 
             <div v-if="activeFilters.taxonomy.length > 0" class="cmd-tree">
-              <div class="cmd-group-heading cmd-group-heading--any">Taxonomy <span class="cmd-combinator">· click AND/OR to toggle</span></div>
+              <div class="cmd-group-heading cmd-group-heading--any">Taxonomy <span class="cmd-combinator">· click AND/OR to toggle</span><span class="cmd-combinator cmd-combinator--touch">· tap AND/OR to toggle</span></div>
               <template v-for="(node, idx) in activeFilters.taxonomy" :key="idx">
                 <button
                   v-if="node.type === 'combinator'"
@@ -1240,8 +1288,17 @@ defineExpose({ open: () => { dialogOpen.value = true } })
 .cmd-fade-leave-to { opacity: 0; }
 
 /* Touch screens: no arrow-key hint, and the close button gets a 44 px tap area. */
+.cmd-combinator--touch { display: none; }
+.cmd-binomial { font-style: italic; }
+.cmd-place-icon { width: 16px; height: 16px; flex-shrink: 0; color: var(--color-accent-text); }
+.cmd-place-name { white-space: normal; line-height: 1.3; }
+.cmd-item--place-search { color: var(--color-accent-text); }
+.cmd-item--place-search:disabled { cursor: progress; opacity: 0.8; }
+
 @media (pointer: coarse) {
   .cmd-key-hint { display: none; }
+  .cmd-combinator { display: none; }
+  .cmd-combinator--touch { display: inline; }
   .cmd-close { position: relative; }
   .cmd-close::before { content: ''; position: absolute; inset: -8px; }
 }

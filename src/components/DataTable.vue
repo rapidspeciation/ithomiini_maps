@@ -272,6 +272,8 @@ const toggleSort = (column) => {
 // Column toggle panel
 const showColumnSettings = ref(false)
 const showColumnFilters = ref(false)
+// Phones: rows per page, CSV export, columns and the colour theme sit behind one Options button.
+const showTableOptions = ref(false)
 const columnFilters = ref({})
 
 const clearColumnFilters = () => {
@@ -990,7 +992,7 @@ const exportTableCsv = () => {
 <template>
   <div class="data-table-container">
     <!-- Header Bar -->
-    <div class="table-header">
+    <div class="table-header" :class="{ 'table-header--options-open': showTableOptions }">
       <div class="header-left">
         <span class="record-count">
           <strong>{{ activeTableCount.toLocaleString() }}</strong>
@@ -1009,7 +1011,7 @@ const exportTableCsv = () => {
       </div>
       
       <div class="header-right">
-        <div class="table-theme-controls">
+        <div class="table-theme-controls table-secondary">
           <div class="table-theme-dropdown">
             <button
               type="button"
@@ -1078,7 +1080,7 @@ const exportTableCsv = () => {
         </div>
 
         <!-- Page Size -->
-        <select v-model="pageSize" class="page-size-select" aria-label="Rows per page" @change="currentPage = 1">
+        <select v-model="pageSize" class="page-size-select table-secondary" aria-label="Rows per page" @change="currentPage = 1">
           <option :value="25">25 rows</option>
           <option :value="50">50 rows</option>
           <option :value="100">100 rows</option>
@@ -1098,9 +1100,24 @@ const exportTableCsv = () => {
           <span v-if="activeFilterCount > 0" class="filter-count">{{ activeFilterCount }}</span>
         </button>
 
+        <!-- Phones only: shows the controls marked table-secondary -->
+        <button
+          type="button"
+          class="table-options-toggle"
+          :class="{ active: showTableOptions }"
+          :aria-expanded="showTableOptions"
+          @click="showTableOptions = !showTableOptions"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" aria-hidden="true">
+            <line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/>
+            <circle cx="9" cy="6" r="2" fill="currentColor"/><circle cx="15" cy="12" r="2" fill="currentColor"/><circle cx="8" cy="18" r="2" fill="currentColor"/>
+          </svg>
+          Options
+        </button>
+
         <!-- Export current table (filters + sort + visible columns applied) -->
         <button
-          class="column-filter-toggle"
+          class="column-filter-toggle table-secondary"
           @click="exportTableCsv"
           title="Download the current table as CSV (filters applied)"
         >
@@ -1115,7 +1132,7 @@ const exportTableCsv = () => {
         <!-- Column Settings -->
         <button
           v-if="tableView === 'records' || tableView === 'hostplants'"
-          class="btn-columns"
+          class="btn-columns table-secondary"
           @click="showColumnSettings = !showColumnSettings"
           :class="{ active: showColumnSettings }"
         >
@@ -2165,6 +2182,80 @@ const exportTableCsv = () => {
 }
 
 /* Column Dropdown */
+/* Phones: one row with the count, Filters and Options, then the view tabs; the rest opens under Options. Every
+   control keeps a 44 px tap height. */
+.table-options-toggle {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .table-header {
+    position: relative;
+    gap: 8px;
+    padding: 8px 12px;
+  }
+  .header-right {
+    display: contents;
+  }
+  .header-left {
+    flex: 1 1 auto;
+    min-width: 0;
+    flex-wrap: wrap;
+    gap: 2px 10px;
+    order: 0;
+  }
+  /* The pagination bar under the table already shows the page. */
+  .header-left .page-info {
+    display: none;
+  }
+  .header-right > .column-filter-toggle:not(.table-secondary) {
+    order: 1;
+    padding: 6px 10px;
+  }
+  .table-options-toggle {
+    order: 2;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: var(--color-bg-tertiary);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    color: var(--color-text-secondary);
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
+  .table-options-toggle.active {
+    background: var(--color-bg-hover);
+    color: var(--color-text-primary);
+    border-color: var(--color-border-light);
+  }
+  .view-mode-toggle {
+    order: 3;
+    flex: 1 1 100%;
+  }
+  .view-mode-toggle button {
+    flex: 1 1 0;
+  }
+  .table-secondary {
+    order: 5;
+    display: none;
+  }
+  .table-header--options-open .table-secondary {
+    display: flex;
+  }
+  .header-right > button,
+  .header-right > select,
+  .view-mode-toggle button,
+  .table-theme-trigger,
+  .table-mode-toggle {
+    min-height: 44px;
+  }
+  .table-mode-toggle {
+    width: 44px;
+  }
+}
+
 .column-dropdown {
   position: absolute;
   top: 100%;
