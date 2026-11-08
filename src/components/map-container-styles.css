@@ -1053,9 +1053,19 @@
 .sdm-cursor-value {
   color: var(--color-text-primary);
 }
+/* Docked: the same 8 px gap from the zoom group as undocked (it used to overlap the group by 4 px). */
 .panel-docked .bbox-controls {
-  right: calc(var(--dock-width) + 50px);
+  right: calc(var(--dock-width) + 58px);
   transition: right 0.25s ease-out;
+}
+
+/* Laptop widths with a docked panel: the map is too narrow for the area button beside the zoom group (it landed on
+   the light/dark button), so it goes under the zoom and full-screen buttons. */
+@media (min-width: 601px) and (max-width: 1279px) {
+  .panel-docked .bbox-controls {
+    top: 172px;
+    right: calc(var(--dock-width) + 20px);
+  }
 }
 
 @media (max-width: 600px) {
