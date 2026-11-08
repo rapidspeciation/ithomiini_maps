@@ -826,12 +826,16 @@ function statusClass(tier) {
     width: min(86vw, 360px);
     max-width: 360px;
     transform: translateX(-100%);
-    transition: transform 0.25s ease;
-    box-shadow: 4px 0 28px rgba(0, 0, 0, 0.5);
+    /* Closed: no shadow spilling onto the photo, and out of the Tab order once it has slid away. */
+    visibility: hidden;
+    transition: transform 0.25s ease, visibility 0s linear 0.25s;
   }
 
   .gallery-sidebar--open {
     transform: translateX(0);
+    visibility: visible;
+    transition: transform 0.25s ease;
+    box-shadow: 4px 0 28px rgba(0, 0, 0, 0.5);
   }
 
   /* The mode toggle is surfaced outside the drawer on mobile, so hide the

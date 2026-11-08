@@ -22,7 +22,7 @@ const records = [
   ...Array.from({ length: 3 }, (_, i) => record(10 + i, 'Hypothyris euclea', 'intermedia')),
 ]
 
-async function mountGallery({ selection } = {}) {
+async function mountGallery({ selection, features = records } = {}) {
   const outside = document.createElement('button')
   outside.textContent = 'Expand photo'
   document.body.append(outside)
@@ -32,7 +32,7 @@ async function mountGallery({ selection } = {}) {
   const pinia = createPinia()
   const app = createApp(ImageGallery, { initialMode: 'butterflies' })
   app.use(pinia)
-  useDatasetStore(pinia).allFeatures = records
+  useDatasetStore(pinia).allFeatures = features
   if (selection) useDataStore(pinia).gallerySelection = selection
   app.mount(host)
   mounted.push({ app, host })
@@ -67,5 +67,16 @@ describe('ImageGallery', () => {
 
     app.unmount(); mounted.length = 0
     expect(document.activeElement).toBe(outside)
+  })
+
+  it('shows the previous and next arrows only when there is more than one photo', async () => {
+    const many = await mountGallery()
+    expect(many.host.querySelector('.nav-prev')).not.toBeNull()
+    expect(many.host.querySelector('.nav-next')).not.toBeNull()
+    for (const { app, host } of mounted.splice(0)) { app.unmount(); host.remove() }
+    const one = await mountGallery({ features: [records[0]] })
+    expect(one.host.querySelector('.image-gallery')).not.toBeNull()
+    expect(one.host.querySelector('.nav-prev')).toBeNull()
+    expect(one.host.querySelector('.nav-next')).toBeNull()
   })
 })

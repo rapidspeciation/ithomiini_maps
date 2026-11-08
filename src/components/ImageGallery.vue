@@ -939,6 +939,7 @@ watch(currentIndex, () => {
 
           <!-- Navigation arrows (inside wrapper) -->
           <button
+            v-if="specimensWithImages.length > 1"
             class="nav-btn nav-prev"
             aria-label="Previous photo"
             :disabled="!hasPrev"
@@ -950,6 +951,7 @@ watch(currentIndex, () => {
           </button>
 
           <button
+            v-if="specimensWithImages.length > 1"
             class="nav-btn nav-next"
             aria-label="Next photo"
             :disabled="!hasNext"

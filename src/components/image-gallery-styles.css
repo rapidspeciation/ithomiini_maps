@@ -110,6 +110,7 @@
 /* Image viewer */
 .image-viewer {
   flex: 1;
+  min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -282,7 +283,9 @@
   align-items: stretch;
   background: var(--color-bg-secondary);
   border-top: 1px solid var(--color-border);
-  height: 130px;
+  /* As tall as its two header rows plus a row of thumbnails: a fixed 130 px cut the thumbnails off. */
+  flex-shrink: 0;
+  min-height: 130px;
 }
 
 /* Scroll arrows */
@@ -572,16 +575,20 @@
     height: 60px;
   }
 
+  /* Phones: the name and count, then the zoom bar, sit in their own rows under the photo instead of over it. */
   .zoom-controls {
-    bottom: 160px;
+    position: static;
+    order: 3;
+    align-self: center;
+    transform: none;
+    margin: 6px 0 10px;
   }
 
-  /* Above the zoom bar instead of beside it (they overlapped at 360 px), with the species name. */
   .image-counter {
-    bottom: 220px;
-    right: auto;
-    left: 50%;
-    transform: translateX(-50%);
+    position: static;
+    order: 2;
+    align-self: center;
+    margin-top: 8px;
     max-width: calc(100% - 24px);
     text-align: center;
     white-space: nowrap;
@@ -595,7 +602,7 @@
   }
 
   .thumbnail-strip {
-    height: 120px;
+    min-height: 120px;
   }
 
   .species-header {
