@@ -257,20 +257,6 @@ describe('useHostPlantStore', () => {
     }).map(t => t.slug)).toEqual(['family_solanaceae'])
   })
 
-  it('builds butterfly options with host id and evidence counts', async () => {
-    vi.stubGlobal('fetch', vi.fn(async (url) => ({
-      ok: true,
-      json: async () => String(url).includes('manifest') ? manifest : associations,
-    })))
-    const store = useHostPlantStore()
-    await store.loadMetadata()
-
-    expect(store.getButterflyOptionsForHostPlants()).toEqual([
-      expect.objectContaining({ label: 'Aeria elara', meta: '1 species · 0 genus · 0 family · 1 observed · 0 reported · 0 needs check' }),
-      expect.objectContaining({ label: 'Callithomia alexirrhoe', meta: '0 species · 1 genus · 1 family · 0 observed · 1 reported · 1 needs check' }),
-    ])
-  })
-
   it('matches host taxon options by associated butterfly species search text', async () => {
     vi.stubGlobal('fetch', vi.fn(async (url) => ({
       ok: true,

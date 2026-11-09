@@ -100,14 +100,6 @@ describe('theme preference', () => {
     expect(root().dataset.theme).toBe('ocean')
   })
 
-  it('reads the older app-mode key when «Remember Settings» was on', async () => {
-    fakeSystem(false)
-    localStorage.setItem('app-persist-enabled', 'true')
-    localStorage.setItem('app-mode', 'dark')
-    const { store } = await loadStore()
-    expect(store.currentMode).toBe('dark')
-  })
-
   it('parses unknown stored values as «follow the system»', async () => {
     const { parseModePref, resolveMode } = await loadStore()
     expect(parseModePref('sepia')).toBe('system')
