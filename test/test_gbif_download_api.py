@@ -36,6 +36,20 @@ class GbifDownloadApiTests(unittest.TestCase):
         self.assertFalse(ok)
         self.assertEqual(reason, "wrong_order:Coleoptera")
 
+        # Dismorphia (Pieridae) mimics ithomiines: a Lepidoptera genus outside Nymphalidae is rejected too.
+        ok, reason = gbif_download_api._validate_genus_match(
+            "Dismorphia",
+            {
+                "matchType": "EXACT",
+                "rank": "GENUS",
+                "canonicalName": "Dismorphia",
+                "order": "Lepidoptera",
+                "family": "Pieridae",
+            },
+        )
+        self.assertFalse(ok)
+        self.assertEqual(reason, "wrong_family:Pieridae")
+
     def test_get_genus_taxon_key_requires_exact_canonical_name(self):
         class MockResponse:
             def raise_for_status(self):
