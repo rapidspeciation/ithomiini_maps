@@ -1,4 +1,4 @@
-# Python processes a test starts (PYTHONPATH from test/no_ai_guard.py): the same guard, reporting to the test.
+# Python processes a test starts (PYTHONPATH from the guard): the same guard, reporting to the test.
 import os
 import sys
 

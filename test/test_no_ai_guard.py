@@ -7,7 +7,7 @@ import urllib.request
 
 import pytest
 
-from no_ai_guard import SHIMS, blocked_host, take_attempts
+from no_ai_guard import SHIMS, blocked_host, blocked_in_shell, take_attempts
 
 
 def test_env_and_path():
@@ -65,3 +65,20 @@ def test_os_level_shell_and_children():
     assert "AI host api.openai.com:443" in got[4]
     assert "T3 port 127.0.0.1:3774" in got[5]
     assert "T3 port 100.83.134.33:3775" in got[6]
+
+
+# Round 4 (review 9 Nov): os.execve / os.posix_spawn with their own env keep the guard; ordinary shell lines run.
+def test_exec_and_spawn_with_own_env_keep_the_guard():
+    import sys
+    probe = "import sys; print('no_ai_guard' in sys.modules)"
+    execve = f"import os, sys; os.execve(sys.executable, [sys.executable, '-c', {probe!r}], {{'PATH': '/usr/bin:/bin'}})"
+    assert subprocess.run([sys.executable, "-c", execve], capture_output=True, text=True).stdout.strip() == "True"
+    r, w = os.pipe()
+    pid = os.posix_spawn(sys.executable, [sys.executable, "-c", probe], {"PATH": "/usr/bin:/bin"}, file_actions=[(os.POSIX_SPAWN_DUP2, w, 1)])
+    os.close(w)
+    os.waitpid(pid, 0)
+    assert os.read(r, 100).decode().strip() == "True"
+    for line in ("ls /etc/ssh", 'grep -c "claude" notes.txt', "git log -- server/t3", "cat docs/amp"):
+        assert blocked_in_shell(line) is None, line
+    assert blocked_in_shell(f"ls -l '{SHIMS}/claude'")
+    assert take_attempts() == []

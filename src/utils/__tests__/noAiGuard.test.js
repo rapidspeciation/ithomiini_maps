@@ -41,4 +41,15 @@ describe('no-AI guard', () => {
     expect(got[1]).toMatch(/refused CLI \/opt\/elsewhere\/claude/)
     expect(got[2]).toMatch(/T3 port 100\.83\.134\.33:3775/)
   })
+
+  // Round 4 (review 9 Nov): a Python child of a node test, ordinary shell lines.
+  it.skipIf(!guard)('gives Python children the Python guard; ordinary shell lines are not refused', async () => {
+    const { blockedInShell } = await import('../../../test/no-ai-core.mjs')
+    const py = "import socket, sys\ntry: socket.create_connection(('127.0.0.1', 3774), timeout=1)\nexcept OSError: pass\nprint('no_ai_guard' in sys.modules)"
+    expect(execFileSync('python3', ['-c', py], { encoding: 'utf8', env: { PATH: '/usr/bin:/bin' } }).trim()).toBe('True')
+    const got = guard.take()
+    expect(got).toHaveLength(1)
+    expect(got[0]).toMatch(/T3 port 127\.0\.0\.1:3774/)
+    for (const line of ['ls /etc/ssh', 'grep -c "claude" notes.txt', 'git log -- server/t3']) expect(blockedInShell(line), line).toBeNull()
+  })
 })

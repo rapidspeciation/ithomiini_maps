@@ -22,6 +22,8 @@ import tempfile
 HERE = os.path.dirname(os.path.abspath(__file__))
 SHIMS = os.path.join(HERE, "no-ai-bin")
 PYDIR = os.path.join(HERE, "no-ai-py")
+# tests/ (this file in tests/helpers, as in the database repo) or the folder it is in (the maps repo's test/).
+TESTS = os.path.dirname(HERE) if os.path.basename(HERE) == "helpers" else HERE
 NODE_PRELOAD = os.path.join(HERE, "no-ai.mjs")
 CLIS = {"claude", "codex", "t3", "opencode", "gemini", "ollama", "aider", "cursor-agent", "qwen", "crush", "goose", "amp",
         "llm", "deepseek", "wacli", "ssh"}
@@ -40,12 +42,14 @@ SECRET_ENV = re.compile(r"^(ANTHROPIC_|CLAUDE_CODE_OAUTH_TOKEN$|CLAUDE_CODE_MESS
 FIRST = "NOAI_GUARD_PARENT" not in os.environ
 _own = os.path.join(tempfile.gettempdir(), f"no-ai-guard-py-{os.getpid()}.log")
 LOGS = [l for l in os.environ.get("NOAI_GUARD_LOGS", "").split(os.pathsep) if l] + [_own]
+_given_test = os.environ.get("NOAI_GUARD_FILE", "?")  # the test that started this process (a node test, a pytest test)
+_test = lambda: os.environ.get("PYTEST_CURRENT_TEST") or _given_test
 
 
 def _stub(path):
     path = os.path.abspath(path)
     inside = lambda d: path == d or path.startswith(d.rstrip(os.sep) + os.sep)
-    return (inside(tempfile.gettempdir()) or inside("/tmp") or inside(HERE)) and not inside(SHIMS)
+    return (inside(tempfile.gettempdir()) or inside("/tmp") or inside(TESTS)) and not inside(SHIMS)
 
 
 def blocked_cli(cmd, env=None):
@@ -62,14 +66,14 @@ def blocked_cli(cmd, env=None):
 
 
 def blocked_in_shell(line, env=None):
-    """The first blocked CLI a shell line names as a command word, or as a path ending in one."""
-    line = re.sub(r"(^|\s)-[a-z]*c\s+['\"]", r"\1-c ;", os.fsdecode(line))
+    """The first blocked CLI a shell line names as a command word, or as the path of an executable file named like one."""
+    line = re.sub(r"(\b(?:sh|bash|zsh|dash|ksh)\s+(?:-\S+\s+)*-[a-z]*c\s+)['\"]", r"\1;", os.fsdecode(line))
     for w in re.findall(r"(?:^|[;&|(`\n]|\$\()\s*(?:(?:[A-Za-z_][A-Za-z0-9_]*=\S*|exec|env|nohup|command|nice|-\S+)\s+)*"
                         r"([^\s;&|()`'\"<>]+)", line):
         if blocked_cli(w, env):
             return blocked_cli(w, env)
     for w in re.findall(r"[^\s;&|()<>'\"`=]*/(?:%s)(?=$|[\s;&|()<>'\"`])" % "|".join(map(re.escape, CLIS)), line):
-        if blocked_cli(w, env):
+        if os.path.isfile(w) and os.access(w, os.X_OK) and blocked_cli(w, env):
             return blocked_cli(w, env)
     return None
 
@@ -97,7 +101,7 @@ def blocked_host(host, port=None):
 
 
 def _refuse(kind, target):
-    line = f"no-ai guard: refused {kind} {target} (test {os.environ.get('PYTEST_CURRENT_TEST', '?')}, pid {os.getpid()})"
+    line = f"no-ai guard: refused {kind} {target} (test {_test()}, pid {os.getpid()})"
     for log in LOGS:
         try:
             with open(log, "a") as fh:
@@ -125,7 +129,7 @@ def guard_env(env):
     if PYDIR not in env.get("PYTHONPATH", "").split(os.pathsep):
         env["PYTHONPATH"] = os.pathsep.join(p for p in (PYDIR, env.get("PYTHONPATH")) if p)
     env.update(NOAI_GUARD_LOGS=os.pathsep.join(LOGS), NOAI_GUARD_PARENT=str(os.getpid()),
-               NOAI_GUARD_FILE=os.environ.get("PYTEST_CURRENT_TEST", "?"))
+               NOAI_GUARD_FILE=_test())
     return env
 
 
@@ -178,9 +182,14 @@ def _guarded_popen(self, args, *rest, **kwargs):
     return _popen_init(self, args, *rest, **kwargs)
 
 
-def _refusing(orig, cmd_of):
-    """os.system / os.exec* / os.posix_spawn*: refused with PermissionError (os.system: exit status 1) on a blocked CLI."""
+def _refusing(orig, cmd_of, env_at=None):
+    """os.system / os.exec* / os.posix_spawn*: refused with PermissionError (os.system: exit status 1) on a blocked CLI;
+    an env given to execve/execvpe/posix_spawn* gets the guard's settings (env_at: its position)."""
     def wrapped(*a, **k):
+        if env_at is not None and len(a) > env_at and a[env_at] is not None:
+            a = (*a[:env_at], guard_env(a[env_at]), *a[env_at + 1:])
+        elif env_at is not None and k.get("env") is not None:
+            k["env"] = guard_env(k["env"])
         hit = cmd_of(a)
         if hit:
             line = _refuse("CLI", f"{hit} ({orig.__name__})")
@@ -196,6 +205,6 @@ socket.socket.connect = _guarded_connect
 socket.socket.connect_ex = _guarded_connect_ex
 subprocess.Popen.__init__ = _guarded_popen
 os.system = _refusing(os.system, lambda a: blocked_in_shell(a[0]))
-for _name in ("execv", "execve", "execvp", "execvpe", "posix_spawn", "posix_spawnp"):
+for _name, _env_at in (("execv", None), ("execve", 2), ("execvp", None), ("execvpe", 2), ("posix_spawn", 2), ("posix_spawnp", 2)):
     if hasattr(os, _name):
-        setattr(os, _name, _refusing(getattr(os, _name), lambda a: blocked_args([a[0], *list(a[1])[1:]])))
+        setattr(os, _name, _refusing(getattr(os, _name), lambda a: blocked_args([a[0], *list(a[1])[1:]]), _env_at))
