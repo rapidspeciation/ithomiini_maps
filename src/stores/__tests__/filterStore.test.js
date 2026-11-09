@@ -310,6 +310,24 @@ describe('useFilterStore', () => {
     expect(geojson.features[0].geometry.coordinates).toEqual([-78.5, -1.2])
   })
 
+  it('the sex filter keeps only records of the chosen sex; "all" also keeps records without a sex', () => {
+    const datasetStore = useDatasetStore()
+    const filterStore = useFilterStore()
+    datasetStore.allFeatures = [
+      makeFeature({ id: 'CAM001', sex: 'male' }),
+      makeFeature({ id: 'CAM002', sex: 'female' }),
+      makeFeature({ id: 'CAM003', sex: null }),
+    ]
+    const ids = () => filterStore.filteredGeoJSON.features.map(f => f.properties.id)
+
+    filterStore.filters.sex = 'male'
+    expect(ids()).toEqual(['CAM001'])
+    filterStore.filters.sex = 'female'
+    expect(ids()).toEqual(['CAM002'])
+    filterStore.filters.sex = 'all'
+    expect(ids()).toEqual(['CAM001', 'CAM002', 'CAM003'])
+  })
+
   const mixedTargets = () => [
     makeFeature({ id: 'P1', scientific_name: 'Mechanitis polymnia', subspecies: 'casabranca' }),
     makeFeature({ id: 'P2', scientific_name: 'Mechanitis polymnia', subspecies: 'Unknown' }),
