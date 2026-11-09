@@ -70,5 +70,7 @@ temp_gbif_download/
 .sisyphus/
 *.png
 test/*.mjs
+# ...except the no-AI guard of the tests (test/no-ai-core.mjs, loaded by vitest.config.js).
+!test/no-ai*.mjs
 test/screenshots/
 test-results/
