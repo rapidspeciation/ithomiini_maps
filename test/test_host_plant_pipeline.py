@@ -133,6 +133,7 @@ class HostPlantPipelineTests(unittest.TestCase):
         self.assertEqual(normalize_evidence_level("Beccaloni catalogue citation"), "literature")
         self.assertEqual(normalize_evidence_level("unresolved needs check"), "needs_check")
     def test_excludes_records_marked_exclude_or_erroneous(self):
+        # Each rule on its own drops a record: a curator's "exclude", and a caveat calling the record erroneous.
         records = [
             {
                 "butterfly_taxon": "Aeria elara",
@@ -145,12 +146,22 @@ class HostPlantPipelineTests(unittest.TestCase):
             },
             {
                 "butterfly_taxon": "Aeria elara",
-                "host_plant_species": "Solanum badrecord",
+                "host_plant_species": "Solanum excluded",
                 "host_plant_genus": "Solanum",
                 "host_plant_family": "Solanaceae",
                 "host_taxon_rank": "species",
                 "confidence": "exclude",
+                "source_citation": "Source",
+            },
+            {
+                "butterfly_taxon": "Aeria elara",
+                "host_plant_species": "Solanum badrecord",
+                "host_plant_genus": "Solanum",
+                "host_plant_family": "Solanaceae",
+                "host_taxon_rank": "species",
+                "confidence": "medium",
                 "caveats": "Erroneous host record.",
+                "source_citation": "Source",
             },
         ]
 
