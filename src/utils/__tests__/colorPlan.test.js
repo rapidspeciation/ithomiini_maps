@@ -16,23 +16,16 @@ describe('colour plan', () => {
     expect(plan.colorForRecord({ subspecies: 'rare' })).toBe(DYNAMIC_COLORS[2])
   })
 
-  it('colours the top ten and greys the rest when they cover most records', () => {
-    const counts = Object.fromEntries(Array.from({ length: 12 }, (_, index) => [`g${index}`, index < 10 ? 10 : 1]))
-    const plan = planColors(records(counts), { attribute: 'subspecies' })
-    expect(plan.colored).toHaveLength(10)
-    expect(plan.otherGroupCount).toBe(2)
-    expect(plan.otherRecordCount).toBe(2)
-    expect(plan.groupForRecord({ subspecies: 'g11' })).toMatchObject({ key: 'other', color: OTHER_COLOR })
-  })
-
   it('colours the ten most abundant even when most records are grey', () => {
     const counts = Object.fromEntries(Array.from({ length: 40 }, (_, index) => [`g${String(index).padStart(2, '0')}`, index < 3 ? 5 : 1]))
     const plan = planColors(records(counts), { attribute: 'subspecies' })
     expect(plan.colored.map(group => group.label).slice(0, 3)).toEqual(['g00', 'g01', 'g02'])
     expect(plan.colored).toHaveLength(10)
     expect(plan.otherGroupCount).toBe(30)
+    expect(plan.otherRecordCount).toBe(30) // g10-g39, one record each
     expect(plan.colorForRecord({ subspecies: 'g00' })).toBe(DYNAMIC_COLORS[0])
     expect(plan.colorForRecord({ subspecies: 'g39' })).toBe(OTHER_COLOR)
+    expect(plan.groupForRecord({ subspecies: 'g39' })).toMatchObject({ key: 'other', color: OTHER_COLOR })
   })
 
   it('never colours placeholder names such as "Unknown species"', () => {
