@@ -23,7 +23,9 @@ describe('useLocationSearch', () => {
     search.showSearchResults.value = true
 
     search.onSearchKeydown(key('Enter'))
+    // Nominatim's boundingbox is [south, north, west, east]; MapLibre takes [[west, south], [east, north]].
     expect(map.fitBounds).toHaveBeenCalledTimes(1)
+    expect(map.fitBounds).toHaveBeenCalledWith([[-77.82, -1], [-77.8, -0.98]], expect.anything())
     expect(search.showSearchResults.value).toBe(false)
 
     search.searchResults.value = toSearchResults(rows)
