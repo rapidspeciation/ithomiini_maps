@@ -43,7 +43,12 @@ jobs:
 
       - name: Install Python dependencies
         run: |
-          pip install -r scripts/requirements.txt
+          pip install -r scripts/requirements.txt pytest
+
+      # The data pipeline's tests (about 1 s, with test/conftest.py's no-AI guard): a failure stops the update
+      # before any data is downloaded, built or committed.
+      - name: Run Python tests
+        run: python -m pytest -q test/
 
       - name: Restore pipeline cache
         uses: actions/cache@v4

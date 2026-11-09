@@ -43,6 +43,19 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: scripts/requirements.txt
+
+      # The data pipeline's tests (about 1 s, with test/conftest.py's no-AI guard): a failure stops the build.
+      - name: Run Python tests
+        run: |
+          pip install -r scripts/requirements.txt pytest
+          python -m pytest -q test/
+
       - name: Run regression tests
         run: pnpm test
 
