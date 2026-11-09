@@ -9,6 +9,7 @@ import { computed, ref, watch } from 'vue'
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import { useDataStore } from '../stores/data'
 import { getImageUrlCandidates } from '../utils/imageProxy'
+import { dateDisplayParts } from '../utils/dateHelpers'
 import { STATUS_COLORS } from '../utils/constants'
 import { getGoatUrl, parseBioprojectIds } from '../utils/goatHelpers'
 import { usePopupSelection } from '../composables/usePopupSelection'
@@ -440,7 +441,8 @@ const bioprojects = computed(() => {
           <!-- Observation Date -->
           <div v-if="currentIndividual?.observation_date" class="detail-row">
             <span class="detail-label">Date:</span>
-            <span class="detail-value">{{ currentIndividual.observation_date }}</span>
+            <!-- Each date of a range stays whole; a line may break only after the slash. -->
+            <span class="detail-value"><template v-for="(part, i) in dateDisplayParts(currentIndividual.observation_date)" :key="i"><template v-if="i">/<wbr></template><span class="date-part">{{ part }}</span></template></span>
           </div>
 
           <div v-if="singleRecordSex" class="detail-row">
@@ -1007,6 +1009,10 @@ const bioprojects = computed(() => {
 .detail-value {
   color: var(--color-text-primary);
   word-break: break-word;
+}
+
+.date-part {
+  white-space: nowrap;
 }
 
 .status-badge {

@@ -17,8 +17,9 @@ function endOf(dateStr, start) {
 
 /**
  * The time a record's date covers, as { start, end } with end exclusive, or null when it does not parse.
- * A single date covers only its own instant (its local midnight for a calendar date), as the filter has
- * always read it; a GBIF range covers every day from its start to the end of its last day, month or year.
+ * A single date written to the month (1954-02) or the year (1965) covers that whole month or year; any other
+ * single date covers only its own instant (its local midnight for a full calendar date). A GBIF range covers
+ * every day from its start to the end of its last day, month or year.
  */
 export function dateSpan(dateStr) {
   if (!dateStr || typeof dateStr !== 'string') return null
@@ -30,7 +31,9 @@ export function dateSpan(dateStr) {
     return { start, end: endOf(range[2], last) }
   }
   const d = parseSingleDate(dateStr)
-  return d ? { start: d, end: new Date(d.getTime() + 1) } : null
+  if (!d) return null
+  const partial = CALENDAR.exec(dateStr)
+  return { start: d, end: partial && !partial[3] ? endOf(dateStr, d) : new Date(d.getTime() + 1) }
 }
 
 /** True when any part of a record's date falls in [from, toExclusive); a missing bound is open. */
@@ -53,6 +56,13 @@ export function parseDate(dateStr) {
 // Year-first text with a slash is a range or nothing: new Date('1997-11-07/') would still give a date.
 function looksLikeRange(dateStr) {
   return typeof dateStr === 'string' && dateStr.includes('/') && /^\s*(?:\d{4}|\/)/.test(dateStr)
+}
+
+// A date as written, split at a range's slash so each side can be shown whole: ['1997-11-07', '1997-11-10'].
+export function dateDisplayParts(value) {
+  const raw = String(value ?? '')
+  const range = RANGE.exec(raw.trim())
+  return range ? [range[1], range[2]] : [raw]
 }
 
 // Sort key for the host plant gallery: the date's first 8 digits (YYYYMMDD, padded); a range sorts by its start.
