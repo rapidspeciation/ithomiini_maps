@@ -168,6 +168,13 @@ describe('PointPopup', () => {
     expect(counts).toEqual(['♂ 2', '♀ 3', '? 1'])
   })
 
+  it('shows a GBIF range date as written, not only its start', () => {
+    const record = { ...points[0], id: '4953915499', source: 'GBIF (Other Institutions)', observation_date: '1997-11-07/1997-11-10' }
+    const host = mount({ coordinates: { lat: -1, lng: -77.6 }, points: [record] })
+    const row = [...host.querySelectorAll('.details-section .detail-row')].find(el => el.textContent.includes('Date:'))
+    expect(row.querySelector('.detail-value').textContent.trim()).toBe('1997-11-07/1997-11-10')
+  })
+
   it('makes the one-record ID a button that copies it; success is a check and an announcement, the box keeps its text', async () => {
     const writeText = vi.fn(async () => {})
     Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
