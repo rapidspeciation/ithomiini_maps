@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { useDataStore } from '../stores/data'
+import { parseDate } from '../utils/dateHelpers'
 
 const store = useDataStore()
 
@@ -45,15 +46,15 @@ const isDragging = ref(false)
 // Sync from store filters when set externally (e.g., DateFilter or reset)
 watch(() => [store.filters.dateStart, store.filters.dateEnd], ([start, end]) => {
   if (isDragging.value) return // Don't override drag position
-  if (start) {
-    const d = new Date(start)
+  const d = start && parseDate(start) // local day: new Date('2022-03-01') is still February in the Americas
+  if (d) {
     dragMin.value = dateToOffset(d.getFullYear(), d.getMonth() + 1)
   } else {
     dragMin.value = monthRange.value.min
   }
-  if (end) {
-    const d = new Date(end)
-    dragMax.value = dateToOffset(d.getFullYear(), d.getMonth() + 1)
+  const e = end && parseDate(end)
+  if (e) {
+    dragMax.value = dateToOffset(e.getFullYear(), e.getMonth() + 1)
   } else {
     dragMax.value = monthRange.value.max
   }

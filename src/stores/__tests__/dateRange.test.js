@@ -1,6 +1,5 @@
 // Pins the date-range filter: a record dated on the first or last chosen day is kept, in any time zone.
-// Goes in src/stores/__tests__/ once the app fix (fix.patch next to this file) is applied; it fails today.
-import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { useDatasetStore } from '../datasetStore'
 import { useFilterStore } from '../filterStore'
@@ -18,14 +17,23 @@ const records = [
   { id: 'INAT-19', observation_date: '2022-01-19T00:05' },
 ].map(r => ({ scientific_name: 'Mechanitis polymnia', source: 'Sanger Institute', lat: -1, lng: -78, ...r }))
 
-describe.each(['America/Guayaquil', 'Europe/Paris', 'UTC'])('date range filter in %s', tz => {
+// Minutes behind UTC on 18 Jan 2022, to check that the zone switch took effect in this process.
+const offsets = { 'America/Guayaquil': 300, 'Europe/Paris': -60, UTC: 0 }
+
+describe.each(Object.keys(offsets))('date range filter in %s', tz => {
   beforeEach(() => {
     process.env.TZ = tz
+    expect(new Date(2022, 0, 18).getTimezoneOffset()).toBe(offsets[tz])
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 404 }))
     setActivePinia(createPinia())
     useDatasetStore().allFeatures = records
   })
-  afterAll(() => { process.env.TZ = originalTz; vi.unstubAllGlobals() })
+  afterEach(() => {
+    // process.env.TZ = undefined would store the string 'undefined' (read as UTC) for later test files.
+    if (originalTz === undefined) delete process.env.TZ
+    else process.env.TZ = originalTz
+    vi.unstubAllGlobals()
+  })
 
   const ids = () => useFilterStore().filteredGeoJSON.features.map(f => f.properties.id)
 

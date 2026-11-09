@@ -379,8 +379,8 @@ export const useFilterStore = defineStore('filters', () => {
     const hasDateFilter = f.dateStart || f.dateEnd
     // Both ends are whole local days: from the start day's midnight up to (not including) the midnight after the end day.
     const dateStart = f.dateStart ? parseDate(f.dateStart) : null
-    const dateEnd = f.dateEnd ? parseDate(f.dateEnd) : null
-    if (dateEnd) dateEnd.setDate(dateEnd.getDate() + 1)
+    const endDay = f.dateEnd ? parseDate(f.dateEnd) : null
+    const dateEnd = endDay ? new Date(endDay.getFullYear(), endDay.getMonth(), endDay.getDate() + 1) : null
 
     const hasGoatFilter = f.goatCoverage !== 'all' || f.goatDataSource.length > 0 ||
       f.goatChromosomeMin != null || f.goatChromosomeMax != null
