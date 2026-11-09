@@ -29,18 +29,20 @@ describe('useStyleSwitcher', () => {
 
     await switchStyle('light')
     handlers.get('style.load')()
-    handlers.get('idle')()
+    const staleIdle = handlers.get('idle')
     await switchStyle('dark')
+    // The light style goes idle only after the switch to dark began: its restoration must not run.
+    staleIdle()
     await vi.advanceTimersByTimeAsync(100)
     expect(changing).toHaveBeenCalledTimes(2)
     expect(changing).toHaveBeenLastCalledWith(true)
     expect(start).toHaveBeenCalledTimes(2)
-    expect(idle).toHaveBeenCalledTimes(1)
+    expect(idle).toHaveBeenCalledTimes(0)
 
     handlers.get('style.load')()
     handlers.get('idle')()
     await vi.advanceTimersByTimeAsync(100)
     expect(changing).toHaveBeenLastCalledWith(false)
-    expect(idle).toHaveBeenCalledTimes(2)
+    expect(idle).toHaveBeenCalledTimes(1)
   })
 })
