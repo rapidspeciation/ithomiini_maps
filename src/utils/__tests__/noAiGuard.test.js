@@ -3,7 +3,7 @@ import { execFileSync, spawnSync } from 'node:child_process'
 import { mkdtempSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { Worker } from 'node:worker_threads'
+import { SHARE_ENV, Worker } from 'node:worker_threads'
 import { describe, expect, it } from 'vitest'
 
 const guard = globalThis[Symbol.for('ithomiini.noAiGuard')]
@@ -51,5 +51,21 @@ describe('no-AI guard', () => {
     expect(got).toHaveLength(1)
     expect(got[0]).toMatch(/T3 port 127\.0\.0\.1:3774/)
     for (const line of ['ls /etc/ssh', 'grep -c "claude" notes.txt', 'git log -- server/t3']) expect(blockedInShell(line), line).toBeNull()
+  })
+
+  // Round 5 (review 9 Nov): here the guard comes from setupFiles (no --import in execArgv): CommonJS and SHARE_ENV
+  // workers are guarded too; python -I children get the Python guard through boot.py.
+  it.skipIf(!guard)('guards CommonJS and SHARE_ENV workers, and python -I children', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'no-ai-wk-'))
+    writeFileSync(join(dir, 'w.cjs'), "require('node:net').connect(3774, '127.0.0.77').on('error', e => require('node:worker_threads').parentPort.postMessage([e.code, require.main === module]))")
+    writeFileSync(join(dir, 's.mjs'), "import net from 'node:net'; import { parentPort } from 'node:worker_threads'; net.connect(3774, '127.0.0.77').on('error', e => parentPort.postMessage(e.code))")
+    const run = (f, o) => new Promise(r => new Worker(f, o).once('message', r))
+    expect(await run(join(dir, 'w.cjs'))).toEqual(['ECONNREFUSED', true])
+    expect(await run(join(dir, 's.mjs'), { env: SHARE_ENV })).toBe('ECONNREFUSED')
+    writeFileSync(join(dir, 'p.py'), "import socket, sys\ntry: socket.create_connection(('127.0.0.77', 3774), timeout=2)\nexcept OSError: pass\nprint('no_ai_guard' in sys.modules, sys.argv[1:])")
+    expect(execFileSync('python3', ['-I', '-B', join(dir, 'p.py'), 'a'], { encoding: 'utf8' }).trim()).toBe("True ['a']")
+    const got = guard.take()
+    expect(got).toHaveLength(3)
+    for (const line of got) expect(line).toMatch(/T3 port 127\.0\.0\.77:3774/)
   })
 })
