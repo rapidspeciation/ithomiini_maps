@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { useDataStore } from '../stores/data'
-import { parseDate, getDateOffset } from '../utils/dateHelpers'
+import { parseDate, getDateOffset, toLocalISODate } from '../utils/dateHelpers'
 import { Calendar, Filter, Info } from 'lucide-vue-next'
 
 const store = useDataStore()
@@ -44,8 +44,8 @@ const dateStats = computed(() => {
   })
 
   return {
-    earliest: earliest ? earliest.toISOString().split('T')[0] : null,
-    latest: latest ? latest.toISOString().split('T')[0] : null,
+    earliest: earliest ? toLocalISODate(earliest) : null,
+    latest: latest ? toLocalISODate(latest) : null,
     withDates,
     withoutDates,
     total: features.length
