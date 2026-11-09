@@ -377,8 +377,10 @@ export const useFilterStore = defineStore('filters', () => {
     const f = filters.value
     const bb = boundingBox.value
     const hasDateFilter = f.dateStart || f.dateEnd
-    const dateStart = f.dateStart ? new Date(f.dateStart) : null
-    const dateEnd = f.dateEnd ? new Date(f.dateEnd) : null
+    // Both ends are whole local days: from the start day's midnight up to (not including) the midnight after the end day.
+    const dateStart = f.dateStart ? parseDate(f.dateStart) : null
+    const dateEnd = f.dateEnd ? parseDate(f.dateEnd) : null
+    if (dateEnd) dateEnd.setDate(dateEnd.getDate() + 1)
 
     const hasGoatFilter = f.goatCoverage !== 'all' || f.goatDataSource.length > 0 ||
       f.goatChromosomeMin != null || f.goatChromosomeMax != null
@@ -422,7 +424,7 @@ export const useFilterStore = defineStore('filters', () => {
         const d = parseDate(itemDateStr)
         if (!d) return false
         if (dateStart && d < dateStart) return false
-        if (dateEnd && d > dateEnd) return false
+        if (dateEnd && d >= dateEnd) return false
       }
 
       if (bb) {

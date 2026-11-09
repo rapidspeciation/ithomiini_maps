@@ -14,6 +14,14 @@ export function parseDate(dateStr) {
     }
   }
 
+  // A calendar date without a time (YYYY, YYYY-MM, YYYY-MM-DD; GBIF and the date inputs) is that local
+  // day, like the DD-Mon-YY dates above. new Date('2022-01-18') would be UTC midnight, the day before in the Americas.
+  const calendar = /^(\d{4})(?:-(\d{2}))?(?:-(\d{2}))?$/.exec(dateStr)
+  if (calendar) {
+    const [, year, month = '1', day = '1'] = calendar
+    return new Date(Number(year), Number(month) - 1, Number(day))
+  }
+
   const d = new Date(dateStr)
   return isNaN(d.getTime()) ? null : d
 }
