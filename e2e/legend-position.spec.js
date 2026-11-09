@@ -155,6 +155,8 @@ test('preview restores a free position and touch cancellation clears drag state'
 
 test('preview retains legend height and permits border resize', async ({ page }) => {
   const legend = page.locator('.legend-container')
+  // On a phone-width map the legend opens folded to its title row (since 1 Nov 2026); open it first.
+  if (page.viewportSize().width <= 600) await legend.getByRole('button', { name: 'Show legend' }).click()
   await showFullLegend(page)
   await expect.poll(async () => (await legend.boundingBox()).height)
     .toBeGreaterThan(page.viewportSize().width < 600 ? 200 : 350)
