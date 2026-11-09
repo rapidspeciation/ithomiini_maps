@@ -84,5 +84,10 @@ describe.each(Object.keys(offsets))('partial dates in %s', tz => {
     expect(dateOverlaps('1954-02', null, day(1954, 2, 1))).toBe(false)
     expect(dateOverlaps('1965', day(1965, 12, 31), day(1966, 1, 1))).toBe(true)
     expect(dateOverlaps('1954-02-15', day(1954, 2, 16), null)).toBe(false)
+    // A malformed partial date is not widened into a month or year: an impossible month matches nothing, and a
+    // one-digit month (read by the browser's own parser) stays a single instant.
+    expect(dateOverlaps('2022-13', day(2022, 1, 1), day(2024, 1, 1))).toBe(false)
+    expect(dateOverlaps('2022-00', day(2021, 1, 1), day(2023, 1, 1))).toBe(false)
+    expect(dateOverlaps('1954-2', day(1954, 2, 10), day(1954, 2, 20))).toBe(false)
   })
 })
