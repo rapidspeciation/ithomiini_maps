@@ -175,6 +175,22 @@ describe('PointPopup', () => {
     expect(row.querySelector('.detail-value').textContent.trim()).toBe('1997-11-07/1997-11-10')
   })
 
+  it('keeps each date of a range whole: a line may break only between the two dates', () => {
+    const record = { ...points[0], id: '4953915499', source: 'GBIF (Other Institutions)', observation_date: '1997-11-07/1997-11-10' }
+    const host = mount({ coordinates: { lat: -1, lng: -77.6 }, points: [record] })
+    const value = [...host.querySelectorAll('.details-section .detail-row')]
+      .find(el => el.textContent.includes('Date:')).querySelector('.detail-value')
+    expect([...value.querySelectorAll('.date-part')].map(el => el.textContent)).toEqual(['1997-11-07', '1997-11-10'])
+    expect(value.querySelectorAll('wbr')).toHaveLength(1)
+    expect(value.textContent.trim()).toBe('1997-11-07/1997-11-10')
+
+    const single = mount({ coordinates: { lat: -1, lng: -77.6 }, points: [{ ...points[0], observation_date: '1954-02' }] })
+    const singleValue = [...single.querySelectorAll('.details-section .detail-row')]
+      .find(el => el.textContent.includes('Date:')).querySelector('.detail-value')
+    expect([...singleValue.querySelectorAll('.date-part')].map(el => el.textContent)).toEqual(['1954-02'])
+    expect(singleValue.querySelectorAll('wbr')).toHaveLength(0)
+  })
+
   it('makes the one-record ID a button that copies it; success is a check and an announcement, the box keeps its text', async () => {
     const writeText = vi.fn(async () => {})
     Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })

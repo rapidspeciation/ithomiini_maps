@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest'
-import { dateOverlaps, dateSortValue, parseDate, toLocalISODate } from '../dateHelpers'
+import { dateDisplayParts, dateOverlaps, dateSortValue, parseDate, toLocalISODate } from '../dateHelpers'
 
 const originalTz = process.env.TZ
 
@@ -50,11 +50,19 @@ describe('dateHelpers', () => {
     expect(dateOverlaps('2009/2010', y(2011), null)).toBe(false)
     expect(dateOverlaps('2009/2010', null, y(2009))).toBe(false)
     expect(dateOverlaps('2000/2001', null, y(2001))).toBe(true)
-    // Single dates keep their old rule: the date itself must be inside.
+    // Full single dates keep their old rule: the day itself must be inside (month and year dates: partialDates.test.js).
     expect(dateOverlaps('2011-12-23', y(2011), y(2012))).toBe(true)
     expect(dateOverlaps('2011-12-23', y(2023), y(2024))).toBe(false)
     expect(dateOverlaps('18-Jan-22', y(2022), y(2023))).toBe(true)
     expect(dateOverlaps('', y(2022), y(2023))).toBe(false)
+  })
+
+  it('splits a range at its slash for display and leaves any other date whole', () => {
+    expect(dateDisplayParts('1997-11-07/1997-11-10')).toEqual(['1997-11-07', '1997-11-10'])
+    expect(dateDisplayParts('2009-12-30T09:15/2009-12-30T10:00')).toEqual(['2009-12-30T09:15', '2009-12-30T10:00'])
+    expect(dateDisplayParts('1954-02')).toEqual(['1954-02'])
+    expect(dateDisplayParts('12/03/15')).toEqual(['12/03/15'])
+    expect(dateDisplayParts('18-Jan-22')).toEqual(['18-Jan-22'])
   })
 
   it('sorts a range by its start in the host plant gallery', () => {
