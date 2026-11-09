@@ -4,10 +4,12 @@ from pathlib import Path
 
 import pandas as pd
 
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 # process_data imports its neighbours (spatial_qc) by plain name, as when run as a script.
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+sys.path.insert(0, str(ROOT / "scripts"))
 
-import process_data
+from scripts import process_data  # noqa: E402
 
 
 class MimicryLookupTests(unittest.TestCase):

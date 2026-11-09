@@ -97,7 +97,7 @@ class GbifDownloadApiTests(unittest.TestCase):
 
 class OccurrenceImportTests(unittest.TestCase):
     def test_import_keeps_each_records_sex_and_collection_date(self):
-        # The map's sex filter and date range read these two Darwin Core fields straight from the import.
+        # process_data and the map's filters read these two fields from the import.
         columns = ['gbifID', 'decimalLatitude', 'decimalLongitude', 'genus', 'specificEpithet',
                    'scientificName', 'sex', 'eventDate']
         rows = [

@@ -295,7 +295,7 @@ describe('useFilterStore', () => {
 
   it('the date range drops records before the start, after the end and without a date, in every date format', () => {
     // Dates well inside or outside the range, so the result does not depend on the time zone.
-    // (Records on the first or last day: see the date-range decision in the test cleanup notes.)
+    // Records on the first or last day: dateRange.test.js; GBIF range dates: gbifRangeDates.test.js.
     const datasetStore = useDatasetStore()
     const filterStore = useFilterStore()
     datasetStore.allFeatures = [
