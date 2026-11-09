@@ -4,7 +4,8 @@ from pathlib import Path
 
 import pandas as pd
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+# process_data imports its neighbours (spatial_qc) by plain name, as when run as a script.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
 import process_data
 
