@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, expect, it } from 'vitest'
 import { OTHER_COLOR, planColors } from '../colorPlan'
 import { foldMinorSegments, groupRecordsBySite, markerSizeFactor, MERGED_SIZE_CAP, mergeSiteSummaries, pieSignature, siteKeyFor, summarizeSites } from '../sites'

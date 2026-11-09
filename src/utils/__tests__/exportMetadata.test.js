@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, expect, it } from 'vitest'
 import { planColors } from '../colorPlan'
 import { siteKeyForFeature } from '../collectionSites'

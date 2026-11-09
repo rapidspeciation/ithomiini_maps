@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, expect, it } from 'vitest'
 import { collectionDate, groupCollectionSites, recordedPointsForFeatures, siteKeyForFeature } from '../collectionSites'
 

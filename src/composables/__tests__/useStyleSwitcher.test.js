@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
 import { useStyleSwitcher } from '../useStyleSwitcher'

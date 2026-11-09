@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect, vi } from 'vitest'
 import { readClusterLeaves } from '../clusterLeaves'
 import { withHeatmapWeights } from '../heatmap'

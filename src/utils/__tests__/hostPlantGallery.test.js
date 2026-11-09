@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, expect, it } from 'vitest'
 import { computed, reactive } from 'vue'
 import { useHostPlantGalleryData } from '../../composables/useHostPlantGalleryData'

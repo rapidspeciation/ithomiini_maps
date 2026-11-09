@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, expect, it } from 'vitest'
 import { DYNAMIC_COLORS } from '../constants'
 import { OTHER_COLOR, planColors } from '../colorPlan'
