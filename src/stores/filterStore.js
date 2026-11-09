@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
-import { parseDate } from '../utils/dateHelpers'
+import { dateOverlaps, parseDate } from '../utils/dateHelpers'
 import { getStorage, setStorage } from '../utils/storageHelpers'
 import { isValidValue } from '../utils/validation'
 import { useDatasetStore } from './datasetStore'
@@ -420,11 +420,9 @@ export const useFilterStore = defineStore('filters', () => {
       }
 
       if (hasDateFilter) {
+        // A GBIF range (1997-11-07/1997-11-10) is kept when any of its days is inside the filter.
         const itemDateStr = item.observation_date || item.date || item.preservation_date
-        const d = parseDate(itemDateStr)
-        if (!d) return false
-        if (dateStart && d < dateStart) return false
-        if (dateEnd && d >= dateEnd) return false
+        if (!dateOverlaps(itemDateStr, dateStart, dateEnd)) return false
       }
 
       if (bb) {

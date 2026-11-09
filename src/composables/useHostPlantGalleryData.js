@@ -1,11 +1,7 @@
 import { computed } from 'vue'
+import { dateSortValue } from '../utils/dateHelpers'
 
 const baseHues = [145, 198, 38, 270, 12, 170, 310, 220, 92, 335]
-
-function dateSortValue(value) {
-  const digits = String(value || '').replace(/\D+/g, '').slice(0, 8)
-  return digits ? Number(digits.padEnd(8, '0')) : 0
-}
 
 function groupPlantItems(items) {
   const grouped = {}

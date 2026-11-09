@@ -2,7 +2,7 @@
 import { ref, computed, watch, inject } from 'vue'
 import { useDataStore } from '../stores/data'
 import { useHostPlantStore } from '../stores/hostPlants'
-import { parseDate } from '../utils/dateHelpers'
+import { dateOverlaps, parseDate, startOfYear } from '../utils/dateHelpers'
 import { getStatusColor } from '../utils/constants'
 import { getTableThumbnailUrl } from '../utils/imageProxy'
 import { getCorrectionInfo, getGoatUrl } from '../utils/goatHelpers'
@@ -136,13 +136,12 @@ const columnFilteredData = computed(() => {
       if (col === 'observation_date') {
         const dateStr = row.observation_date || ''
         if (val === '__year_range__' || val === '__year_min__' || val === '__year_max__') {
-          const yearMatch = dateStr.match(/(\d{2,4})$/)
-          if (!yearMatch) return false
-          let year = parseInt(yearMatch[1])
-          if (year < 100) year += 2000
-          const minYear = parseInt(columnFilters.value.date_year_min) || 0
-          const maxYear = parseInt(columnFilters.value.date_year_max) || 9999
-          return year >= minYear && year <= maxYear
+          // The years as a window [1 Jan min, 1 Jan max+1): a GBIF range is kept when any of its days is inside.
+          const minYear = parseInt(columnFilters.value.date_year_min)
+          const maxYear = parseInt(columnFilters.value.date_year_max)
+          const from = Number.isFinite(minYear) ? startOfYear(minYear) : null
+          const to = Number.isFinite(maxYear) ? startOfYear(maxYear + 1) : null
+          return dateOverlaps(dateStr, from, to)
         }
         return dateStr.toLowerCase().includes(val)
       }
