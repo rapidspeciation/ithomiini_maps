@@ -7,6 +7,7 @@ import {
   getDirectImageUrl,
   getImageUrlCandidates,
   getThumbnailUrl,
+  notifyTierFailed,
   setProxyMode,
 } from '../imageProxy'
 
@@ -54,7 +55,16 @@ describe('imageProxy', () => {
     expect(getThumbnailUrl(url)).toContain('https://wsrv.nl/')
   })
 
-  it('falls back to direct non-Drive images when wsrv is blocked', () => {
+  it('falls back to the direct image once wsrv failed to load that image', () => {
+    // A URL of its own: the list of images wsrv could not fetch is kept for the whole page session.
+    const url = 'https://example.org/blocked-plant.jpg'
+    notifyTierFailed(getProxiedUrl(url))
+
+    expect(getProxiedUrl(url)).toBe(url)
+    expect(getImageUrlCandidates(url, { width: 400 })[0]).toBe(url)
+  })
+
+  it('a global wsrv block alone does not bypass wsrv for other external images', () => {
     getProxyState().tierStatus.value.wsrv = 'blocked'
     const url = 'https://example.org/plant.jpg'
 
