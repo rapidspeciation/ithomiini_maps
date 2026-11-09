@@ -7,7 +7,7 @@ import urllib.request
 
 import pytest
 
-from conftest import SHIMS, blocked_host, take_attempts
+from no_ai_guard import SHIMS, blocked_host, take_attempts
 
 
 def test_env_and_path():
@@ -41,3 +41,27 @@ def test_stub_and_other_hosts_allowed():
     assert blocked_host("api.gbif.org", 443) is None
     assert blocked_host("127.0.0.1", 8080) is None
     assert take_attempts() == []
+
+
+# Round 3 (review 9 Nov): os-level starts, a shell given a path, Python and node children, T3 ports on any address.
+def test_os_level_shell_and_children():
+    assert os.system("bash -c '/opt/elsewhere/claude -p hola'") == 256
+    with pytest.raises(PermissionError):
+        os.execv("/opt/elsewhere/codex", ["codex", "exec"])
+    with pytest.raises(PermissionError):
+        os.posix_spawn("/usr/bin/env", ["env", "PATH=/usr/bin", "opencode", "run"], dict(os.environ))
+    assert subprocess.run(["bash", "-lc", "command -v gemini"], capture_output=True).returncode == 1
+    # A Python child given its own env: guarded, reports here; so is a node child.
+    py = "import socket\ntry: socket.create_connection(('api.openai.com', 443), timeout=2)\nexcept OSError: pass"
+    import sys
+    r = subprocess.run([sys.executable, "-c", py], env={"PATH": "/usr/bin:/bin"}, capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr
+    subprocess.run(["node", "-e", "fetch('http://127.0.0.1:3774/').catch(() => {})"], capture_output=True)
+    with pytest.raises(OSError):
+        socket.create_connection(("100.83.134.33", 3775), timeout=1)
+    got = take_attempts()
+    assert len(got) == 7, got
+    assert "/opt/elsewhere/claude" in got[0] and "codex" in got[1] and "opencode" in got[2] and "gemini" in got[3]
+    assert "AI host api.openai.com:443" in got[4]
+    assert "T3 port 127.0.0.1:3774" in got[5]
+    assert "T3 port 100.83.134.33:3775" in got[6]
