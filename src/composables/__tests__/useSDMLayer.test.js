@@ -6,13 +6,38 @@ import path from 'node:path'
 import { useSDMStore } from '../../stores/sdm'
 import { useSDMLayer } from '../useSDMLayer'
 
-async function fixtureFetch(url) {
-  try {
-    const buffer = await readFile(path.join(process.cwd(), 'public', url.replace(/^\//, '')))
-    return { ok: true, arrayBuffer: async () => buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength) }
-  } catch {
-    return { ok: false }
+// The committed TIFFs are read and decoded for real, but once per file for the whole test file:
+// fetch still answers every request (the tests count them), and each file's bytes and rasters are reused.
+vi.mock('geotiff', async importOriginal => {
+  const real = await importOriginal()
+  const decoded = new WeakMap()
+  return {
+    ...real,
+    fromArrayBuffer(buffer) {
+      if (!decoded.has(buffer)) {
+        decoded.set(buffer, (async () => {
+          const image = await (await real.fromArrayBuffer(buffer)).getImage()
+          const rasters = await image.readRasters()
+          image.readRasters = async () => rasters
+          return { getImage: async () => image }
+        })())
+      }
+      return decoded.get(buffer)
+    },
   }
+})
+
+const fixtureBytes = new Map()
+
+async function fixtureFetch(url) {
+  const file = path.join(process.cwd(), 'public', url.replace(/^\//, ''))
+  if (!fixtureBytes.has(file)) {
+    fixtureBytes.set(file, readFile(file)
+      .then(buffer => buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength))
+      .catch(() => null))
+  }
+  const arrayBuffer = await fixtureBytes.get(file)
+  return arrayBuffer ? { ok: true, arrayBuffer: async () => arrayBuffer } : { ok: false }
 }
 
 function fakeMap() {
