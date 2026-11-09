@@ -8,6 +8,25 @@ import { getColoredShapeImageName } from '../../utils/shapes'
 
 const style = { pointSize: 10, borderWidth: 2, borderColor: '#ffffff', fillOpacity: 0.4, borderOpacity: 0.8 }
 
+// The few MapLibre expression operators the merged-pie name uses, evaluated for one marker's properties.
+function evaluate(expression, properties) {
+  if (!Array.isArray(expression)) return expression
+  const [op, ...args] = expression
+  const value = arg => evaluate(arg, properties)
+  switch (op) {
+    case 'get': return properties[args[0]]
+    case 'concat': return args.map(value).join('')
+    case 'case': return value(args[0]) ? value(args[1]) : value(args[2])
+    case '>': return value(args[0]) > value(args[1])
+    case '+': return args.map(value).reduce((sum, v) => sum + v, 0)
+    case '*': return value(args[0]) * value(args[1])
+    case '/': return value(args[0]) / value(args[1])
+    case 'max': return Math.max(...args.map(value))
+    case 'round': return Math.round(value(args[0]))
+    default: throw Error(`operator ${op} not handled`)
+  }
+}
+
 describe('range point color expressions', () => {
   const colorMap = { casabranca: '#111111', travella: '#222222' }
   const speciesColorMap = { 'Mechanitis polymnia': '#aabbcc' }
@@ -81,6 +100,10 @@ describe('site markers', () => {
     // One count expression per group, separated by commas.
     expect(name.filter(part => part === ',')).toHaveLength(2)
     expect(JSON.stringify(name)).toContain('["get","g2"]')
+    // Pie slices in 24ths of the merged records: 3 of 4 records -> 18, 1 of 4 -> 6, absent -> 0;
+    // a group present with 1 of 100 records still gets one slice.
+    expect(evaluate(name, { g0: 3, g1: 1, g2: 0 })).toBe('merged-pie:3:18,6,0')
+    expect(evaluate(name, { g0: 99, g1: 1, g2: 0 })).toBe('merged-pie:3:24,1,0')
     expect(mergedSizeFactorExpression(false)).toBe(1)
     expect(mergedSizeFactorExpression(true)[1]).toBe(2.2)
   })
