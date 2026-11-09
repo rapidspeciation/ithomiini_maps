@@ -120,6 +120,9 @@ describe('drawn sites', () => {
     expect(Object.keys(result)).toEqual(['version', 'png_base64', 'width', 'height', 'params', 'basemap', 'color_by',
       'title', 'title_truncated', 'view', 'records', 'legend', 'sites', 'unmatched_labels', 'capture_attempts'])
     expect(result.version).toBe(1)
+    // The picture and the values the caller passed in come back unchanged.
+    expect(result).toMatchObject({ png_base64: 'iVBO', width: 1600, height: 1200, basemap: 'light',
+      color_by: 'subspecies', title: 'Tithorea harmonia · females · Ecuador' })
     expect(result.legend.unit).toBe('records')
     expect(result.legend.rows.reduce((sum, row) => sum + row.records, 0)).toBe(result.records.length)
   })
