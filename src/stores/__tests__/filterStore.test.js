@@ -293,6 +293,26 @@ describe('useFilterStore', () => {
     expect(geojson.features[0].geometry.coordinates).toEqual([-78.5, -1.2])
   })
 
+  it('the date range drops records before the start and after the end, in every date format', () => {
+    // Dates well inside or outside the range, so the result does not depend on the time zone.
+    // (Records on the first or last day: see the date-range decision in the test cleanup notes.)
+    const datasetStore = useDatasetStore()
+    const filterStore = useFilterStore()
+    datasetStore.allFeatures = [
+      makeFeature({ id: 'BEFORE', observation_date: '05-Jan-22' }),
+      makeFeature({ id: 'INSIDE-SANGER', observation_date: '15-Jan-22' }),
+      makeFeature({ id: 'INSIDE-GBIF', observation_date: '2022-01-14' }),
+      makeFeature({ id: 'INSIDE-INAT', observation_date: '2022-01-16T09:30' }),
+      makeFeature({ id: 'AFTER-GBIF', observation_date: '2022-01-25' }),
+      makeFeature({ id: 'AFTER-INAT', observation_date: '2022-02-01T12:00:00' }),
+    ]
+    filterStore.filters.dateStart = '2022-01-10'
+    filterStore.filters.dateEnd = '2022-01-20'
+
+    expect(filterStore.filteredGeoJSON.features.map(f => f.properties.id))
+      .toEqual(['INSIDE-SANGER', 'INSIDE-GBIF', 'INSIDE-INAT'])
+  })
+
   it('the sex filter keeps only records of the chosen sex; "all" also keeps records without a sex', () => {
     const datasetStore = useDatasetStore()
     const filterStore = useFilterStore()
