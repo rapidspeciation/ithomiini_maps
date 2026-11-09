@@ -10,7 +10,7 @@ const originalTz = process.env.TZ
 // Real records from public/data/map_points_gbif_other.json (9 Nov 2026), one per range shape in the data,
 // plus single-date controls.
 const records = [
-  { id: '4953915499', scientific_name: 'Mechanitis lysimnia', observation_date: '1997-11-07/1997-11-10' }, // day/day (4,076 records)
+  { id: '4953915499', scientific_name: 'Mechanitis lysimnia', observation_date: '1997-11-07/1997-11-10' }, // day/day (4,076 in this file, 4,078 in all)
   { id: '3026035445', scientific_name: 'Godyris zavaleta', observation_date: '2006-10/2006-11' }, // month/month (248)
   { id: '3897921207', scientific_name: 'Mechanitis polymnia', observation_date: '2009/2010' }, // year/year (10)
   { id: '3427538557', scientific_name: 'Mechanitis menapis', observation_date: '2009-12-30T09:15/2009-12-30T10:00' }, // time/time (11)
@@ -77,7 +77,7 @@ describe.each(Object.keys(offsets))('GBIF range dates in %s', tz => {
     expect(ids('2009-12-31', '2009-12-31')).toEqual(['3897921207'])
   })
 
-  it('keeps every range record under a typical 1990-2000 filter', () => {
+  it('keeps the 1997 day range under a typical 1990-2000 filter', () => {
     expect(ids('1990-01-01', '2000-12-31')).toEqual(['4953915499', 'DAY-1997-11-08', 'SANGER-1997-11-12'])
   })
 
