@@ -5,7 +5,9 @@ const showFullLegend = page => page.evaluate(() => {
   window.legendTestStores.data.filters.species = []
 })
 
-test.beforeEach(async ({ page }) => {
+test.beforeEach(async ({ page }, testInfo) => {
+  // Pointer-drag tests are skipped on the phone project before the app loads, not after.
+  test.skip(testInfo.project.name === 'mobile' && testInfo.tags.includes('@pointer'), 'Real pointer drags run on desktop')
   await page.route('https://basemaps.cartocdn.com/**', route => route.fulfill({
     contentType: 'application/json',
     body: JSON.stringify({
@@ -176,8 +178,7 @@ test('preview retains legend height and permits border resize', async ({ page })
   await expect.poll(async () => (await legend.boundingBox()).height).toBeLessThan(before.height - 20)
 })
 
-test('corner selection sticks on resize and Ctrl+corner drag scales text and box', async ({ page }, testInfo) => {
-  test.skip(testInfo.project.name === 'mobile', 'Ctrl+mouse drag requires a keyboard and pointer')
+test('corner selection sticks on resize and Ctrl+corner drag scales text and box', { tag: '@pointer' }, async ({ page }) => {
   const legend = page.locator('.legend-container')
   await showFullLegend(page)
   await expect.poll(async () => legend.locator('.legend-item').count()).toBeGreaterThan(5)
@@ -217,8 +218,7 @@ test('corner selection sticks on resize and Ctrl+corner drag scales text and box
   await expect.poll(() => page.evaluate(() => window.legendTestStores.legend.corner)).toBe('free')
 })
 
-test('sticky drag snaps before release, detaches, and can be disabled', async ({ page }, testInfo) => {
-  test.skip(testInfo.project.name === 'mobile', 'Pointer drag checks run on desktop')
+test('sticky drag snaps before release, detaches, and can be disabled', { tag: '@pointer' }, async ({ page }) => {
   const legend = page.locator('.legend-container')
   await legend.focus()
   await page.keyboard.press('Home')
@@ -262,8 +262,7 @@ test('sticky drag snaps before release, detaches, and can be disabled', async ({
   await expect.poll(() => page.evaluate(() => window.legendTestStores.legend.corner)).toBe('free')
 })
 
-test('full legend attracts each edge during a real pointer drag without a release jump', async ({ page }, testInfo) => {
-  test.skip(testInfo.project.name === 'mobile', 'Real mouse drag requires a pointer')
+test('full legend attracts each edge during a real pointer drag without a release jump', { tag: '@pointer' }, async ({ page }) => {
   const legend = page.locator('.legend-container')
   await showFullLegend(page)
   await expect.poll(async () => (await legend.boundingBox()).height).toBeGreaterThan(350)

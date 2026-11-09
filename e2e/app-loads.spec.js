@@ -16,6 +16,7 @@ test('loads committed occurrence data and a map canvas', async ({ page }) => {
 
 test.describe('Desktop sidebar', () => {
   test.use({ viewport: { width: 1280, height: 720 } })
+  test.skip(({ isMobile }) => isMobile, 'Desktop layout: runs once, under the desktop project')
   test('shows filters beside the map', async ({ page }) => {
     await page.goto('./')
     await expect(page.locator('.sidebar').first()).toBeVisible()

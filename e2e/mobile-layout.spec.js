@@ -2,7 +2,11 @@ import { test, expect } from '@playwright/test'
 
 test.describe('Mobile layout', () => {
   test.use({ viewport: { width: 375, height: 812 }, isMobile: true })
-  test.beforeEach(async ({ page }) => { await page.goto('./') })
+  test.beforeEach(async ({ page }, testInfo) => {
+    // test.use above gives both projects the same phone; run it once, under the mobile project.
+    test.skip(testInfo.project.name !== 'mobile', 'Same phone settings as the mobile project')
+    await page.goto('./')
+  })
 
   test('keeps the map visible and desktop sidebar closed', async ({ page }) => {
     await expect(page.locator('.map')).toBeVisible()
