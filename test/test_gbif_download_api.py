@@ -1,6 +1,8 @@
+import csv
 import unittest
 import sys
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -90,6 +92,33 @@ class GbifDownloadApiTests(unittest.TestCase):
             },
             validation,
         )
+
+
+
+class OccurrenceImportTests(unittest.TestCase):
+    def test_import_keeps_each_records_sex_and_collection_date(self):
+        # The map's sex filter and date range read these two Darwin Core fields straight from the import.
+        columns = ['gbifID', 'decimalLatitude', 'decimalLongitude', 'genus', 'specificEpithet',
+                   'scientificName', 'sex', 'eventDate']
+        rows = [
+            ['11', '-1', '-77', 'Ithomia', 'salapia', 'Ithomia salapia Hewitson, 1852', 'FEMALE', '2019-03-14'],
+            ['12', '-1', '-77', 'Ithomia', 'salapia', 'Ithomia salapia Hewitson, 1852', 'MALE', '1997-11-07/1997-11-10'],
+            ['13', '-1', '-77', 'Ithomia', 'salapia', 'Ithomia salapia Hewitson, 1852', '', ''],
+        ]
+        with TemporaryDirectory() as directory:
+            path = Path(directory) / 'occurrence.txt'
+            with open(path, 'w', encoding='utf-8', newline='') as handle:
+                writer = csv.writer(handle, delimiter='\t')
+                writer.writerow(columns)
+                writer.writerows(rows)
+            records, _ = gbif_download_api.process_occurrence_file(path)
+
+        by_id = {record['id']: record for record in records}
+        self.assertEqual((by_id['11']['sex'], by_id['11']['collection_date']), ('FEMALE', '2019-03-14'))
+        self.assertEqual((by_id['12']['sex'], by_id['12']['collection_date']), ('MALE', '1997-11-07/1997-11-10'))
+        # A blank cell stays without a sex or date (None or empty), never another record's value.
+        self.assertIn(by_id['13']['sex'], (None, ''))
+        self.assertIn(by_id['13']['collection_date'], (None, ''))
 
 
 if __name__ == "__main__":

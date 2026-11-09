@@ -160,6 +160,14 @@ describe('PointPopup', () => {
     expect(host.querySelector('.details-section').textContent).not.toContain('Sex:')
   })
 
+  it('counts the males, females and records without a sex at one site', () => {
+    const sexes = ['male', 'female', 'female', null, 'male', 'female']
+    const site = sexes.map((sex, index) => ({ ...points[0], id: `CAM1000${index}`, sex }))
+    const host = mount({ coordinates: { lat: -1, lng: -77.6 }, points: site })
+    const counts = [...host.querySelectorAll('.location-summary .sex-stats .sex-count')].map(el => el.textContent.trim())
+    expect(counts).toEqual(['♂ 2', '♀ 3', '? 1'])
+  })
+
   it('makes the one-record ID a button that copies it; success is a check and an announcement, the box keeps its text', async () => {
     const writeText = vi.fn(async () => {})
     Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
