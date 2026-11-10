@@ -3,8 +3,8 @@
 
 The table the head trainers read (data/specimen_classifier/training/genus_taxonomy_norm.json, untracked; the same bytes
 as $META_DIR/taxonomy.json on Sanger) was built on 18 Jun 2026 from an older classification: Ithomiinae as a subfamily
-split into 8 tribes for 22 genera, "Ithomiini" for 19 others, the moth genus Macrosoma (Hedylidae) under Ithomiini, and
-Athyrtis, Epityches and Leucothyris missing. See WingsClassificator
+split into 8 tribes for 22 genera, "Ithomiini" for 18 others, the moth genus Macrosoma (Hedylidae) and a placeholder
+genus "Unknown" also under Ithomiini, and Athyrtis, Epityches and Leucothyris missing. See WingsClassificator
 reports/model_autoresearch_20261109/taxonomic/TRIBE_FLAG_BUG.md.
 
 Rules (10 Nov 2026):
@@ -15,11 +15,11 @@ Rules (10 Nov 2026):
      values are emptied (it was filed under Ithomiini).
   3. Synonyms the head keeps as genera take their senior genus's values: Leucothyris -> Oleria.
   With --scope ithomiini, rule 1 applies only to the reference genera and Macrosoma (every other genus keeps its old
-  values and no genus is added): the smallest fix, for a choice between the two.
+  values, and only reference genera and Leucothyris are added): the smallest fix, for a choice between the two.
   4. Checks (the script stops on any failure): the 46 Ithomiini genera of the frozen reference plus Leucothyris are
      Nymphalidae / Danainae / Ithomiini; no other genus has tribe Ithomiini; Macrosoma is not Nymphalidae; the second
-     lab file (Original_Taxonomy_v18Jun25.csv) gives the same triple for every genus both files have, apart from
-     genera named in KNOWN_V18_DIFFERENCES.
+     lab file (Original_Taxonomy_v18Jun25.csv) gives the same triple for every genus both files have (within the
+     scope), apart from genera named in KNOWN_V18_DIFFERENCES.
 
 usage:
   build_genus_taxonomy.py --lab Taxonomy_v07Sep26.csv --lab-check Original_Taxonomy_v18Jun25.csv \
@@ -115,8 +115,9 @@ def main():
     for g, v in new.items():
         if v["tribe"] == "Ithomiini" and g not in REFERENCE_GENERA and g not in SYNONYMS:
             errors.append(f"non-reference genus {g} under Ithomiini: {v}")
-    if new.get("Macrosoma", {}).get("family") == "Nymphalidae":
-        errors.append(f"Macrosoma: {new.get('Macrosoma')}")
+    mac = new.get("Macrosoma", {})
+    if mac.get("tribe") == "Ithomiini" or mac.get("subfamily") in ("Ithomiinae", "Danainae"):
+        errors.append(f"Macrosoma: {mac}")
     v18_diff = {g: {"v07Sep26": lab[g], "v18Jun25": check[g]} for g in sorted(set(lab) & set(check))
                 if lab[g] != check[g] and g not in KNOWN_V18_DIFFERENCES}
     if v18_diff:

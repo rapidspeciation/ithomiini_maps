@@ -5,7 +5,8 @@ read `data/specimen_classifier/training/genus_taxonomy_norm.json` (git-ignored; 
 `$META_DIR/taxonomy.json` on Sanger, sha256 1f791a74...). That table, built on 18 Jun 2026, files 22 Ithomiini genera
 under 8 old tribes of a subfamily "Ithomiinae", puts the moth genus *Macrosoma* (Hedylidae) under tribe Ithomiini, and
 lacks *Athyrtis*, *Epityches* and *Leucothyris*. The head's "Ithomiini" flag (`tribe == "Ithomiini"`) therefore holds
-182 species instead of 356 (WingsClassificator `reports/model_autoresearch_20261109/taxonomic/TRIBE_FLAG_BUG.md`).
+182 species: 170 of the 356 Ithomiini species plus 12 *Macrosoma* moths (WingsClassificator
+`reports/model_autoresearch_20261109/taxonomic/TRIBE_FLAG_BUG.md`).
 
 This folder regenerates it from the lab taxonomy. Nothing here is read by the maps site or by any live service.
 
