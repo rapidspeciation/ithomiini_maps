@@ -1,0 +1,5957 @@
+{
+ "Abaeis": {
+  "family": "Pieridae",
+  "subfamily": "Coliadinae",
+  "tribe": "Euremini"
+ },
+ "Abananote": {
+  "family": "Nymphalidae",
+  "subfamily": "",
+  "tribe": ""
+ },
+ "Abloxurina": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Achlyodes": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Achlyodini"
+ },
+ "Actinote": {
+  "family": "Nymphalidae",
+  "subfamily": "Heliconiinae",
+  "tribe": "Acraeini"
+ },
+ "Adelotypa": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Adelpha": {
+  "family": "Nymphalidae",
+  "subfamily": "Limenitidinae",
+  "tribe": "Limenitidini"
+ },
+ "Adina": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Phocidini"
+ },
+ "Adlerodea": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Adopaeoides": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Aegiale": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Megathymini"
+ },
+ "Aeria": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Aethilla": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Achlyodini"
+ },
+ "Agara": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrrhopyginae",
+  "tribe": "Pyrrhopygini"
+ },
+ "Agathymus": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Megathymini"
+ },
+ "Aglais": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Nymphalini"
+ },
+ "Agraulis": {
+  "family": "Nymphalidae",
+  "subfamily": "Heliconiinae",
+  "tribe": "Heliconiini"
+ },
+ "Agriades": {
+  "family": "Lycaenidae",
+  "subfamily": "Polyommatinae",
+  "tribe": "Polyommatini"
+ },
+ "Agrias": {
+  "family": "Nymphalidae",
+  "subfamily": "Charaxinae",
+  "tribe": "Preponini"
+ },
+ "Aguna": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Eudamini"
+ },
+ "Ahrenholzia": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Aides": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Airamanna": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Alera": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "incertae sedis"
+ },
+ "Alerema": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Alesa": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Eurybiini"
+ },
+ "Allosmaitia": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Altinote": {
+  "family": "Nymphalidae",
+  "subfamily": "",
+  "tribe": ""
+ },
+ "Altopedaliodes": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Alychna": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Amarynthis": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Amauta": {
+  "family": "Castniidae",
+  "subfamily": "Castniinae",
+  "tribe": "Castniini"
+ },
+ "Amblyscirtes": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Amiga": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Amphidecta": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Amphiselenis": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Anaea": {
+  "family": "Nymphalidae",
+  "subfamily": "Charaxinae",
+  "tribe": "Anaeini"
+ },
+ "Anaeomorpha": {
+  "family": "Nymphalidae",
+  "subfamily": "Charaxinae",
+  "tribe": "Anaemorphini"
+ },
+ "Anartia": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Victorinini"
+ },
+ "Anastrus": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Erynnini"
+ },
+ "Anastrus ?": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Erynnini"
+ },
+ "Anatrytone": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Anaxas": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Erynnini"
+ },
+ "Ancyloxypha": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Ancyluris": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Anetia": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Danaini"
+ },
+ "Angelabella": {
+  "family": "Gracillariidae",
+  "subfamily": "Oecophyllembiinae",
+  "tribe": "Oecophyllembiini"
+ },
+ "Anhangaia": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Anisochoria": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Pyrgini"
+ },
+ "Annulata": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Anteos": {
+  "family": "Pieridae",
+  "subfamily": "Coliadinae",
+  "tribe": "Coliadini"
+ },
+ "Anteros": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Helicopini"
+ },
+ "Anthanassa": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Melitaeini"
+ },
+ "Anthocharis": {
+  "family": "Pieridae",
+  "subfamily": "Pierinae",
+  "tribe": "Anthocharidini"
+ },
+ "Anthoptus": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Antigonis": {
+  "family": "Nymphalidae",
+  "subfamily": "Biblidinae",
+  "tribe": "Callicorini"
+ },
+ "Antigonus": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Pyrgini"
+ },
+ "Antillea": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Melitaeini"
+ },
+ "Antina": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Pyrgini"
+ },
+ "Antirrhea": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Morphini"
+ },
+ "Antopedaliodes": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Apanthesis": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalidae-incertae-sedis",
+  "tribe": "Satyrini"
+ },
+ "Apaustus": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Apexacuta": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Aphrissa": {
+  "family": "Pieridae",
+  "subfamily": "Coliadinae",
+  "tribe": "Coliadini"
+ },
+ "Apodemia": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Emesidini"
+ },
+ "Aponarope": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Brassolini"
+ },
+ "Apuecla": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Apyrrothrix": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrrhopyginae",
+  "tribe": "Pyrrhopygini"
+ },
+ "Arawacus": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Arcas": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Archaeogramma": {
+  "family": "Nymphalidae",
+  "subfamily": "Biblidinae",
+  "tribe": "Callicorini"
+ },
+ "Archaeolycorea": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Danaini"
+ },
+ "Archaeonympha": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Archaeoprepona": {
+  "family": "Nymphalidae",
+  "subfamily": "Charaxinae",
+  "tribe": "Preponini"
+ },
+ "Archeuptychia": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Archimestra": {
+  "family": "Nymphalidae",
+  "subfamily": "Biblidinae",
+  "tribe": "Biblidini"
+ },
+ "Archonias": {
+  "family": "Pieridae",
+  "subfamily": "Pierinae",
+  "tribe": "Pierini"
+ },
+ "Ardaris": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrrhopyginae",
+  "tribe": "Pyrrhopygini"
+ },
+ "Aremfoxia": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Argentaria": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Argon": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Carystini"
+ },
+ "Argopteron": {
+  "family": "Hesperiidae",
+  "subfamily": "Heteropterinae",
+  "tribe": "Butleriini"
+ },
+ "Argynnis": {
+  "family": "Nymphalidae",
+  "subfamily": "Heliconiinae",
+  "tribe": "Argynnini"
+ },
+ "Argyraspila": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Argyrogrammana": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Symmachiini"
+ },
+ "Argyrophorus": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Arhuaco": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Ariconias": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Aricoris": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Arita": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Moncini"
+ },
+ "Aroma": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Arotis": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Arteurotia": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Carcharodini"
+ },
+ "Artines": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Artonia": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Arumecla": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Arzecla": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Ascia": {
+  "family": "Pieridae",
+  "subfamily": "Pierinae",
+  "tribe": "Pierini"
+ },
+ "Aspitha": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrrhopyginae",
+  "tribe": "Pyrrhopygini"
+ },
+ "Asterocampa": {
+  "family": "Nymphalidae",
+  "subfamily": "Apaturinae",
+  "tribe": "Limenitidini"
+ },
+ "Asterope": {
+  "family": "Nymphalidae",
+  "subfamily": "Biblidinae",
+  "tribe": "Epiphilini"
+ },
+ "Astraeodes": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Astraptes": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Eudamini"
+ },
+ "Asymma": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Symmachiini"
+ },
+ "Atalopedes": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Atalopedes ?": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Atarnes": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Achlyodini"
+ },
+ "Athesis": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Athis": {
+  "family": "Castniidae",
+  "subfamily": "Castniinae",
+  "tribe": "Castniini"
+ },
+ "Athyrtis": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Atlantea": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Melitaeini"
+ },
+ "Atlanteuptychia": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Atlides": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Atrytone": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Atrytonopsis": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Aubergina": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Auca": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Augiades": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Entheini"
+ },
+ "Aurina": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Phocidini"
+ },
+ "Austinus": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Carcharodini"
+ },
+ "Autochton": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Eudamini"
+ },
+ "Aveexcrenota": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Azonax": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrrhopyginae",
+  "tribe": "Pyrrhopygini"
+ },
+ "Badecla": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Baeotis": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Baeotus": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Coeini"
+ },
+ "Balintus": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Barbicornis": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Baronia": {
+  "family": "Papilionidae",
+  "subfamily": "Baroniinae",
+  "tribe": ""
+ },
+ "Barrolla": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Batesia": {
+  "family": "Nymphalidae",
+  "subfamily": "Biblidinae",
+  "tribe": "Ageroniini"
+ },
+ "Battus": {
+  "family": "Papilionidae",
+  "subfamily": "Papilioninae",
+  "tribe": "Troidini"
+ },
+ "Befrostia": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Befrostiini"
+ },
+ "Behemothia": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Bia": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Brassolini"
+ },
+ "Biblis": {
+  "family": "Nymphalidae",
+  "subfamily": "Biblidinae",
+  "tribe": "Biblidini"
+ },
+ "Bistonina": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Blepolenis": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Brassolini"
+ },
+ "Bolboneura": {
+  "family": "Nymphalidae",
+  "subfamily": "Biblidinae",
+  "tribe": "Epiphilini"
+ },
+ "Bolla": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Carcharodini"
+ },
+ "Boloria": {
+  "family": "Nymphalidae",
+  "subfamily": "Heliconiinae",
+  "tribe": "Argynnini"
+ },
+ "Brachyglenis": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Bralus": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Pyrgini"
+ },
+ "Brangas": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Brassolis": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Brassolini"
+ },
+ "Brephidium": {
+  "family": "Lycaenidae",
+  "subfamily": "Polyommatinae",
+  "tribe": "Polyommatini"
+ },
+ "Brevianta": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Brevioleria": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Brintesia": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Bruna": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Bungalotis": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Phocidini"
+ },
+ "Burca": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Carcharodini"
+ },
+ "Burnsius": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Pyrgini"
+ },
+ "Busbiina": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Butleria": {
+  "family": "Hesperiidae",
+  "subfamily": "Heteropterinae",
+  "tribe": "Butleriini"
+ },
+ "Buzella": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Buzyges": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Cabirus": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Achlyodini"
+ },
+ "Caerois": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Morphini"
+ },
+ "Caeruleuptychia": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Calephelis": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Calicosama": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Caligo": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Brassolini"
+ },
+ "Caligopsis": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Brassolini"
+ },
+ "Caligulana": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Calisto": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Calliades": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": ""
+ },
+ "Callicore": {
+  "family": "Nymphalidae",
+  "subfamily": "Biblidinae",
+  "tribe": "Callicorini"
+ },
+ "Callicorina": {
+  "family": "Nymphalidae",
+  "subfamily": "Biblidinae",
+  "tribe": "Epiphilini"
+ },
+ "Callimormus": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Calliona": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Callistium": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Callistiumini"
+ },
+ "Callithomia": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Callophrys": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Calociasma": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Calospila": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Calpodes": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Calpodes ?": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Calpodini"
+ },
+ "Calvetta": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Calycopis": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Calydna": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Calydnini"
+ },
+ "Camissecla": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Camptopleura": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Erynnini"
+ },
+ "Canesia": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Pyrgini"
+ },
+ "Cantha": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Capronnieria": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Caria": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Cariomothis": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Carminda": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Carrhenes": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Pyrgini"
+ },
+ "Cartea": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Carterocephalus": {
+  "family": "Hesperiidae",
+  "subfamily": "Heteropterinae",
+  "tribe": "Heteropterini"
+ },
+ "Carystina": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Carystoides": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Megathymini"
+ },
+ "Carystus": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Castilia": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Melitaeini"
+ },
+ "Castilia ?": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Melitaeini"
+ },
+ "Castnius": {
+  "family": "Castniidae",
+  "subfamily": "Castniinae",
+  "tribe": "Castniini"
+ },
+ "Catacore": {
+  "family": "Nymphalidae",
+  "subfamily": "Biblidinae",
+  "tribe": "Callicorini"
+ },
+ "Catagramma": {
+  "family": "Nymphalidae",
+  "subfamily": "Biblidinae",
+  "tribe": "Callicorini"
+ },
+ "Catagrammina": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Catasticta": {
+  "family": "Pieridae",
+  "subfamily": "Pierinae",
+  "tribe": "Pierini"
+ },
+ "Catoblepia": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Brassolini"
+ },
+ "Catocyclotis": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Catonephele": {
+  "family": "Nymphalidae",
+  "subfamily": "Biblidinae",
+  "tribe": "Epicaliini"
+ },
+ "Cecropterus": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Eudamini"
+ },
+ "Celaenorrhinus": {
+  "family": "Hesperiidae",
+  "subfamily": "Tagiadinae",
+  "tribe": "Celaenorrhinini"
+ },
+ "Celastrina": {
+  "family": "Lycaenidae",
+  "subfamily": "Polyommatinae",
+  "tribe": "Polyommatini"
+ },
+ "Celmia": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Celotes": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Pyrgini"
+ },
+ "Cepheuptychia": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Cephise": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Eudamini"
+ },
+ "Ceratinia": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Cercyonis": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Chadia": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Chalodeta": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Chalybs": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Chalypyge": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Pyrrhopygini"
+ },
+ "Chamaelimnas": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Charidia": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Achlyodini"
+ },
+ "Charis": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Charonias": {
+  "family": "Pieridae",
+  "subfamily": "Pierinae",
+  "tribe": "Pierini"
+ },
+ "Cheimas": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Chetone": {
+  "family": "Erebidae",
+  "subfamily": "Arctiinae",
+  "tribe": "Arctiini"
+ },
+ "Chillanella": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Chimastrum": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Symmachiini"
+ },
+ "Chioides": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Eudamini"
+ },
+ "Chiomara": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Erynnini"
+ },
+ "Chiothion": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Erynnini"
+ },
+ "Chirgus": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Pyrgini"
+ },
+ "Chitta": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Chloeria": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Chloreuptychia": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Chlorostrymon": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Chlosyne": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Melitaeini"
+ },
+ "Choranthus": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Chorinea": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Chrysoplectrum": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": ""
+ },
+ "Cisandina": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Cissia": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Cissia \"on hold\"": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Euptychiini"
+ },
+ "Cissia (on hold)": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Euptychiini"
+ },
+ "Cithaerias": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Haeterini"
+ },
+ "Clito": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Erynnini"
+ },
+ "Clytius": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Carcharodini"
+ },
+ "Cobalopsis": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Cobalus": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Codaciticus": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Codatractus": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Eudamini"
+ },
+ "Coenonympha": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Coenophlebia": {
+  "family": "Nymphalidae",
+  "subfamily": "Charaxinae",
+  "tribe": "Anaeini"
+ },
+ "Cogia": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Oileidini"
+ },
+ "Colias": {
+  "family": "Pieridae",
+  "subfamily": "Coliadinae",
+  "tribe": "Coliadini"
+ },
+ "Colobura": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Nymphalini"
+ },
+ "Colombeia": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Conga": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Conognathus": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Carcharodini"
+ },
+ "Consul": {
+  "family": "Nymphalidae",
+  "subfamily": "Charaxinae",
+  "tribe": "Anaeini"
+ },
+ "Contrafacia": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Contrastia": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Coolus": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Corades": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Corderopedaliodes": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Cornuphallus": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Carcharodini"
+ },
+ "Corra": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Corrachia": {
+  "family": "Riodinidae",
+  "subfamily": "Euselasiinae",
+  "tribe": "Nemeobiini"
+ },
+ "Corta": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Corticea": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Corybantes": {
+  "family": "Castniidae",
+  "subfamily": "Castniinae",
+  "tribe": "Castniini"
+ },
+ "Cosmosatyrus": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Cremna": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Mesosemiini"
+ },
+ "Crenda": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Erynnini"
+ },
+ "Creonpyge": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrrhopyginae",
+  "tribe": "Pyrrhopygini"
+ },
+ "Crinifemur": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Crocozona": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Croniades": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrrhopyginae",
+  "tribe": "Pyrrhopygini"
+ },
+ "Cumbre": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Cunizza": {
+  "family": "Pieridae",
+  "subfamily": "Pierinae",
+  "tribe": "Anthocharidini"
+ },
+ "Cupathecla": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Cupido": {
+  "family": "Lycaenidae",
+  "subfamily": "Polyommatinae",
+  "tribe": "Polyommatini"
+ },
+ "Curva": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Curvie": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Emesidini"
+ },
+ "Cyanophrys": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Cybdelis": {
+  "family": "Nymphalidae",
+  "subfamily": "Biblidinae",
+  "tribe": "Cybdelini"
+ },
+ "Cyclargus": {
+  "family": "Lycaenidae",
+  "subfamily": "Polyommatinae",
+  "tribe": "Polyommatini"
+ },
+ "Cycloglypha": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Erynnini"
+ },
+ "Cyclosemia": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Carcharodini"
+ },
+ "Cyclosma": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Cyllopsis": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Cymaenes": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Cynea": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Cyrenia": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Dabreras": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Dachetola": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Daedalma": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Dagon": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Melitaeini"
+ },
+ "Dalla": {
+  "family": "Hesperiidae",
+  "subfamily": "Heteropterinae",
+  "tribe": "Heteropterini"
+ },
+ "Damas": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Danaus": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Danaini"
+ },
+ "Dangond": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Dardarina": {
+  "family": "Hesperiidae",
+  "subfamily": "Heteropterinae",
+  "tribe": "Heteropterini"
+ },
+ "Daron": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Dasyophthalma": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Brassolini"
+ },
+ "Decinea": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Deltaya": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Denivia": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Detritivora": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Diaethria": {
+  "family": "Nymphalidae",
+  "subfamily": "Biblidinae",
+  "tribe": "Callicorini"
+ },
+ "Diaeus": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Pyrgini"
+ },
+ "Dianesia": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Dianesiini"
+ },
+ "Diaphanos": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Dicya": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Diminutiva": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Dion": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Dion ?": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Moncini"
+ },
+ "Dione": {
+  "family": "Nymphalidae",
+  "subfamily": "Heliconiinae",
+  "tribe": "Heliconiini"
+ },
+ "Dircenna": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Dismorphia": {
+  "family": "Pieridae",
+  "subfamily": "Dismorphiinae",
+  "tribe": "Pierini"
+ },
+ "Divana": {
+  "family": "Castniidae",
+  "subfamily": "Castniinae",
+  "tribe": "Castniini"
+ },
+ "Doberes": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Achlyodini"
+ },
+ "Doxocopa": {
+  "family": "Nymphalidae",
+  "subfamily": "Apaturinae",
+  "tribe": "Limenitidini"
+ },
+ "Drephalys": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Entheini"
+ },
+ "Drucina": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Druphila": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Dryadula": {
+  "family": "Nymphalidae",
+  "subfamily": "Heliconiinae",
+  "tribe": "Heliconiini"
+ },
+ "Dryas": {
+  "family": "Nymphalidae",
+  "subfamily": "Heliconiinae",
+  "tribe": "Heliconiini"
+ },
+ "Dubia": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Dubiella": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Duboisvalia": {
+  "family": "Castniidae",
+  "subfamily": "Castniinae",
+  "tribe": "Gazerini"
+ },
+ "Dulcedo": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Haeterini"
+ },
+ "Duroca": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Dymasia": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Melitaeini"
+ },
+ "Dynamine": {
+  "family": "Nymphalidae",
+  "subfamily": "Biblidinae",
+  "tribe": "Eubagini"
+ },
+ "Dynastor": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Brassolini"
+ },
+ "Dyscophellus": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Phocidini"
+ },
+ "Dysmathia": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Eantis": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Achlyodini"
+ },
+ "Ebrietas": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Erynnini"
+ },
+ "Eburuncus": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Achlyodini"
+ },
+ "Ebusus": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Echelatus": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Erynnini"
+ },
+ "Echenais": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Calydnini"
+ },
+ "Echinargus": {
+  "family": "Lycaenidae",
+  "subfamily": "Polyommatinae",
+  "tribe": "Polyommatini"
+ },
+ "Echydna": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Calydnini"
+ },
+ "Ectima": {
+  "family": "Nymphalidae",
+  "subfamily": "Biblidinae",
+  "tribe": "Ageroniini"
+ },
+ "Ectomis": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Eudamini"
+ },
+ "Ectosemia": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Mesosemiini"
+ },
+ "Elbella": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Pyrrhopygini"
+ },
+ "Electrostrymon": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Elina": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Elkalyce": {
+  "family": "Lycaenidae",
+  "subfamily": "Polyommatinae",
+  "tribe": "Polyommatini"
+ },
+ "Elzunia": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Emeryus": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Emesis": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Emesidini"
+ },
+ "Emmelus": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Phocidini"
+ },
+ "Enantia": {
+  "family": "Pieridae",
+  "subfamily": "Dismorphiinae",
+  "tribe": "Pierini"
+ },
+ "Endosemia": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Mesosemiini"
+ },
+ "Enodia": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Enos": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Enosis": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Moncini"
+ },
+ "Enosis ?": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Moncini"
+ },
+ "Entheus": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Entheini"
+ },
+ "Epargyreus": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Eudamini"
+ },
+ "Ephyriades": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Erynnini"
+ },
+ "Epiphile": {
+  "family": "Nymphalidae",
+  "subfamily": "Biblidinae",
+  "tribe": "Epiphilini"
+ },
+ "Episcada": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Epityches": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Eprius": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Eracon": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Achlyodini"
+ },
+ "Erebia": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Eresia": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Melitaeini"
+ },
+ "Eretris": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Erichthodes": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Erichtodes": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Euptychiini"
+ },
+ "Erionota": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Erionotini"
+ },
+ "Eroessa": {
+  "family": "Pieridae",
+  "subfamily": "Pierinae",
+  "tribe": "Anthocharidini"
+ },
+ "Erora": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Erynnis": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Erynnini"
+ },
+ "Eryphanis": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Brassolini"
+ },
+ "Erythia": {
+  "family": "Riodinidae",
+  "subfamily": "Euselasiinae",
+  "tribe": "Euselasiini"
+ },
+ "Esthemopsis": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Symmachiini"
+ },
+ "Etcheverrius": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Eteona": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Eucheira": {
+  "family": "Pieridae",
+  "subfamily": "Pierinae",
+  "tribe": "Pierini"
+ },
+ "Euchloe": {
+  "family": "Pieridae",
+  "subfamily": "Pierinae",
+  "tribe": "Anthocharidini"
+ },
+ "Eucorna": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Mesosemiini"
+ },
+ "Eucyane": {
+  "family": "Erebidae",
+  "subfamily": "Arctiinae",
+  "tribe": "Arctiini"
+ },
+ "Eueides": {
+  "family": "Nymphalidae",
+  "subfamily": "Heliconiinae",
+  "tribe": "Heliconiini"
+ },
+ "Eugelasia": {
+  "family": "Riodinidae",
+  "subfamily": "Euselasiinae",
+  "tribe": "Euselasiini"
+ },
+ "Eumaeus": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Eunica": {
+  "family": "Nymphalidae",
+  "subfamily": "Biblidinae",
+  "tribe": "Eunicini"
+ },
+ "Eunogyra": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Mesosemiini"
+ },
+ "Euphilotes": {
+  "family": "Lycaenidae",
+  "subfamily": "Polyommatinae",
+  "tribe": "Polyommatini"
+ },
+ "Euphydryas": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Melitaeini"
+ },
+ "Euphyes": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Euptoieta": {
+  "family": "Nymphalidae",
+  "subfamily": "Heliconiinae",
+  "tribe": "Argynnini"
+ },
+ "Euptychia": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Euptychoides": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Eurema": {
+  "family": "Pieridae",
+  "subfamily": "Coliadinae",
+  "tribe": "Euremini"
+ },
+ "Euriphellus": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Phocidini"
+ },
+ "Euryades": {
+  "family": "Papilionidae",
+  "subfamily": "Papilioninae",
+  "tribe": "Troidini"
+ },
+ "Eurybia": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Eurybiini"
+ },
+ "Eurylasia": {
+  "family": "Riodinidae",
+  "subfamily": "Euselasiinae",
+  "tribe": "Euselasiini"
+ },
+ "Eurytides": {
+  "family": "Papilionidae",
+  "subfamily": "Papilioninae",
+  "tribe": "Leptocircini"
+ },
+ "Euselasia": {
+  "family": "Riodinidae",
+  "subfamily": "Euselasiinae",
+  "tribe": "Euselasiini"
+ },
+ "Eutocus": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Eutresis": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Eutus": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Eutychide": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Evansiella": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Evenus": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Exoplisia": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Exorbaetta": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Falga": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Faunula": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Feniseca": {
+  "family": "Lycaenidae",
+  "subfamily": "Miletinae",
+  "tribe": "Spalgini"
+ },
+ "Festiva": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Erynnini"
+ },
+ "Festivia": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Erynnini"
+ },
+ "Fidius": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Flaccilla": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Flattoides": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Oileidini"
+ },
+ "Foetterleia": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Forbestra": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Forsterinaria": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Fountainea": {
+  "family": "Nymphalidae",
+  "subfamily": "Charaxinae",
+  "tribe": "Anaeini"
+ },
+ "Freemania": {
+  "family": "Hesperiidae",
+  "subfamily": "Heteropterinae",
+  "tribe": ""
+ },
+ "Freemaniana": {
+  "family": "Hesperiidae",
+  "subfamily": "Heteropterinae",
+  "tribe": "Heteropterini"
+ },
+ "Fulvatis": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Phocidini"
+ },
+ "G": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Moncini"
+ },
+ "G.": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Erynnini"
+ },
+ "G. 1": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "G. 2": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Gallio": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Ganyra": {
+  "family": "Pieridae",
+  "subfamily": "Pierinae",
+  "tribe": "Pierini"
+ },
+ "Gargina": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Gemmia": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Gesta": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Erynnini"
+ },
+ "Gindanes": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Achlyodini"
+ },
+ "Ginungagapus": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Glaucopsyche": {
+  "family": "Lycaenidae",
+  "subfamily": "Polyommatinae",
+  "tribe": "Polyommatini"
+ },
+ "Glennia": {
+  "family": "Pieridae",
+  "subfamily": "Pierinae",
+  "tribe": "Pierini"
+ },
+ "Glutophrissa": {
+  "family": "Pieridae",
+  "subfamily": "Pierinae",
+  "tribe": "Pierini"
+ },
+ "Gnathotriche": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Melitaeini"
+ },
+ "Godartiana": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Godmia": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Godyris": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Gorgopas": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Carcharodini"
+ },
+ "Gorgopas ?": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Carcharodini"
+ },
+ "Gorgythion": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Erynnini"
+ },
+ "Gracilata": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Grais": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Achlyodini"
+ },
+ "Granila": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrrhopyginae",
+  "tribe": "Pyrrhopygini"
+ },
+ "Graphita": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Greta": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Grishinata": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Gubrus": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Gufa": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Gunayan": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrrhopyginae",
+  "tribe": "Pyrrhopygini"
+ },
+ "Guyanna": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrrhopyginae",
+  "tribe": "Pyrrhopygini"
+ },
+ "Gyrocheilus": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Hades": {
+  "family": "Riodinidae",
+  "subfamily": "Euselasiinae",
+  "tribe": "Euselasiini"
+ },
+ "Haemactis": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Achlyodini"
+ },
+ "Haematera": {
+  "family": "Nymphalidae",
+  "subfamily": "Biblidinae",
+  "tribe": "Callicorini"
+ },
+ "Haemonides": {
+  "family": "Castniidae",
+  "subfamily": "Castniinae",
+  "tribe": "Castniini"
+ },
+ "Haenschia": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Haetera": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Haeterini"
+ },
+ "Halotus": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Hamadryas": {
+  "family": "Nymphalidae",
+  "subfamily": "Biblidinae",
+  "tribe": "Ageroniini"
+ },
+ "Harjesia": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Haywardella": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Haza": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Hedone": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Helias": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Erynnini"
+ },
+ "Heliconius": {
+  "family": "Nymphalidae",
+  "subfamily": "Heliconiinae",
+  "tribe": "Heliconiini"
+ },
+ "Helicopis": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Helicopini"
+ },
+ "Heliopetes": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Pyrgini"
+ },
+ "Hemiargus": {
+  "family": "Lycaenidae",
+  "subfamily": "Polyommatinae",
+  "tribe": "Polyommatini"
+ },
+ "Heraclides": {
+  "family": "Papilionidae",
+  "subfamily": "Papilioninae",
+  "tribe": "Papilionini"
+ },
+ "Hermathena": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Mesosemiini"
+ },
+ "Hermeuptychia": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Hermio": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Hesperia": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Hesperocharis": {
+  "family": "Pieridae",
+  "subfamily": "Pierinae",
+  "tribe": "Anthocharidini"
+ },
+ "Hesperopsis": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Carcharodini"
+ },
+ "Heterosais": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Higginsius": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Melitaeini"
+ },
+ "Historis": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Coeini"
+ },
+ "Holguinia": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Homoeonympha": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Hoodus": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Erynnini"
+ },
+ "Huberonympha": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Hyalenna": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Hyalothyrus": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Entheini"
+ },
+ "Hyalyris": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Hylephila": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Hypanartia": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Nymphalini"
+ },
+ "Hypaurotis": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Theclini"
+ },
+ "Hyphilaria": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Mesosemiini"
+ },
+ "Hypna": {
+  "family": "Nymphalidae",
+  "subfamily": "Charaxinae",
+  "tribe": "Anaeini"
+ },
+ "Hypoleria": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Hypolimnas": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Junoniini"
+ },
+ "Hypomenitis": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Hypophylla": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Hyposcada": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Hypostrymon": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Hypothyris": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Ianusanta": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Ianussiusa": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Iaspis": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Icaricia": {
+  "family": "Lycaenidae",
+  "subfamily": "Polyommatinae",
+  "tribe": "Polyommatini"
+ },
+ "Idioneurula": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Igapophilus": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Ignata": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Iliana": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Carcharodini"
+ },
+ "Iliana ?": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Carcharodini"
+ },
+ "Imelda": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Helicopini"
+ },
+ "Inbio": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Incisus": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Carcharodini"
+ },
+ "Inglorius": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Inkana": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Insigniocastnia": {
+  "family": "Castniidae",
+  "subfamily": "Castniinae",
+  "tribe": "Castniini"
+ },
+ "Iophanus": {
+  "family": "Lycaenidae",
+  "subfamily": "Lycaeninae",
+  "tribe": "Spalgini"
+ },
+ "Ipidecla": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Isapis": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Itaballia": {
+  "family": "Pieridae",
+  "subfamily": "Pierinae",
+  "tribe": "Pierini"
+ },
+ "Ithomeis": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Ithomia": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Ithomiola": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Mesosemiini"
+ },
+ "Ithra": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Melitaeini"
+ },
+ "Itylos": {
+  "family": "Lycaenidae",
+  "subfamily": "Polyommatinae",
+  "tribe": "Polyommatini"
+ },
+ "Janatella": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Melitaeini"
+ },
+ "Janthecla": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Jemadia": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrrhopyginae",
+  "tribe": "Pyrrhopygini"
+ },
+ "Jera": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrrhopyginae",
+  "tribe": "Jerini"
+ },
+ "Joanna": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Johnsonita": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Joiceya": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Jonaspyge": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrrhopyginae",
+  "tribe": "Pyrrhopygini"
+ },
+ "Juditha": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Junea": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Junonia": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Junoniini"
+ },
+ "Jupitellia": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Nymphalini"
+ },
+ "Justinia": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Kisutam": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Kolana": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Koria": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Kricogonia": {
+  "family": "Pieridae",
+  "subfamily": "Coliadinae",
+  "tribe": "Euremini"
+ },
+ "Ladda": {
+  "family": "Hesperiidae",
+  "subfamily": "Heteropterinae",
+  "tribe": "Heteropterini"
+ },
+ "Lamasina": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Lampides": {
+  "family": "Lycaenidae",
+  "subfamily": "Polyommatinae",
+  "tribe": "Polyommatini"
+ },
+ "Lamponia": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Lamprospilus": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Lancephallus": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Laothus": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Laparus": {
+  "family": "Nymphalidae",
+  "subfamily": "Heliconiinae",
+  "tribe": "Heliconiini"
+ },
+ "Lasaia": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Lasiommata": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Lasiophila": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Lathecla": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Lattus": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Lazulina": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Lemonias": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Lento": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Leodonta": {
+  "family": "Pieridae",
+  "subfamily": "Pierinae",
+  "tribe": "Pierini"
+ },
+ "Leptophobia": {
+  "family": "Pieridae",
+  "subfamily": "Pierinae",
+  "tribe": "Pierini"
+ },
+ "Leptotes": {
+  "family": "Lycaenidae",
+  "subfamily": "Polyommatinae",
+  "tribe": "Polyommatini"
+ },
+ "Lerema": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Lerodea": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Lerodea ?": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Moncini"
+ },
+ "Lethe": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Leucidia": {
+  "family": "Pieridae",
+  "subfamily": "Coliadinae",
+  "tribe": ""
+ },
+ "Leucochimona": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Mesosemiini"
+ },
+ "Leucothyris": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Levinata": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Melitaeini"
+ },
+ "Libra": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Librita": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Libytheana": {
+  "family": "Nymphalidae",
+  "subfamily": "Libytheinae",
+  "tribe": ""
+ },
+ "Lieinix": {
+  "family": "Pieridae",
+  "subfamily": "Dismorphiinae",
+  "tribe": "Pierini"
+ },
+ "Lienix": {
+  "family": "Pieridae",
+  "subfamily": "Dismorphiinae",
+  "tribe": ""
+ },
+ "Limenitis": {
+  "family": "Nymphalidae",
+  "subfamily": "Limenitidinae",
+  "tribe": "Limenitidini"
+ },
+ "Limochores": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Lindra": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Lirra": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Achlyodini"
+ },
+ "Lithodryas": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalidae-incertae-sedis",
+  "tribe": "Satyrini"
+ },
+ "Lithopsyche": {
+  "family": "Riodinidae",
+  "subfamily": "Riodinidae-incertae-sedis",
+  "tribe": "Nymphidiini"
+ },
+ "Livendula": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Livida": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Achlyodini"
+ },
+ "Llorenteana": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Lobocla": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Eudamini"
+ },
+ "Lobotractus": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Eudamini"
+ },
+ "Lon": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Lucida": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Lucilda": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Lucilella": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Symmachiini"
+ },
+ "Lucillella": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Symmachiini"
+ },
+ "Lucinia": {
+  "family": "Nymphalidae",
+  "subfamily": "Biblidinae",
+  "tribe": "Epiphilini"
+ },
+ "Ludens": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Lurida": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Lycaena": {
+  "family": "Lycaenidae",
+  "subfamily": "Lycaeninae",
+  "tribe": "Spalgini"
+ },
+ "Lycas": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Pericharini"
+ },
+ "Lychnuchoides": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Carystini"
+ },
+ "Lychnuchus": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Lycorea": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Danaini"
+ },
+ "Lymanopoda": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Lyropteryx": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Macrosoma": {
+  "family": "Hedylidae",
+  "subfamily": "Hedylinae",
+  "tribe": ""
+ },
+ "Maculasia": {
+  "family": "Riodinidae",
+  "subfamily": "Euselasiinae",
+  "tribe": "Euselasiini"
+ },
+ "Madeleina": {
+  "family": "Lycaenidae",
+  "subfamily": "Polyommatinae",
+  "tribe": ""
+ },
+ "Magnastigma": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Magneuptychia": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Malaveria": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Manataria": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Melanitini"
+ },
+ "Manerebia": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Maniola": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Marachina": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Marela": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Oileidini"
+ },
+ "Marmessus": {
+  "family": "Riodinidae",
+  "subfamily": "Euselasiinae",
+  "tribe": "Euselasiini"
+ },
+ "Marpesia": {
+  "family": "Nymphalidae",
+  "subfamily": "Cyrestinae",
+  "tribe": "Cyrestini"
+ },
+ "Mathania": {
+  "family": "Pieridae",
+  "subfamily": "Pierinae",
+  "tribe": "Anthocharidini"
+ },
+ "Mazia": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Melitaeini"
+ },
+ "Mcclungia": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Mclungia": {
+  "family": "Nymphalidae",
+  "subfamily": "Ithomiinae",
+  "tribe": "Godyridini"
+ },
+ "Mechanitis": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Megaleas": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Megathecla": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Megathymus": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Megathymini"
+ },
+ "Megeuptychia": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Megisto": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Megoleria": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Melanargia": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Melanis": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Melanopyge": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Pyrrhopygini"
+ },
+ "Melete": {
+  "family": "Pieridae",
+  "subfamily": "Pierinae",
+  "tribe": "Pierini"
+ },
+ "Melinaea": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Memphis": {
+  "family": "Nymphalidae",
+  "subfamily": "Charaxinae",
+  "tribe": "Anaeini"
+ },
+ "Mesene": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Symmachiini"
+ },
+ "Mesenopsis": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Symmachiini"
+ },
+ "Mesophtalma": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Mesosemiini"
+ },
+ "Mesophthalma": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Mesosemiini"
+ },
+ "Mesoprepona": {
+  "family": "Nymphalidae",
+  "subfamily": "Charaxinae",
+  "tribe": "Preponini"
+ },
+ "Mesosemia": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Mesosemiini"
+ },
+ "Mesotaenia": {
+  "family": "Nymphalidae",
+  "subfamily": "Biblidinae",
+  "tribe": "Biblidini"
+ },
+ "Mestra": {
+  "family": "Nymphalidae",
+  "subfamily": "Biblidinae",
+  "tribe": "Biblidini"
+ },
+ "Metacharis": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Metamorpha": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Victorinini"
+ },
+ "Methion": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Methionopsis": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Falgini"
+ },
+ "Methionopsis ?": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Falgini"
+ },
+ "Methona": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Methone": {
+  "family": "Riodinidae",
+  "subfamily": "Euselasiinae",
+  "tribe": "Euselasiini"
+ },
+ "Metiscus": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Metrocles": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Metron": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Metron ?": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Micandra": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Michaelus": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Microceris": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrrhopyginae",
+  "tribe": "Pyrrhopygini"
+ },
+ "Microtia": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Melitaeini"
+ },
+ "Mictris": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Carcharodini"
+ },
+ "Mielkella": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Brassolini"
+ },
+ "Mielkeus": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Milanion": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Achlyodini"
+ },
+ "Mimardaris": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Pyrrhopygini"
+ },
+ "Mimia": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Achlyodini"
+ },
+ "Mimoblepia": {
+  "family": "Nymphalidae",
+  "subfamily": "Morphinae",
+  "tribe": "Brassolini"
+ },
+ "Mimoides": {
+  "family": "Papilionidae",
+  "subfamily": "Papilioninae",
+  "tribe": "Leptocircini"
+ },
+ "Mimoniades": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrrhopyginae",
+  "tribe": "Pyrrhopygini"
+ },
+ "Ministrymon": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Minotauros": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Minstrellus": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Misius": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Mit": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Mithras": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Mnasalcas": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Mnaseas": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Mnasicles": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Mnasilus": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Moncini"
+ },
+ "Mnasinous": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Mnasitheus": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Mnestheus": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Modestia": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Modica": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Moeris": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Molla": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Molo": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Monca": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Monethe": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Moneuptychia": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Morpho": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Morphini"
+ },
+ "Morvina": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Achlyodini"
+ },
+ "Morys": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Moncini"
+ },
+ "Morys ?": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Moncini"
+ },
+ "Moschoneura": {
+  "family": "Pieridae",
+  "subfamily": "Dismorphiinae",
+  "tribe": "Pierini"
+ },
+ "Mucia": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Mygona": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Mylon": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Erynnini"
+ },
+ "Myrinia": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Achlyodini"
+ },
+ "Mysarbia": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Pyrrhopygini"
+ },
+ "Myscelia": {
+  "family": "Nymphalidae",
+  "subfamily": "Biblidinae",
+  "tribe": "Epicaliini"
+ },
+ "Myscelus": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrrhopyginae",
+  "tribe": "Pyrrhopygini"
+ },
+ "Myselasia": {
+  "family": "Riodinidae",
+  "subfamily": "Euselasiinae",
+  "tribe": "Euselasiini"
+ },
+ "Mysoria": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrrhopyginae",
+  "tribe": "Pyrrhopygini"
+ },
+ "NOT_FOUND": {
+  "family": "NOT_FOUND",
+  "subfamily": "",
+  "tribe": "NOT_FOUND"
+ },
+ "Nabokovia": {
+  "family": "Lycaenidae",
+  "subfamily": "Polyommatinae",
+  "tribe": "Polyommatini"
+ },
+ "Naevolus": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Nahida": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Nahida & Ithomeis": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Napaea": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Mesosemiini"
+ },
+ "Napeocles": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Victorinini"
+ },
+ "Napeogenes": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Narcosius": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Eudamini"
+ },
+ "Narope": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Brassolini"
+ },
+ "Nascus": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Phocidini"
+ },
+ "Nastra": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Nathalis": {
+  "family": "Pieridae",
+  "subfamily": "Coliadinae",
+  "tribe": "Euremini"
+ },
+ "Necyria": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Nelia": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Neochlodes": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Neographium": {
+  "family": "Papilionidae",
+  "subfamily": "Papilioninae",
+  "tribe": "Leptocircini"
+ },
+ "Neomaenas": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Neomaniola": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Neominois": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Neomorphuncus": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Erynnini"
+ },
+ "Neonympha": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Neopedaliodes": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Neophasia": {
+  "family": "Pieridae",
+  "subfamily": "Pierinae",
+  "tribe": "Pierini"
+ },
+ "Neorinella": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Elymniini"
+ },
+ "Neosatyrus": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Neoxeniades": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Neposa": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Neruda": {
+  "family": "Nymphalidae",
+  "subfamily": "Heliconiinae",
+  "tribe": "Heliconiini"
+ },
+ "Nerula": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Oileidini"
+ },
+ "Nesiostrymon": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Nessaea": {
+  "family": "Nymphalidae",
+  "subfamily": "Biblidinae",
+  "tribe": "Epicaliini"
+ },
+ "Nhambikuara": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Nica": {
+  "family": "Nymphalidae",
+  "subfamily": "Biblidinae",
+  "tribe": "Epiphilini"
+ },
+ "Nicephellus": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Phocidini"
+ },
+ "Nicolaea": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Nicolaea ?": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Niconiades": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Nisoniades": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Carcharodini"
+ },
+ "Noctuana": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Carcharodini"
+ },
+ "Nosphistia": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrrhopyginae",
+  "tribe": "Pyrrhopygini"
+ },
+ "Notamblyscirtes": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Notheme": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Notilia": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Melitaeini"
+ },
+ "Noxys": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Nyctelius": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Nyctus": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Nymphalis": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Nymphalini"
+ },
+ "Nymphalites": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalidae-incertae-sedis",
+  "tribe": "Satyrini"
+ },
+ "Nymphidium": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Oarisma": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Ocaria": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Occulta": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Ocella": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Carcharodini"
+ },
+ "Ochlodes": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Oco": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Oechydrus": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Oileidini"
+ },
+ "Oeneis": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Oenides": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Pericharini"
+ },
+ "Oenomaus": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Oileides": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Oileidini"
+ },
+ "Oleria": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Oligoria": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Ollantaya": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Olynthus": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Olyras": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Omacha": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Onenses": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Pyrgini"
+ },
+ "Onespa": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Onophas": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Opoptera": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Brassolini"
+ },
+ "Opsiphanes": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Brassolini"
+ },
+ "Optimandes": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Oressinoma": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Ornilius": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Phocidini"
+ },
+ "Orobrassolis": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Brassolini"
+ },
+ "Orophila": {
+  "family": "Nymphalidae",
+  "subfamily": "Biblidinae",
+  "tribe": "Biblidini"
+ },
+ "Orotaygetis": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Orphe": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Pericharini"
+ },
+ "Orses": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Pericharini"
+ },
+ "Orthos": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Orthos ?": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Ortilia": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Melitaeini"
+ },
+ "Ostrinotes": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Ouleus": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Achlyodini"
+ },
+ "Ourocnemis": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Helicopini"
+ },
+ "Oxeoschistus": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Oxynetra": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrrhopyginae",
+  "tribe": "Pyrrhopygini"
+ },
+ "Oxynthes": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Oz": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Pericharini"
+ },
+ "Pachacutia": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Paches": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Pyrgini"
+ },
+ "Pachyneuria": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Carcharodini"
+ },
+ "Pachythone": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Pachytone": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Helicopini"
+ },
+ "Pagyris": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Paititia": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Paiwarria": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Palaeonympha": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Palmaris": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Pampasatyrus": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Pamperis": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Panacea": {
+  "family": "Nymphalidae",
+  "subfamily": "Biblidinae",
+  "tribe": "Ageroniini"
+ },
+ "Panara": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Panaropsis": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Symmachiini"
+ },
+ "Panca": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Pandemos": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Panoquina": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Panthiades": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Panyapedaliodes": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Papias": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Papilio": {
+  "family": "Papilionidae",
+  "subfamily": "Papilioninae",
+  "tribe": "Papilionini"
+ },
+ "Paracarystus": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Parachoranthus": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Paralustrus": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Paramacera": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Paramimus": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Achlyodini"
+ },
+ "Paramo": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Parapedaliodes": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Paraphthonia": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Paraspiculatus": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Parataygetis": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Paratrytone": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Parcella": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Parelbella": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrrhopyginae",
+  "tribe": "Pyrrhopygini"
+ },
+ "Pares": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Pareuptychia": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Parides": {
+  "family": "Papilionidae",
+  "subfamily": "Papilioninae",
+  "tribe": "Troidini"
+ },
+ "Parnassius": {
+  "family": "Papilionidae",
+  "subfamily": "Parnassiinae",
+  "tribe": "Parnassiini"
+ },
+ "Parphorus": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Parrhasius": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Parvospila": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Paryphthimoides": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Paryphtimoides": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Euptychiini"
+ },
+ "Passova": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrrhopyginae",
+  "tribe": "Pyrrhopygini"
+ },
+ "Patia": {
+  "family": "Pieridae",
+  "subfamily": "Dismorphiinae",
+  "tribe": "Pierini"
+ },
+ "Patricia": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Paulogramma": {
+  "family": "Nymphalidae",
+  "subfamily": "Biblidinae",
+  "tribe": "Biblidini"
+ },
+ "Peba": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Pedaliodes": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Pellicia": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Carcharodini"
+ },
+ "Pelolasia": {
+  "family": "Riodinidae",
+  "subfamily": "Euselasiinae",
+  "tribe": "Euselasiini"
+ },
+ "Penaincisalia": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Pendantus": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Penetes": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Brassolini"
+ },
+ "Penicula": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Moncini"
+ },
+ "Penicula ?": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Moncini"
+ },
+ "Pereute": {
+  "family": "Pieridae",
+  "subfamily": "Pierinae",
+  "tribe": "Pierini"
+ },
+ "Peria": {
+  "family": "Nymphalidae",
+  "subfamily": "Biblidinae",
+  "tribe": "Epiphilini"
+ },
+ "Perichares": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Pericharini"
+ },
+ "Periplacis": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Perisama": {
+  "family": "Nymphalidae",
+  "subfamily": "Biblidinae",
+  "tribe": "Callicorini"
+ },
+ "Perophtalma": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Mesosemiini"
+ },
+ "Perophthalma": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Mesosemiini"
+ },
+ "Perrhybris": {
+  "family": "Pieridae",
+  "subfamily": "Pierinae",
+  "tribe": "Pierini"
+ },
+ "Perus": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Carcharodini"
+ },
+ "Perus ?": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Carcharodini"
+ },
+ "Petrocerus": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Phaenochitonia": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Symmachiini"
+ },
+ "Phaeochlaena": {
+  "family": "Notodontidae",
+  "subfamily": "Dioptinae",
+  "tribe": "Dioptini"
+ },
+ "Phanes": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Phanes ?": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Moncini"
+ },
+ "Phantos": {
+  "family": "Nymphalidae",
+  "subfamily": "Charaxinae",
+  "tribe": "Anaeini"
+ },
+ "Phanus": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Entheini"
+ },
+ "Phareas": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Phocidini"
+ },
+ "Pharneuptychia": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Pheles": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Phemiades": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Pheraeus": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Pherepedaliodes": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Philaethria": {
+  "family": "Nymphalidae",
+  "subfamily": "Heliconiinae",
+  "tribe": "Heliconiini"
+ },
+ "Philaetria": {
+  "family": "Nymphalidae",
+  "subfamily": "",
+  "tribe": ""
+ },
+ "Philotes": {
+  "family": "Lycaenidae",
+  "subfamily": "Polyommatinae",
+  "tribe": "Polyommatini"
+ },
+ "Phlebodes": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Phocides": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Phocidini"
+ },
+ "Phoebis": {
+  "family": "Pieridae",
+  "subfamily": "Coliadinae",
+  "tribe": "Coliadini"
+ },
+ "Pholisora": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Carcharodini"
+ },
+ "Phothecla": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Phulia": {
+  "family": "Pieridae",
+  "subfamily": "Pierinae",
+  "tribe": "Pierini"
+ },
+ "Phyciodes": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Melitaeini"
+ },
+ "Physcopedaliodes": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Phystis": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Melitaeini"
+ },
+ "Picova": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Pierella": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Haeterini"
+ },
+ "Pieriballia": {
+  "family": "Pieridae",
+  "subfamily": "Pierinae",
+  "tribe": "Pierini"
+ },
+ "Pieris": {
+  "family": "Pieridae",
+  "subfamily": "Pierinae",
+  "tribe": "Pierini"
+ },
+ "Pindis": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Pirascca": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Symmachiini"
+ },
+ "Piruna": {
+  "family": "Hesperiidae",
+  "subfamily": "Heteropterinae",
+  "tribe": "Heteropterini"
+ },
+ "Pixus": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Helicopini"
+ },
+ "Placidina": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Plebejus": {
+  "family": "Lycaenidae",
+  "subfamily": "Polyommatinae",
+  "tribe": "Polyommatini"
+ },
+ "Plumbago": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Pyrgini"
+ },
+ "Poanes": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Podanotum": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Podotricha": {
+  "family": "Nymphalidae",
+  "subfamily": "Heliconiinae",
+  "tribe": "Heliconiini"
+ },
+ "Poladryas": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Melitaeini"
+ },
+ "Polites": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Polites ?": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Polyctor": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Carcharodini"
+ },
+ "Polygonia": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Nymphalini"
+ },
+ "Polygonus": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Eudamini"
+ },
+ "Polygrapha": {
+  "family": "Nymphalidae",
+  "subfamily": "Charaxinae",
+  "tribe": "Anaeini"
+ },
+ "Polyommatus": {
+  "family": "Lycaenidae",
+  "subfamily": "Polyommatinae",
+  "tribe": "Polyommatini"
+ },
+ "Polythrix": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": ""
+ },
+ "Pompeius": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Pons": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Pontia": {
+  "family": "Pieridae",
+  "subfamily": "Pierinae",
+  "tribe": "Pierini"
+ },
+ "Porphyrogenes": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Phocidini"
+ },
+ "Porthecla": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Posttaygetis": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Potamanaxas": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Erynnini"
+ },
+ "Praepapilio": {
+  "family": "Papilionidae",
+  "subfamily": "Praepapilioninae",
+  "tribe": "Papilionini"
+ },
+ "Praepedaliodes": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Praepronophila": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Prenda": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Prepona": {
+  "family": "Nymphalidae",
+  "subfamily": "Charaxinae",
+  "tribe": "Preponini"
+ },
+ "Prestonia": {
+  "family": "Pieridae",
+  "subfamily": "Coliadinae",
+  "tribe": "Euremini"
+ },
+ "Proboscis": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Prodryas": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Nymphalinae-incertae-sedis"
+ },
+ "Prolibythea": {
+  "family": "Nymphalidae",
+  "subfamily": "Libytheinae",
+  "tribe": ""
+ },
+ "Pronophila": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Propapias": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Proteides": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Eudamini"
+ },
+ "Protelbella": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrrhopyginae",
+  "tribe": "Pyrrhopygini"
+ },
+ "Protesilaus": {
+  "family": "Papilionidae",
+  "subfamily": "Papilioninae",
+  "tribe": "Leptocircini"
+ },
+ "Protonymphidia": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Protopedaliodes": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Pseudeuptychia": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Pseudhaetera": {
+  "family": "Nymphalidae",
+  "subfamily": "Haeterinae",
+  "tribe": ""
+ },
+ "Pseudochrysops": {
+  "family": "Lycaenidae",
+  "subfamily": "Polyommatinae",
+  "tribe": "Polyommatini"
+ },
+ "Pseudocopaeodes": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Pseudodebis": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Pseudodrephalys": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Achlyodini"
+ },
+ "Pseudohaetera": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Haeterini"
+ },
+ "Pseudolivendula": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Pseudolucia": {
+  "family": "Lycaenidae",
+  "subfamily": "Polyommatinae",
+  "tribe": "Polyommatini"
+ },
+ "Pseudolycaena": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Pseudomaniola": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Pseudonascus": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": ""
+ },
+ "Pseudonymphidia": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Pseudopieris": {
+  "family": "Pieridae",
+  "subfamily": "Dismorphiinae",
+  "tribe": "Pierini"
+ },
+ "Pseudorphe": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Pericharini"
+ },
+ "Pseudosarbia": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Pseudoscada": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Pseudotinea": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Psoralis": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Pterographium": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Symmachiini"
+ },
+ "Pteronymia": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Pterourus": {
+  "family": "Papilionidae",
+  "subfamily": "Papilioninae",
+  "tribe": "Papilionini"
+ },
+ "Punapedaliodes": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Punargentus": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Punta": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Putridivora": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Pycina": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Coeini"
+ },
+ "Pyrgus": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Pyrgini"
+ },
+ "Pyrisitia": {
+  "family": "Pieridae",
+  "subfamily": "Coliadinae",
+  "tribe": "Euremini"
+ },
+ "Pyrrhogyra": {
+  "family": "Nymphalidae",
+  "subfamily": "Biblidinae",
+  "tribe": "Epiphilini"
+ },
+ "Pyrrhopyge": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrrhopyginae",
+  "tribe": "Pyrrhopygini"
+ },
+ "Pyrrhopygopsis": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Pythonides": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Achlyodini"
+ },
+ "Quadrus": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Achlyodini"
+ },
+ "Quasimellana": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Quasimellana ?": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Quilaphoetosus": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Quinta": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Racta": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Radiatus": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Ralis": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Rareuptychia": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Euptychiini"
+ },
+ "Rectava": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Redonda": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Rekoa": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Remella": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Moncini"
+ },
+ "Rhabdodryas": {
+  "family": "Pieridae",
+  "subfamily": "Coliadinae",
+  "tribe": ""
+ },
+ "Rhamma": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Rhetus": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Rhinthon": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Rhomba": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Ridens": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Eudamini"
+ },
+ "Rigga": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Riodina": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Riodinella": {
+  "family": "Riodinidae",
+  "subfamily": "Riodinidae-incertae-sedis",
+  "tribe": "Nymphidiini"
+ },
+ "Rodinia": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Rubroserrata": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Rufocumbre": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Sabatoga": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Sais": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Salantoia": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Phocidini"
+ },
+ "Salatis": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Phocidini"
+ },
+ "Salazaria": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Salazaria ?": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Saliana": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Calpodini"
+ },
+ "Sanguinea": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Santa": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Pyrgini"
+ },
+ "Sarmientoia": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Phocidini"
+ },
+ "Sarota": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Helicopini"
+ },
+ "Saturnus": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Satyrium": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Satyrotaygetis": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Saurona": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Scada": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Scriptor": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Sea": {
+  "family": "Nymphalidae",
+  "subfamily": "Biblidinae",
+  "tribe": "Cybdelini"
+ },
+ "Seco": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Selenophanes": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Brassolini"
+ },
+ "Semomesia": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Mesosemiini"
+ },
+ "Semonina": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Sepona": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Serdis": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Sertania": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Sertaniini"
+ },
+ "Setabis": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Siderone": {
+  "family": "Nymphalidae",
+  "subfamily": "Charaxinae",
+  "tribe": "Anaeini"
+ },
+ "Siderus": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Sierrasteroma": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Siproeta": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Victorinini"
+ },
+ "Siseme": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Smyrna": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Nymphalini"
+ },
+ "Sodalia": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Sophista": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Carcharodini"
+ },
+ "Sostrata": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Erynnini"
+ },
+ "Spathilepia": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Eudamini"
+ },
+ "Speculum": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Erynnini"
+ },
+ "Speyeria": {
+  "family": "Nymphalidae",
+  "subfamily": "Heliconiinae",
+  "tribe": "Argynnini"
+ },
+ "Spicauda": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Eudamini"
+ },
+ "Spinantenna": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Spioniades": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Achlyodini"
+ },
+ "Splendeuptychia": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Stalachtis": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Stallingsia": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Megathymini"
+ },
+ "Staphylus": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Carcharodini"
+ },
+ "Stegosatyrus": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Stephenympha": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Steremnia": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Steroma": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Steromapedaliodes": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Stevenaria": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Stichelia": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Symmachiini"
+ },
+ "Stinga": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Strephonota": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Strymon": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Stuardosatyrus": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Styriodes": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Moncini"
+ },
+ "Styx": {
+  "family": "Riodinidae",
+  "subfamily": "Euselasiinae",
+  "tribe": "Nemeobiini"
+ },
+ "Symbiopsis": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Symmachia": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Symmachiini"
+ },
+ "Synapte": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Synargis": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Syrmatia": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Systasea": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Pyrgini"
+ },
+ "Systaspes": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Pyrgini"
+ },
+ "Taguaiba": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Talides": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Tamania": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Tarmia": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Tarsoctenus": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Entheini"
+ },
+ "Tatochila": {
+  "family": "Pieridae",
+  "subfamily": "Pierinae",
+  "tribe": "Pierini"
+ },
+ "Tava": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Taydebis": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Taygetina": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Taygetis": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Tegosa": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Melitaeini"
+ },
+ "Telchin": {
+  "family": "Castniidae",
+  "subfamily": "Castniinae",
+  "tribe": "Castniini"
+ },
+ "Telegonus": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Eudamini"
+ },
+ "Telemiades": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Eudamini"
+ },
+ "Telenassa": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Melitaeini"
+ },
+ "Tellona": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Temecla": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Temenis": {
+  "family": "Nymphalidae",
+  "subfamily": "Biblidinae",
+  "tribe": "Epiphilini"
+ },
+ "Teratophtalma": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Mesosemiini"
+ },
+ "Teratophthalma": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Mesosemiini"
+ },
+ "Terenthina": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Teriocolias": {
+  "family": "Pieridae",
+  "subfamily": "Coliadinae",
+  "tribe": "Euremini"
+ },
+ "Testia": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Tetraphlebia": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Texola": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Melitaeini"
+ },
+ "Thaeides": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Thargella": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Tharsalea": {
+  "family": "Lycaenidae",
+  "subfamily": "Lycaeninae",
+  "tribe": "Spalgini"
+ },
+ "Theagenes": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Erynnini"
+ },
+ "Theclopsis": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Thecloxurina": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Themone": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Riodinini"
+ },
+ "Thenpea": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Theope": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Theorema": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Thepytus": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Thereus": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Theritas": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Thespieus": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Thestius": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Thiemeia": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Thisbe": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Thoon": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Thracides": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Thymelicus": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Thyridia": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Tiana": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Carcharodini"
+ },
+ "Tigasis": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Tigria": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Symmachiini"
+ },
+ "Tigridia": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Nymphalini"
+ },
+ "Timaeta": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Timochares": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Erynnini"
+ },
+ "Tirynthia": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Tirynthoides": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Tisias": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Tisona": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Melitaeini"
+ },
+ "Tithorea": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Tmolus": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Tolius": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Erynnini"
+ },
+ "Tosta": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Erynnini"
+ },
+ "Trichonis": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Trico": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Tricrista": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Trina": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Pyrgini"
+ },
+ "Tromba": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Troyus": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Turesis": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Turmosa": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Turnerina": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Megathymini"
+ },
+ "Typhedanus": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Oileidini"
+ },
+ "Udara": {
+  "family": "Lycaenidae",
+  "subfamily": "Polyommatinae",
+  "tribe": "Polyommatini"
+ },
+ "Udramonia": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": ""
+ },
+ "Udranomia": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Entheini"
+ },
+ "Unknown": {
+  "family": "",
+  "subfamily": "",
+  "tribe": ""
+ },
+ "Urbanus": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Eudamini"
+ },
+ "Vacerra": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Vanessa": {
+  "family": "Nymphalidae",
+  "subfamily": "Nymphalinae",
+  "tribe": "Nymphalini"
+ },
+ "Vanima": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Vareuptychia": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Veadda": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Vehilius": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Veladyris": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Velamysta": {
+  "family": "Nymphalidae",
+  "subfamily": "Danainae",
+  "tribe": "Ithomiini"
+ },
+ "Venada": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Eudamini"
+ },
+ "Venas": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Vernia": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Vertica": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Vettius": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Vidius": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Vila": {
+  "family": "Nymphalidae",
+  "subfamily": "Biblidinae",
+  "tribe": "Biblidini"
+ },
+ "Vinius": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Vinpeius": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Viola": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Carcharodini"
+ },
+ "Virga": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Viridina": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Vistigma": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Viuria": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Carcharodini"
+ },
+ "Voltinia": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Mesosemiini"
+ },
+ "Wahydra": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Wallengrenia": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Weymerana": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Windia": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Carcharodini"
+ },
+ "Xanthocastnia": {
+  "family": "Castniidae",
+  "subfamily": "Castniinae",
+  "tribe": "Castniini"
+ },
+ "Xanthosa": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Sertaniini"
+ },
+ "Xenandra": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Symmachiini"
+ },
+ "Xenandra ?": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Symmachiini"
+ },
+ "Xeniades": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Xenophanes": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Pyrgini"
+ },
+ "Xenovena": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Xispia": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Achlyodini"
+ },
+ "Xynias": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Symmachiini"
+ },
+ "Yanguna": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrrhopyginae",
+  "tribe": "Pyrrhopygini"
+ },
+ "Yphthimoides": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Yphtimoides": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Euptychiini"
+ },
+ "Yramea": {
+  "family": "Nymphalidae",
+  "subfamily": "Heliconiinae",
+  "tribe": "Argynnini"
+ },
+ "Zabuella": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Zalomes": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Zaretis": {
+  "family": "Nymphalidae",
+  "subfamily": "Charaxinae",
+  "tribe": "Anaeini"
+ },
+ "Zariaspes": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Zegara": {
+  "family": "Castniidae",
+  "subfamily": "Castniinae",
+  "tribe": "Gazerini"
+ },
+ "Zelotaea": {
+  "family": "Riodinidae",
+  "subfamily": "Riodininae",
+  "tribe": "Nymphidiini"
+ },
+ "Zenis": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Zera": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Achlyodini"
+ },
+ "Zerene": {
+  "family": "Pieridae",
+  "subfamily": "Coliadinae",
+  "tribe": "Coliadini"
+ },
+ "Zestusa": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Eudamini"
+ },
+ "Zetka": {
+  "family": "Hesperiidae",
+  "subfamily": "Hesperiinae",
+  "tribe": "Hesperiini"
+ },
+ "Zeutus": {
+  "family": "Hesperiidae",
+  "subfamily": "Eudaminae",
+  "tribe": "Eudamini"
+ },
+ "Ziegleria": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "Zischkaia": {
+  "family": "Nymphalidae",
+  "subfamily": "Satyrinae",
+  "tribe": "Satyrini"
+ },
+ "Zizina": {
+  "family": "Lycaenidae",
+  "subfamily": "Polyommatinae",
+  "tribe": "Polyommatini"
+ },
+ "Zizula": {
+  "family": "Lycaenidae",
+  "subfamily": "Polyommatinae",
+  "tribe": "Polyommatini"
+ },
+ "Zobera": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Pyrgini"
+ },
+ "Zonia": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrrhopyginae",
+  "tribe": "Pyrrhopygini"
+ },
+ "Zopyrion": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Pyrgini"
+ },
+ "eunica": {
+  "family": "Nymphalidae",
+  "subfamily": "Biblidinae",
+  "tribe": "Catonephelini"
+ },
+ "iaspis": {
+  "family": "Lycaenidae",
+  "subfamily": "Theclinae",
+  "tribe": "Eumaeini"
+ },
+ "n. id": {
+  "family": "Hesperiidae",
+  "subfamily": "Pyrginae",
+  "tribe": "Achlyodini or Carcharodini"
+ }
+}
