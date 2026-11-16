@@ -2,7 +2,8 @@ const CORRECTION_COLORS = {
   Synonym: '#f59e0b',
   Spelling: '#f97316',
   Subspecies: '#a855f7',
-  Reclassified: '#06b6d4'
+  Reclassified: '#06b6d4',
+  Renamed: '#22c55e'
 }
 
 /**
@@ -33,11 +34,18 @@ export function getCorrectionInfo(item) {
     type = 'Reclassified'
   }
 
+  // Renamed in the app from taxonomy_name_corrections.json (an old name -> its current name).
+  if (item.name_correction) {
+    type = 'Renamed'
+  }
+
   return {
     type,
     color: CORRECTION_COLORS[type] || '#f59e0b',
     originalName: item.scientific_name_original || null,
-    originalSubspecies: item.subspecies_original || null
+    originalSubspecies: item.subspecies_original || null,
+    recordedAs: item.name_correction?.recorded_as || null,
+    reference: item.name_correction?.reference || null
   }
 }
 

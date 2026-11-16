@@ -4,12 +4,17 @@ import { normalizeCountryName } from '../utils/clusterStats'
 import { usePhotoLookup } from './dataPhotoLookup'
 import { useGoatData } from './goatData'
 import { log } from '../utils/logger'
+import { applyNameCorrection, buildNameCorrectionIndex } from '../utils/nameCorrections'
 
 export const useDatasetStore = defineStore('dataset', () => {
   // shallowRef prevents Vue from deep-proxying 155k+ records (saves ~200MB RAM)
   const allFeatures = shallowRef([])
   const imageSupplement = shallowRef([])
   const taxonomySynonyms = shallowRef([])
+  // Old butterfly names -> current names, applied to every record as it loads.
+  const taxonomyNameCorrections = shallowRef([])
+  let nameCorrectionIndex = new Map()
+  let nameCorrectionsLoad = null
   const loadedSources = reactive(new Set())
   const sourceLoading = reactive(new Set())
   const sourceProgress = reactive({})
@@ -65,7 +70,29 @@ export const useDatasetStore = defineStore('dataset', () => {
   let pendingBatchFeatures = []
   let activeBatchLoads = 0
 
+  const setNameCorrections = (corrections) => {
+    taxonomyNameCorrections.value = Array.isArray(corrections) ? corrections : []
+    nameCorrectionIndex = buildNameCorrectionIndex(taxonomyNameCorrections.value)
+    triggerRef(taxonomyNameCorrections)
+  }
+
+  /** Loads the name corrections once; every data load waits for it so no record keeps an old name. */
+  const ensureNameCorrections = () => {
+    if (!nameCorrectionsLoad) {
+      const basePath = import.meta.env.BASE_URL || '/'
+      nameCorrectionsLoad = fetch(`${basePath}data/taxonomy_name_corrections.json`)
+        .then(res => (res?.ok ? res.json() : { corrections: [] }))
+        .then(data => setNameCorrections(data?.corrections))
+        .catch((e) => {
+          log.data.warn('Name corrections not loaded:', e)
+          setNameCorrections([])
+        })
+    }
+    return nameCorrectionsLoad
+  }
+
   const normalizeLoadedItem = (item, sourceName) => {
+    applyNameCorrection(item, nameCorrectionIndex)
     if (item.country) item.country = normalizeCountryName(item.country)
     if (item.source !== sourceName) item.source = sourceName
     if (!item.subspecies || item.subspecies === 'Unknown' || item.subspecies === 'NA') {
@@ -97,6 +124,7 @@ export const useDatasetStore = defineStore('dataset', () => {
         fetch(`${basePath}data/${defaultFile}`),
         fetch(`${basePath}data/${imageSupplementFile.value}`),
         fetch(`${basePath}data/taxonomy_synonyms.json`).catch(() => null),
+        ensureNameCorrections(),
       ])
 
       if (!defaultRes.ok) {
@@ -112,7 +140,10 @@ export const useDatasetStore = defineStore('dataset', () => {
       allFeatures.value = defaultData
       triggerRef(allFeatures)
 
-      for (const item of imgData) markRaw(item)
+      for (const item of imgData) {
+        applyNameCorrection(item, nameCorrectionIndex)
+        markRaw(item)
+      }
       imageSupplement.value = imgData
       triggerRef(imageSupplement)
       taxonomySynonyms.value = synonymsData.synonyms || []
@@ -169,6 +200,7 @@ export const useDatasetStore = defineStore('dataset', () => {
         text = await response.text()
       }
       const data = JSON.parse(text)
+      await ensureNameCorrections()
       for (const item of data) normalizeLoadedItem(item, sourceName)
 
       loadedSources.add(sourceName)
@@ -209,6 +241,8 @@ export const useDatasetStore = defineStore('dataset', () => {
     allFeatures,
     imageSupplement,
     taxonomySynonyms,
+    taxonomyNameCorrections,
+    setNameCorrections,
     loadedSources,
     sourceLoading,
     sourceProgress,

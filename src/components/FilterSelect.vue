@@ -386,6 +386,9 @@ const segmentStyle = (segment) => ({
   font-size: 0.72rem;
   font-weight: 600;
   line-height: 1.25;
+  /* Old-name notes can be long; wrap them inside the narrow dropdown. */
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .color-dot {

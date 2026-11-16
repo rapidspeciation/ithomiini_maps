@@ -1430,7 +1430,9 @@ const exportTableCsv = () => {
                   :style="{ '--curated-color': getCorrectionInfo(row).color }"
                   :title="[
                     getCorrectionInfo(row).originalName ? `Species was: ${getCorrectionInfo(row).originalName}` : '',
-                    getCorrectionInfo(row).originalSubspecies ? `Subspecies was: ${getCorrectionInfo(row).originalSubspecies}` : ''
+                    getCorrectionInfo(row).originalSubspecies ? `Subspecies was: ${getCorrectionInfo(row).originalSubspecies}` : '',
+                    getCorrectionInfo(row).recordedAs ? `Recorded as: ${getCorrectionInfo(row).recordedAs}` : '',
+                    getCorrectionInfo(row).reference ? `Current name per: ${getCorrectionInfo(row).reference}` : ''
                   ].filter(Boolean).join('\n')"
                 >
                   {{ getCorrectionInfo(row).type }}

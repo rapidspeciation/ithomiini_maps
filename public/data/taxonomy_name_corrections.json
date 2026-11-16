@@ -1,0 +1,304 @@
+{
+  "metadata": {
+    "description": "Old butterfly names in the occurrence data and their current names. The app applies them when it loads the data.",
+    "taxonomy": "van der Heijden et al. 2025 where it covers the genus, otherwise Butterflies of America 2024. Named colour forms are kept as subspecies labels.",
+    "generated_at": "2026-11-16T18:06:12.275Z",
+    "correction_count": 49
+  },
+  "corrections": [
+    {
+      "old_name": "Callithomia alexirrhoe panamensis",
+      "current_name": "Callithomia hydra panamensis",
+      "current_rank": "subspecies",
+      "reference": "Butterflies of America 2024"
+    },
+    {
+      "old_name": "Episcada clausina striposis",
+      "current_name": "Episcada striposis",
+      "current_rank": "species",
+      "reference": "Butterflies of America 2024; Doré et al. 2022"
+    },
+    {
+      "old_name": "Episcada sulphurea sulphurea",
+      "current_name": "Episcada sulphurea",
+      "current_rank": "species",
+      "reference": "Butterflies of America 2024"
+    },
+    {
+      "old_name": "Godyris dircenna dircenna",
+      "current_name": "Godyris dircenna",
+      "current_rank": "species",
+      "reference": "Butterflies of America 2024"
+    },
+    {
+      "old_name": "Godyris duillia duillia",
+      "current_name": "Godyris duillia",
+      "current_rank": "species",
+      "reference": "Butterflies of America 2024"
+    },
+    {
+      "old_name": "Godyris gonussa sosunga",
+      "current_name": "Godyris zavaleta sosunga",
+      "current_rank": "subspecies",
+      "reference": "Butterflies of America 2024"
+    },
+    {
+      "old_name": "Greta andromica trifenestrata",
+      "current_name": "Greta andromica trifenestra",
+      "current_rank": "subspecies",
+      "reference": "Butterflies of America 2024"
+    },
+    {
+      "old_name": "Greta a annette",
+      "current_name": "Greta annette annette",
+      "current_rank": "subspecies",
+      "reference": "Butterflies of America 2024"
+    },
+    {
+      "old_name": "Greta diaphanus diaphanus",
+      "current_name": "Greta diaphanus",
+      "current_rank": "species",
+      "reference": "Butterflies of America 2024"
+    },
+    {
+      "old_name": "Greta diaphanus quisqueya",
+      "current_name": "Greta diaphanus",
+      "current_rank": "species",
+      "reference": "Butterflies of America 2024"
+    },
+    {
+      "old_name": "Heterosais edessa gedera",
+      "current_name": "Heterosais nephele gedera",
+      "current_rank": "subspecies",
+      "reference": "Butterflies of America 2024"
+    },
+    {
+      "old_name": "Heterosais edessa nephele",
+      "current_name": "Heterosais nephele nephele",
+      "current_rank": "subspecies",
+      "reference": "Butterflies of America 2024"
+    },
+    {
+      "old_name": "Hypomenitis alphesiboea alphesiboea",
+      "current_name": "Hypomenitis alphesiboea",
+      "current_rank": "species",
+      "reference": "Butterflies of America 2024"
+    },
+    {
+      "old_name": "Hypothyris mamercus pyrippe",
+      "current_name": "Hypothyris euclea pyrippe",
+      "current_rank": "subspecies",
+      "reference": "Butterflies of America 2024"
+    },
+    {
+      "old_name": "Hypothyris ninonia mamercus",
+      "current_name": "Hypothyris mamercus mamercus",
+      "current_rank": "subspecies",
+      "reference": "Butterflies of America 2024; Doré et al. 2022"
+    },
+    {
+      "old_name": "Hypothyris ninonia polymnides",
+      "current_name": "Hypothyris mamercus polymnides",
+      "current_rank": "subspecies",
+      "reference": "Butterflies of America 2024"
+    },
+    {
+      "old_name": "Hypothyris noinonia caquetacola",
+      "current_name": "Hypothyris ninonia caquetacola",
+      "current_rank": "subspecies",
+      "reference": "Butterflies of America 2024"
+    },
+    {
+      "old_name": "Hypothyris noinonia completa",
+      "current_name": "Hypothyris ninonia completa",
+      "current_rank": "subspecies",
+      "reference": "Butterflies of America 2024"
+    },
+    {
+      "old_name": "Hypothyris noinonia completomaculata",
+      "current_name": "Hypothyris ninonia completomaculata",
+      "current_rank": "subspecies",
+      "reference": "Butterflies of America 2024"
+    },
+    {
+      "old_name": "Hypothyris noinonia daeta",
+      "current_name": "Hypothyris ninonia daeta",
+      "current_rank": "subspecies",
+      "reference": "Butterflies of America 2024"
+    },
+    {
+      "old_name": "Hypothyris noinonia fimbria",
+      "current_name": "Hypothyris ninonia fimbria",
+      "current_rank": "subspecies",
+      "reference": "Butterflies of America 2024"
+    },
+    {
+      "old_name": "Hypothyris noinonia latipennis",
+      "current_name": "Hypothyris ninonia latipennis",
+      "current_rank": "subspecies",
+      "reference": "Butterflies of America 2024"
+    },
+    {
+      "old_name": "Hypothyris noinonia mutilla",
+      "current_name": "Hypothyris ninonia mutilla",
+      "current_rank": "subspecies",
+      "reference": "Butterflies of America 2024"
+    },
+    {
+      "old_name": "Hypothyris noinonia mysotis",
+      "current_name": "Hypothyris ninonia mysotis",
+      "current_rank": "subspecies",
+      "reference": "Butterflies of America 2024"
+    },
+    {
+      "old_name": "Ithomia lagusa hymettia",
+      "current_name": "Ithomia hymettia hymettia",
+      "current_rank": "subspecies",
+      "reference": "Butterflies of America 2024"
+    },
+    {
+      "old_name": "Ithomia jacunda bolivari",
+      "current_name": "Ithomia jucunda bolivari",
+      "current_rank": "subspecies",
+      "reference": "Butterflies of America 2024"
+    },
+    {
+      "old_name": "Mechanitis mazaeus deceptus",
+      "current_name": "Mechanitis messenoides deceptus",
+      "current_rank": "subspecies",
+      "reference": "van der Heijden et al. 2025"
+    },
+    {
+      "old_name": "Mechanitis mazaeus holmgreni",
+      "current_name": "Mechanitis messenoides deceptus",
+      "current_rank": "subspecies",
+      "reference": "van der Heijden et al. 2025"
+    },
+    {
+      "old_name": "Mechanitis messenoides holmgreni",
+      "current_name": "Mechanitis messenoides deceptus",
+      "current_rank": "subspecies",
+      "reference": "van der Heijden et al. 2025"
+    },
+    {
+      "old_name": "Mechanitis mazaeus messenoides",
+      "current_name": "Mechanitis messenoides messenoides",
+      "current_rank": "subspecies",
+      "reference": "van der Heijden et al. 2025"
+    },
+    {
+      "old_name": "Mechanitis isthmia veritabilis",
+      "current_name": "Mechanitis polymnia veritabilis",
+      "current_rank": "subspecies",
+      "reference": "van der Heijden et al. 2025; Butterflies of America 2024"
+    },
+    {
+      "old_name": "Melinaea ethra imitata",
+      "current_name": "Melinaea lilis imitata",
+      "current_rank": "subspecies",
+      "reference": "van der Heijden et al. 2025"
+    },
+    {
+      "old_name": "Melinaea ethra messatis",
+      "current_name": "Melinaea lilis messatis",
+      "current_rank": "subspecies",
+      "reference": "van der Heijden et al. 2025"
+    },
+    {
+      "old_name": "Melinaea marsaeus messenina",
+      "current_name": "Melinaea mothone messenina",
+      "current_rank": "subspecies",
+      "reference": "van der Heijden et al. 2025; Doré et al. 2022; Fox 1960"
+    },
+    {
+      "old_name": "Melinaea menophilus messenina",
+      "current_name": "Melinaea mothone messenina",
+      "current_rank": "subspecies",
+      "reference": "van der Heijden et al. 2025; Doré et al. 2022"
+    },
+    {
+      "old_name": "Melinaea marsaeus mothone",
+      "current_name": "Melinaea mothone mothone",
+      "current_rank": "subspecies",
+      "reference": "van der Heijden et al. 2025; Doré et al. 2022"
+    },
+    {
+      "old_name": "Melinaea menophilus mothone",
+      "current_name": "Melinaea mothone mothone",
+      "current_rank": "subspecies",
+      "reference": "van der Heijden et al. 2025; Doré et al. 2022"
+    },
+    {
+      "old_name": "Melinaea ethra cydon",
+      "current_name": "Melinaea satevis cydon",
+      "current_rank": "subspecies",
+      "reference": "van der Heijden et al. 2025"
+    },
+    {
+      "old_name": "Melinaea ethra lamasi",
+      "current_name": "Melinaea satevis lamasi",
+      "current_rank": "subspecies",
+      "reference": "van der Heijden et al. 2025"
+    },
+    {
+      "old_name": "Melinaea ethra maelus",
+      "current_name": "Melinaea satevis maelus",
+      "current_rank": "subspecies",
+      "reference": "van der Heijden et al. 2025"
+    },
+    {
+      "old_name": "Melinaea ethra scylax",
+      "current_name": "Melinaea scylax",
+      "current_rank": "species",
+      "reference": "van der Heijden et al. 2025; Butterflies of America 2024"
+    },
+    {
+      "old_name": "Melinaea lilis scylax",
+      "current_name": "Melinaea scylax",
+      "current_rank": "species",
+      "reference": "van der Heijden et al. 2025; Butterflies of America 2024; Fox 1960"
+    },
+    {
+      "old_name": "Methona curvifascia curvifascia",
+      "current_name": "Methona curvifascia",
+      "current_rank": "species",
+      "reference": "Butterflies of America 2024"
+    },
+    {
+      "old_name": "Napeogenes cyrianassa benigna",
+      "current_name": "Napeogenes benigna benigna",
+      "current_rank": "subspecies",
+      "reference": "Butterflies of America 2024"
+    },
+    {
+      "old_name": "Napeogenes stella duessa",
+      "current_name": "Napeogenes duessa duessa",
+      "current_rank": "subspecies",
+      "reference": "Butterflies of America 2024"
+    },
+    {
+      "old_name": "Napeogenes peridia hemimelanea",
+      "current_name": "Napeogenes peridia hemimelaena",
+      "current_rank": "subspecies",
+      "reference": "Butterflies of America 2024"
+    },
+    {
+      "old_name": "Pteronymia carlia carlia",
+      "current_name": "Pteronymia carlia",
+      "current_rank": "species",
+      "reference": "Butterflies of America 2024"
+    },
+    {
+      "old_name": "Scada reckia labynntha",
+      "current_name": "Scada reckia labyrintha",
+      "current_rank": "subspecies",
+      "reference": "Butterflies of America 2024"
+    },
+    {
+      "old_name": "Scada zemira zemira",
+      "current_name": "Scada zemira",
+      "current_rank": "species",
+      "reference": "Butterflies of America 2024"
+    }
+  ]
+}

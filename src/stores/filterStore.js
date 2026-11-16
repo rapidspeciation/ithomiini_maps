@@ -6,6 +6,7 @@ import { isValidValue } from '../utils/validation'
 import { useDatasetStore } from './datasetStore'
 import { log } from '../utils/logger'
 import { isSyntheticId } from '../utils/recordId'
+import { nameCorrectionSearchEntries } from '../utils/nameCorrections'
 
 /**
  * Subspecies narrow only the species they belong to. With M. polymnia and
@@ -201,6 +202,32 @@ export const useFilterStore = defineStore('filters', () => {
     }))
   })
 
+  const nameCorrectionEntries = computed(() => nameCorrectionSearchEntries(datasetStore.taxonomyNameCorrections))
+
+  /** Old names (taxonomy_name_corrections.json) that match the query: one row per current species. */
+  const correctedNameMatches = (query, acceptedSet, directValues) => {
+    const byAccepted = new Map()
+    for (const entry of nameCorrectionEntries.value) {
+      if (!acceptedSet.has(entry.accepted) || directValues.has(entry.accepted)) continue
+      if (!entry.oldName.toLowerCase().includes(query)) continue
+      if (!byAccepted.has(entry.accepted)) byAccepted.set(entry.accepted, [])
+      byAccepted.get(entry.accepted).push(entry)
+    }
+    return [...byAccepted.entries()].map(([accepted, entries]) => {
+      entries.sort((a, b) => a.oldName.localeCompare(b.oldName))
+      const [first] = entries
+      const now = first.currentName !== accepted ? `, now ${first.currentName}` : ''
+      const more = entries.length > 1 ? ` (+${entries.length - 1} more)` : ''
+      return {
+        label: accepted,
+        value: accepted,
+        synonym: first.oldName,
+        synonymMeta: `old name: ${first.oldName}${now}${more}`,
+        searchText: [accepted, ...entries.map(entry => entry.oldName)].join(' ').toLowerCase(),
+      }
+    })
+  }
+
   const filterSpeciesOptions = (options, search) => {
     const query = (search || '').trim().toLowerCase()
     if (!query) return options
@@ -208,8 +235,10 @@ export const useFilterStore = defineStore('filters', () => {
     const direct = options.filter(option => option.label.toLowerCase().includes(query))
     const directValues = new Set()
     for (const option of direct) directValues.add(option.value)
-    const synonym = []
+    const synonym = correctedNameMatches(query, acceptedSet, directValues)
+    const correctedValues = new Set(synonym.map(option => option.value))
     for (const entry of datasetStore.taxonomySynonyms || []) {
+      if (correctedValues.has(entry.accepted)) continue
       if (!acceptedSet.has(entry.accepted)) continue
       if (directValues.has(entry.accepted)) continue
       if (!entry.synonym?.toLowerCase().includes(query)) continue
