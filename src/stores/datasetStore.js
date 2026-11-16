@@ -86,6 +86,7 @@ export const useDatasetStore = defineStore('dataset', () => {
         .catch((e) => {
           log.data.warn('Name corrections not loaded:', e)
           setNameCorrections([])
+          nameCorrectionsLoad = null // let the next source load try again
         })
     }
     return nameCorrectionsLoad
